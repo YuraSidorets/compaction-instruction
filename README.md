@@ -78,15 +78,6 @@ node benchmarks/context-clock/analysis/analyze.mjs --batch my-main-01
 - The runner was used on Windows 11 with Git Bash only. Other systems are not tested.
 - `benchmarks/context-clock/runner/README.md` has the details.
 
-## What this repository leaves out
-
-- The study began as a part of a larger private project, a fork of Context Mode under the Elastic License 2.0. That fork is not here.
-- The versions v0.3 to v0.10 of the benchmark tested arms that need the fork. Their reports and results are not here. The plan gives a summary of what they showed.
-- The report and the results of v0.11 are here, because the plugin text comes from that version. Its arms A, B, R and M need the fork and cannot be repeated from this repository.
-- The runner still has the code for the old arms. Without the fork, use the arms O, Z and W.
-- The raw session traces are not here, because they hold local paths and session records. Each run has its run record and its grade.
-- In the result files, the local folder of the plugin is replaced by `<plugin-dir>`.
-
 ## Limits
 
 - The samples are small: 6 to 20 pairs for each comparison. The work is exploratory.

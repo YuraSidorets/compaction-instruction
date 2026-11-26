@@ -5,7 +5,6 @@ Note for this public copy:
 - This README was written for the full project. It names reports, designs and result folders of the versions v0.3 to v0.10. Those files are not in this repository.
 - This repository holds the plugin study (v0.12) and the files of v0.11 that it cites. Start with `REPORT-V12.md`.
 - The arms that need the Context Mode fork cannot run from this repository. Use the arms O, Z and W.
-- The top-level `README.md` of the repository lists what is left out.
 
 This benchmark measures the effect of Context Clock v0.2 on long tasks in Claude Code and Codex. It is separate from the product code. It needs no model API key. It uses the host CLI that you already signed in to.
 
