@@ -1,54 +1,50 @@
-# Context Clock effectiveness benchmark
+# Benchmark of the compaction-instruction plugin
 
-This benchmark measures the effect of Context Clock v0.2 on long tasks in Claude Code and Codex. It is separate from the product code. It needs no model API key. It uses the host CLI that you already signed in to.
+This benchmark measures the effect of the plugin in `plugin/` on long tasks in Claude Code. It needs no model API key. It uses the Claude Code CLI that you already use, with your own login.
 
-The results of the first experiment are in `REPORT.md`. The results of the placebo experiment (v0.3) are in `REPORT-V03.md`.
-
-The report of the v0.4 experiment (state that survives compaction) is `REPORT-V04.md`. Its design is `EXPERIMENT-V04.md`.
-
-The report of the v0.5 experiment (a cheaper way to save state) is `REPORT-V05.md`. Its design is `EXPERIMENT-V05.md`.
-
-The report of the v0.6 experiment (memory delivery and efficiency) is `REPORT-V06.md`. Its protocol is `EXPERIMENT-V06.md`.
-
-The report of the v0.11 experiment (the text without Context Mode, and the product path, in isolated sessions) is `REPORT-V11.md`. Its design is `EXPERIMENT-V11.md`.
-
-The report of the v0.10 experiment (the general text with a fixed line format) is `REPORT-V10.md`. Its design is `EXPERIMENT-V10.md`.
-
-The report of the v0.9 experiment (a general instruction, new task shapes, automatic compactions) is `REPORT-V09.md`. Its design is `EXPERIMENT-V09.md`.
-
-The report of the v0.8 experiment (the same benefit at a lower cost) is `REPORT-V08.md`. Its design is `EXPERIMENT-V08.md`.
-
-The report of the v0.7 experiment (a save that a product can start) is `REPORT-V07.md`. Its design is `EXPERIMENT-V07.md`.
+The report is `REPORT-V12.md`. The plan, with each decision rule and each result in the order of the work, is `docs/context-clock/PLAN-standalone.md`.
 
 ## What it compares
 
-| Mode | Environment | Meaning |
-|---|---|---|
-| A | `CTX_CLOCK` not set | Context Mode with no clock (baseline) |
-| B | `CTX_CLOCK=1`, `CTX_CLOCK_FEEDBACK=off` | The clock records and sends no automatic feedback |
-| C | `CTX_CLOCK=1` | The clock records and sends the automatic snapshot |
+| Arm | Setup |
+|---|---|
+| O | Plain Claude Code. No text. |
+| Z | Plain Claude Code with the plugin of `plugin/`. |
+| W | Plain Claude Code with the text in the `CLAUDE.md` of the workspace. No hook. |
+| I | Plain Claude Code with a hook that the runner builds. It prints the same text. |
 
-C minus B is the effect of the automatic feedback. C minus A is the total effect.
+Z minus O is the effect of the plugin. Each comparison pairs two runs of the same task and repetition.
 
 ## Folders
 
 | Folder | Content |
 |---|---|
-| `CONTRACT.md` | The frozen rules: modes, task format, run record, grade record, analysis outputs |
-| `tasks/generator/` | The seeded task generator and its reference state machine |
-| `tasks/generated/` | 20 task files (5 categories, 4 tasks each) |
-| `tasks/keys/` | 20 answer keys. The agent never gets these files. |
-| `runner/` | The runner and the host adapters (`claude`, `codex`, `mock`) |
-| `graders/` | The deterministic grader |
+| `CONTRACT.md` | The rules for the task format, the run record, the grade record and the analysis outputs |
+| `tasks/` | The task sets, their generators and the answer keys. The agent never gets a key. |
+| `configs/suites.json` | The suites: which tasks, arms and repetitions a batch has |
+| `runner/` | The runner and the host adapter for Claude Code |
+| `graders/` | The deterministic graders |
 | `analysis/` | The paired analysis, the Markdown report and the SVG charts |
-| `results/<batch>/` | One folder for each batch |
+| `results/<batch>/` | One folder for each batch, with a `review.json` note |
 | `tests/` | The tests of the benchmark code |
+
+## Task sets of the study
+
+| Set | Content | Suite |
+|---|---|---|
+| `tasks/v12` | 10 tasks, 3 manual compactions | `v12-main` |
+| `tasks/v12-indep` | 2 tasks of a shape that was designed without the text | `v12-indep` |
+| `tasks/v09` | The older tasks and the long task for automatic compactions | `v12-rerun`, `v12-auto` |
+| `tasks/v12-noharm` | 3 tasks where no answer needs state from before a compaction | `v12-noharm` |
+| `tasks/v12-hard` | 6 tasks with 12 stages and 5 manual compactions | `v12-hard-calib`, `v12-hard-opus` |
+| `tasks/v12-work` | 3 tasks that end in code, with hidden tests | `v12-work` |
+| `tasks/v12-rules` | 6 code tasks with rules that are given only in the first message | `v12-rules-calib` |
 
 ## Requirements
 
 - Node.js 22 or later.
-- The Context Mode build with Context Clock v0.2, installed as the Claude Code plugin and as the Codex MCP server.
-- Claude Code 2.1.330 or later for the host `claude`. Codex 0.167.0 or later for the host `codex`.
+- Claude Code with plugin support, and a login that can use the model of the batch.
+- The runner was used on Windows 11 with Git Bash only. Other systems are not tested.
 
 Run every command from the repository root.
 
@@ -58,77 +54,56 @@ Run every command from the repository root.
 
    ```text
    node --test benchmarks/context-clock/tests/
-   node benchmarks/context-clock/runner/run.mjs --mock --suite smoke --batch selftest
    ```
 
-2. Run a live smoke batch (2 tasks, 3 modes, 1 repetition).
+2. Run a live batch. This example is the main batch: 10 tasks, 4 arms, 2 repetitions, 80 runs.
 
    ```text
-   node benchmarks/context-clock/runner/run.mjs --host claude --batch my-smoke --suite smoke --model haiku
-   ```
-
-3. Run the full batch (20 tasks, 3 modes, 2 repetitions, 120 runs).
-
-   ```text
-   node benchmarks/context-clock/runner/run.mjs --host claude --batch my-full --suite full --model haiku --concurrency 6 --seed 20261122
+   node benchmarks/context-clock/runner/run.mjs --host claude --batch my-main --suite v12-main --model haiku --concurrency 2 --seed 1
    ```
 
    If the batch stops, run the same command again. The runner skips each run that has a final record.
 
-4. Grade the batch.
+3. Grade the batch.
 
    ```text
-   node benchmarks/context-clock/graders/grade.mjs --batch my-full
+   node benchmarks/context-clock/graders/grade.mjs --batch my-main
    ```
 
-5. Write the summary, the report and the charts.
+   For a batch of `tasks/v12-work` or `tasks/v12-rules`, run the test grader after that.
 
    ```text
-   node benchmarks/context-clock/analysis/analyze.mjs --batch my-full
+   node benchmarks/context-clock/graders/work-tests.mjs --batch my-main
    ```
 
-6. Read `results/my-full/report.md`. For each differing case, read the raw stream in `results/my-full/raw/`. Write your classification to `results/my-full/review.json`. Then do step 5 again.
-
-The full batch on Haiku took 2 hours with 6 runs at the same time. One run used 0.77 million tokens on average, and most of them were cache reads.
-
-## Placebo experiment (v0.3)
-
-This experiment compares modes B, C and D. Mode D sets `CCB_FEEDBACK=placebo`: the runner replaces each automatic snapshot with opaque text of the same size. The rules are in `EXPERIMENT-V03.md`. The tasks are in `tasks/v03/`, and the limits are in `configs/limits.json`.
-
-The runner copies the installed plugin to the work root and starts Claude Code with that copy. The product code and the installed plugin do not change.
-
-1. Run the smoke batch (2 tasks, 3 modes, 1 repetition).
+4. Write the summary, the report and the charts.
 
    ```text
-   node benchmarks/context-clock/runner/run.mjs --host claude --batch my-v03-smoke --suite v03-smoke --model haiku
+   node benchmarks/context-clock/analysis/analyze.mjs --batch my-main
    ```
 
-2. Run the full batch (10 tasks, 3 modes, 3 repetitions, 90 runs).
+5. Read `results/my-main/report.md`.
 
-   ```text
-   node benchmarks/context-clock/runner/run.mjs --host claude --batch my-v03 --suite v03-full --model haiku --concurrency 6 --seed 20261125
-   ```
+To run fewer arms, add `--modes O,Z`. To use another model, change `--model`. Arm Z loads the plugin from `plugin/`. To use another folder, set the variable `CCB_STANDALONE_PLUGIN`.
 
-3. Grade and analyze the batch with steps 4 to 6 of the procedure above.
-
-If the batch stops, run the same command again. If the batch stopped at its token budget, add `--raise-budget`. The full batch took 80 minutes and used 72 million tokens.
+The main batch on Haiku used 62 million tokens. Most of them were cache reads.
 
 ## What a run does
 
-The runner makes an empty workspace outside the repository and a separate Context Mode data folder. It starts one host process for the run. It sends the task in stages. The agent reads the files of a stage and prints its feeds. The runner deletes that material after the stage. In the profile `compaction`, the runner sends `/compact` at fixed stages and waits for the compaction mark of the host. The last message asks the final questions.
-
-The grader compares each answer with the key. It uses no model. It gives each wrong answer one error category.
+- The runner makes one isolated workspace and one Claude Code session for each run. The session loads no other plugin and no MCP server of the user.
+- Each stage gives the agent new documents. The runner compacts the conversation between stages, or the host compacts by itself in the `v12-auto` suite.
+- A guard denies each tool call that names a path outside the workspace.
+- After the last stage, the agent answers the questions of the task, or it finishes the code. The grader compares the result with the hidden key or runs the hidden tests.
 
 ## Results in the repository
 
-`results/<batch>/` holds `batch.json`, `runs/<run>/run.json`, `runs/<run>/grade.json`, `summary.json`, `report.md`, `review.json` and `charts/`. Local paths in these files are replaced with tokens such as `<home>` and `<workspace>`.
-
-The raw host streams are in `results/<batch>/raw/`. Git ignores this folder, because the streams hold local paths and the full hook output of every installed plugin.
+- `results/v12-*` holds each batch of the plugin study. For each run, it has the run record, the grade and the analysis records. The raw session traces are not included.
+- `results/v11-full-01` and `results/v11-iso-01` are two earlier batches that the plan cites. `REPORT-V11.md` and `EXPERIMENT-V11.md` describe them.
+- The arms A, B, R and M of those earlier batches need a separate project that is not in this repository. The same applies to the older suites in `configs/suites.json`. They cannot run from here.
 
 ## Limits of the method
 
-- The agent uses the plugins and the global instructions of the local user account. They are the same in every mode.
-- The answer check is exact. The questions ask for identifiers in a fixed format.
-- If the agent reads a path outside the workspace, the run is invalid. The report lists these runs.
-- Codex has no compaction command in `codex exec`, so the Codex host runs only the profile `long`.
-- Codex passes only the variables that its configuration names to the MCP server. Mode B on Codex needs `CTX_CLOCK_FEEDBACK` in that list.
+- The tasks are generated. They track decisions, values and work status across a session.
+- The samples are small. The intervals are percentile bootstrap intervals over tasks, and the reports claim nothing beyond them.
+- The integrity checks read tool calls as text. `graders/README.md` describes what they find and what they do not find.
+- The results belong to one host version, one machine and the models of the batches.
