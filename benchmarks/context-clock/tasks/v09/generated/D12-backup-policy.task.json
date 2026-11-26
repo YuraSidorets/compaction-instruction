@@ -1,0 +1,1666 @@
+{
+  "schema": 1,
+  "taskId": "D12-backup-policy",
+  "category": "D",
+  "shape": "old",
+  "seed": 1925001,
+  "profile": "compaction",
+  "params": {
+    "events": 469,
+    "entities": 16,
+    "updates": 186,
+    "dependencyDepth": 3,
+    "noiseRatio": 0.57,
+    "approxBytes": 95074,
+    "sizeGroup": "v08"
+  },
+  "intro": "You settle a backup policy from storage standards, design documents, a platform handbook, Slack threads and Jira comments.\n\nInitial specification:\n- [e001] Precedence rule: when sources disagree, the order of authority is storage-standard > design-memo > platform-handbook > slack-thread > jira-comment. Inside one source, the higher version wins.\n- [e002] The design-memo document DMEMO-1 (version 1) states that the object lock mode is `lock-legal-hold`.\n- [e003] According to design-memo DMEMO-1 version 1, the backup target is `bkt-tokyo`.\n- [e004] According to design-memo DMEMO-1 version 1, the versioning depth is `5`.\n- [e005] The design-memo document DMEMO-1 (version 1) states that the tiering engine is `tier-intelligent`.\n- [e006] The design-memo document DMEMO-1 (version 1) states that the dedupe mode is `OFF`.\n- [e007] The design-memo document DMEMO-1 (version 1) states that the quota per bucket in GB is `50`.\n- [e008] The design-memo document DMEMO-1 (version 1) states that the max object size in GB is `1`.\n- [e009] According to design-memo DMEMO-1 version 1, the checksum type is `md5-sum`.\n- [e010] The design-memo document DMEMO-1 (version 1) states that the encryption mode is `enc-chacha`.\n- [e011] The design-memo document DMEMO-1 (version 1) states that the WORM mode is `ON`.\n- [e012] The design-memo document DMEMO-1 (version 1) states that the scrub interval in days is `14`.\n- [e013] The design-memo document DMEMO-1 (version 1) states that the snapshot tool is `velero-snap`.\n- [e014] According to design-memo DMEMO-1 version 1, the erasure code is `ec-6-3`.\n- [e015] The design-memo document DMEMO-1 (version 1) states that the replication mode is `repl-chain`.\n- [e016] According to design-memo DMEMO-1 version 1, the compression mode is `ON`.\n- [e017] The platform-handbook document HBK-118 (version 2) states that the rebuild throttle in MB per second is `1000`.\n\nSources, from highest to lowest authority: storage-standard, design-memo, platform-handbook, slack-thread, jira-comment. When two sources disagree, the higher one decides.\nInside one source, a higher version number overrides a lower one. A withdrawn document no longer counts at all.\nRules for this task:\n- A value changes only by a document that states it or by the withdrawal of a document. A proposal, a question, a link or a quote of an old page changes nothing.\n- The value of a parameter comes from the valid documents that state it. The highest source decides. Inside that source, the document with the higher version decides.\n- A new document of a lower source does not replace the value of a higher source.\n- A withdrawn document is not valid. The value then comes from the other valid documents by the same rule.\n- The initial specification gives the first value of each item.\n- A question about the values of an item \"at some point\" counts every value from the initial specification on, up to the time of the question.\nEvery event has a label of the form [eNNN] with a three-digit number. A higher number is later in time. A later event can change or cancel an earlier one.\nSome material quotes old pages or copies for history. A quote of that kind is not a new statement.",
+  "stages": [
+    {
+      "stage": 1,
+      "prompt": "Stage 1 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s1/notes-01.md, inbox/s1/minutes-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s1-chat-1, s1-ci-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s1/notes-01.md",
+          "content": "# Team notes, stage 1, part 1\n\n- [e018] Style guide excerpt, section 7.5:\n  Use sentence case for headings.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e019] According to slack-thread SLK-127 version 2, the object lock mode is `lock-compliance`.\n  Written down by Mei after a call with Nils.\n  Shared in the docs site channel at 11:48.\n- [e020] According to slack-thread SLK-127 version 2, the dedupe mode is `ON`.\n  Shared in the lint config channel at 14:50.\n- [e021] chat-relay opened a grouped update for the build cache tooling:\n    - markdown-lint 7.3.7 to 9.18.7\n    - image-optimizer 1.14.0 to 9.15.6\n    - spellcheck dictionary 5.4.1 to 3.13.0\n    The checks passed. No reviewer is assigned yet.\n- [e022] The design-memo document DMEMO-2 (version 2) states that the object lock mode is `lock-governance`.\n  Written down by Rosa after a call with Bo.\n- [e023] According to design-memo DMEMO-2 version 2, the backup target is `bkt-frankfurt`.\n  Written down by Hana after a call with Mei.\n  Shared in the storybook channel at 10:04.\n- [e024] Review thread on docs/glossary.md (5 comments):\n  Jun: the table in section 3 renders badly on small screens.\n  Uma: can we move the long examples to an appendix?\n  Nils: approved, merge when the checks are green.\n- [e025] According to slack-thread SLK-156 version 3, the tiering engine is `tier-scheduled`.\n  Shared in the dependabot channel at 12:09.\n- [e026] According to slack-thread SLK-193 version 4, the erasure code is `ec-4-2`.\n  Written down by Ana after a call with Oona.\n  Shared in the docs site channel at 11:10.\n- [e027] Ticket DOC-640: broken anchors on a help page\n  Reporter: Lars. Priority: low.\n  Oona will fix it after the team calendar work.\n  Status: open, no due date.\n  Related: a similar report from Tuesday was closed as a duplicate.\n- [e028] Style guide excerpt, section 2.5:\n  Use sentence case for headings.\n  Keep tables under 7 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e029] According to platform-handbook HBK-197 version 4, the max object size in GB is `5`.\n  Written down by Vik after a call with Mei.\n  Shared in the office wifi channel at 18:27.\n"
+        },
+        {
+          "path": "inbox/s1/minutes-02.md",
+          "content": "# Meeting minutes, stage 1, part 3\n\n- [e041] According to storage-standard STD-838 version 4, the WORM mode is `OFF`.\n  Raised in the error pages sync; attendees: Nils, Eli and Jun.\n  Minuted by Ivo.\n- [e042] Dara wants better documentation about the rebuild throttle in MB per second. This is a docs task only and changes nothing.\n  Action owner for the follow-up: Mei.\n  Raised in the error pages sync; attendees: Eli, Nils and Ivo.\n- [e043] Read-only export of the spellcheck configuration for the retro notes:\n    max_line_length = 506\n    cache_hours = 8\n    preview_pages = true\n    report_format = \"text\"\n- [e044] Rosa found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e009. It says the checksum type is `md5-sum`. The copy is history only and changes nothing.\n  Minuted by Ana.\n  Action owner for the follow-up: Gus.\n- [e045] Tove found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e006. It says the dedupe mode is `OFF`. The copy is history only and changes nothing.\n  Minuted by Mei.\n  Action owner for the follow-up: Uma.\n- [e046] Retro notes of the docs site group:\n  Went well: Ana cleared the docs backlog.\n  To improve: shorter standups on Thursday.\n  Action: Kira books a room for the next retro.\n  Action: Oona collects ideas for the team offsite.\n- [e047] Eli found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e004. It says the versioning depth is `5`. The copy is history only and changes nothing.\n  Minuted by Lars.\n  Raised in the code owners file sync; attendees: Zed, Quinn and Hana.\n- [e048] Gus found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e007. It says the quota per bucket in GB is `50`. The copy is history only and changes nothing.\n  Raised in the changelog bot sync; attendees: Mei, Sami and Vik.\n  Action owner for the follow-up: Oona.\n- [e049] Ivo proposed `borg-snap` for the snapshot tool again. No decision was made; nothing changes.\n  Action owner for the follow-up: Nils.\n- [e050] Notes from the code owners file sync on Friday:\n  Jun asked for a darker header; Femi will try two variants.\n  The group will look at the changelog bot again in 9 weeks.\n  Nothing in this sync touches the project itself.\n- [e051] Review thread on docs/howto.md (3 comments):\n  Bo: done, and I fixed the heading levels too.\n  Hana: nit: trailing spaces on line 45.\n  Nils: moved them; the page is 75 percent shorter now.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s1-chat-1",
+          "content": "== chat export, stage 1, part 2 ==\n[e030] 08:39 Chat excerpt from #team-chat:\n    Sami: is anyone else seeing the slow retro notes page?\n    Sami: yes, it is the image cache, it clears itself after 6 minutes\n    Tove: ok, thanks\n    Pita: reminder that the build cache poll closes on Friday\n[e031] 08:42 Read-only export of the spellcheck configuration for the brand assets:\n      max_line_length = 197\n      runner_pool = \"pool-9\"\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 79\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e032] 08:45 The jira-comment document JIRA-214 (version 2) states that the max object size in GB is `50`.\n    thread replies: 7\n    Dara reacted with a thumbs-up\n[e033] 08:48 calendar weekly numbers for the lint config:\n      median load 297 ms\n      error rate 0.06 percent\n      searches without a result: 27\n      the numbers are inside the usual band\n[e034] 08:51 cache-bot weekly numbers for the docs site:\n      page views 3564\n      median load 430 ms\n      uptime 99.96 percent\n      searches without a result: 68\n      the numbers are inside the usual band\n[e035] 08:54 According to slack-thread SLK-230 version 5, the compression mode is `OFF`.\n    Pita reacted with a thumbs-up\n[e036] 08:57 Review thread on docs/glossary.md (5 comments):\n    Hana: the table in section 7 renders badly on small screens.\n    Yara: nit: trailing spaces on line 41.\n    Uma: can we move the long examples to an appendix?\n    Ivo: moved them; the page is 53 percent shorter now.\n    Oona: approved, merge when the checks are green.\n[e037] 09:00 ci-bot weekly numbers for the dependabot:\n      page views 2764\n      error rate 0.07 percent\n      uptime 99.99 percent\n      searches without a result: 79\n[e038] 09:03 Chat excerpt from #team-chat:\n    Hana: is anyone else seeing the slow status page page?\n    Eli: yes, it is the image cache, it clears itself after 8 minutes\n    Quinn: ok, thanks\n    Ana: count me in\n    Mei: reminder that the test fixtures poll closes on Monday\n[e039] 09:06 According to jira-comment JIRA-244 version 4, the replication mode is `repl-async`.\n    thread replies: 3\n    Quinn reacted with a thumbs-up\n[e040] 09:09 Notes from the code owners file sync on Wednesday:\n    Gus showed the new layout of the changelog bot.\n    The group will look at the status page again in 7 weeks.\n    Ivo shared a short survey; 5 people answered so far.\n"
+        },
+        {
+          "name": "s1-ci-2",
+          "content": "== ci export, stage 1, part 4 ==\n[e052] 09:45 Retro notes of the error pages group:\n    Went well: Kira cleared the docs backlog.\n    Went well: the office wifi pages load faster.\n    To improve: shorter standups on Friday.\n    Action: Oona books a room for the next retro.\n[e053] 09:48 Ticket DOC-981: broken anchors on a help page\n    Reporter: Mei. Priority: low.\n    The page notes/retro.md has 2 broken anchors after the last rename.\n    Related: a similar report from Wednesday was closed as a duplicate.\n[e054] 09:51 Old printout of design-memo DMEMO-1 version 1, made at the time of entry e007: it says the quota per bucket in GB is `50`. This is a historical copy, not a new statement.\n    pipeline 95688\n    pipeline note added by Rosa\n[e055] 09:54 Old printout of design-memo DMEMO-1 version 1, made at the time of entry e016: it says the compression mode is `ON`. This is a historical copy, not a new statement.\n    pipeline note added by Eli\n    pipeline 78664\n[e056] 09:57 cache-bot opened a grouped update for the help center tooling:\n      - link-checker 9.1.1 to 1.13.7\n      - image-optimizer 3.5.3 to 6.7.9\n      - spellcheck dictionary 6.2.1 to 3.9.5\n      The checks passed. No reviewer is assigned yet.\n[e057] 10:00 Chat excerpt from #team-chat:\n    Zed: is anyone else seeing the slow help center page?\n    Mei: yes, it is the image cache, it clears itself after 2 minutes\n    Ana: ok, thanks\n    Eli: lunch at 10:51? the new place near the station\n    Nils: reminder that the office wifi poll closes on Monday\n[e058] 10:03 Ana proposed `28` for the scrub interval in days again. No decision was made; nothing changes.\n    pipeline note added by Ivo\n    pipeline 86181\n[e059] 10:06 Review thread on notes/retro.md (5 comments):\n    Mei: the table in section 6 renders badly on small screens.\n    Pita: can we move the long examples to an appendix?\n    Vik: approved, merge when the checks are green.\n[e060] 10:09 Retro notes of the changelog bot group:\n    Went well: Ana cleared the docs backlog.\n    To improve: shorter standups on Wednesday.\n    Action: Femi books a room for the next retro.\n[e061] 10:12 In chat, Bo asked whether the scrub interval in days could be `56`. The question was closed without a change.\n    pipeline note added by Uma\n[e062] 10:15 Notes from the error pages sync on Tuesday:\n    Pita showed the new layout of the team calendar.\n    The group will look at the changelog bot again in 7 weeks.\n    Hana said that the office printer works again.\n    Nils shared a short survey; 4 people answered so far.\n"
+        }
+      ],
+      "eventIds": [
+        "e018",
+        "e019",
+        "e020",
+        "e021",
+        "e022",
+        "e023",
+        "e024",
+        "e025",
+        "e026",
+        "e027",
+        "e028",
+        "e029",
+        "e030",
+        "e031",
+        "e032",
+        "e033",
+        "e034",
+        "e035",
+        "e036",
+        "e037",
+        "e038",
+        "e039",
+        "e040",
+        "e041",
+        "e042",
+        "e043",
+        "e044",
+        "e045",
+        "e046",
+        "e047",
+        "e048",
+        "e049",
+        "e050",
+        "e051",
+        "e052",
+        "e053",
+        "e054",
+        "e055",
+        "e056",
+        "e057",
+        "e058",
+        "e059",
+        "e060",
+        "e061",
+        "e062"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s1-c1",
+          "kind": "file",
+          "name": "inbox/s1/notes-01.md",
+          "bytes": 2401,
+          "events": [
+            "e018",
+            "e019",
+            "e020",
+            "e021",
+            "e022",
+            "e023",
+            "e024",
+            "e025",
+            "e026",
+            "e027",
+            "e028",
+            "e029"
+          ]
+        },
+        {
+          "chunkId": "s1-c2",
+          "kind": "file",
+          "name": "inbox/s1/minutes-02.md",
+          "bytes": 2442,
+          "events": [
+            "e041",
+            "e042",
+            "e043",
+            "e044",
+            "e045",
+            "e046",
+            "e047",
+            "e048",
+            "e049",
+            "e050",
+            "e051"
+          ]
+        },
+        {
+          "chunkId": "s1-c3",
+          "kind": "feed",
+          "name": "s1-chat-1",
+          "bytes": 2425,
+          "events": [
+            "e030",
+            "e031",
+            "e032",
+            "e033",
+            "e034",
+            "e035",
+            "e036",
+            "e037",
+            "e038",
+            "e039",
+            "e040"
+          ]
+        },
+        {
+          "chunkId": "s1-c4",
+          "kind": "feed",
+          "name": "s1-ci-2",
+          "bytes": 2554,
+          "events": [
+            "e052",
+            "e053",
+            "e054",
+            "e055",
+            "e056",
+            "e057",
+            "e058",
+            "e059",
+            "e060",
+            "e061",
+            "e062"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "prompt": "Stage 2 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s2/review-01.md, inbox/s2/review-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s2-log-1, s2-ci-2, s2-activity.\nThe feed s2-activity is long. The entries that matter for this task carry the tag CR-9001; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s2/review-01.md",
+          "content": "# Review comments, stage 2, part 1\n\n- [e073] According to jira-comment JIRA-261 version 5, the backup target is `bkt-tokyo`.\n  Thread started by Dara; Lars replied with a thumbs-up.\n- [e074] The jira-comment document JIRA-279 (version 7) states that the replication mode is `repl-chain`.\n  Thread started by Kira; Bo replied with a thumbs-up.\n- [e075] According to platform-handbook HBK-283 version 6, the snapshot tool is `restic-snap`.\n  Thread started by Lars; Rosa replied with a thumbs-up.\n  Review round 8, reviewer Oona.\n- [e080] The platform-handbook document HBK-310 (version 7) states that the replication mode is `repl-quorum`.\n  Thread started by Jun; Jun replied with a thumbs-up.\n- [e081] The slack-thread document SLK-315 (version 6) states that the snapshot tool is `borg-snap`.\n  Thread started by Nils; Ivo replied with a thumbs-up.\n  Review round 5, reviewer Sami.\n- [e087] According to slack-thread SLK-353 version 7, the snapshot tool is `kopia-snap`.\n  Thread started by Lars; Femi replied with a thumbs-up.\n- [e088] According to storage-standard STD-868 version 5, the compression mode is `OFF`.\n  Thread started by Pita; Jun replied with a thumbs-up.\n- [e092] The storage-standard document STD-883 (version 6) states that the checksum type is `xxh3-sum`.\n  Review round 9, reviewer Wren.\n  Thread started by Wren; Mei replied with a thumbs-up.\n- [e098] The storage-standard document STD-889 (version 8) states that the quota per bucket in GB is `2000`.\n  Review round 5, reviewer Sami.\n- [e099] The storage-standard document STD-898 (version 9) states that the dedupe mode is `ON`.\n  Thread started by Gus; Ivo replied with a thumbs-up.\n- [e101] In chat, Chen asked whether the replication mode could be `repl-async`. The question was closed without a change.\n  Thread started by Tove; Tove replied with a thumbs-up.\n- [e104] Kira found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e015. It says the replication mode is `repl-chain`. The copy is history only and changes nothing.\n  Review round 9, reviewer Wren.\n  Thread started by Chen; Sami replied with a thumbs-up.\n- [e108] Question from Chen: who reviews changes to the snapshot tool? Answer: the usual reviewers. Nothing changes.\n  Review round 5, reviewer Vik.\n- [e115] Nils linked the dashboard page about the versioning depth in the weekly notes. Nobody proposed a change.\n  Review round 2, reviewer Femi.\n  Thread started by Vik; Zed replied with a thumbs-up.\n"
+        },
+        {
+          "path": "inbox/s2/review-02.md",
+          "content": "# Review comments, stage 2, part 4\n\n- [e139] Chat excerpt from #team-chat:\n  Lars: is anyone else seeing the slow onboarding wiki page?\n  Ivo: yes, it is the image cache, it clears itself after 2 minutes\n  Wren: lunch at 13:24? the new place near the station\n  Gus: count me in\n  Quinn: reminder that the status page poll closes on Friday\n- [e140] Style guide excerpt, section 6.9:\n  Use sentence case for headings.\n  Keep tables under 3 columns.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e141] Chat excerpt from #team-chat:\n  Bo: is anyone else seeing the slow storybook page?\n  Femi: yes, it is the image cache, it clears itself after 5 minutes\n  Yara: ok, thanks\n  Gus: lunch at 10:07? the new place near the station\n  Yara: count me in\n- [e143] chat-relay run 435 summary:\n    step checkout ok (6.69s)\n    step lint ok, 10 files\n    step upload ok, 926 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 80%\n    total duration 7m 78s, no warnings\n- [e144] Ticket DOC-668: broken anchors on a help page\n  The page ci/cache.yml has 5 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Tuesday was closed as a duplicate.\n- [e145] cache-bot run 946 summary:\n    step checkout ok (6.17s)\n    step lint ok, 65 files\n    step docs-build ok, 79 pages\n    step upload ok, 219 KB\n    step notify ok, channel team-chat\n    total duration 2m 65s, no warnings\n- [e146] Review thread on assets/logo.svg (2 comments):\n  Gus: please wrap this paragraph at 58 characters.\n  Hana: the table in section 2 renders badly on small screens.\n  Ana: nit: trailing spaces on line 47.\n  Quinn: moved them; the page is 43 percent shorter now.\n  Pita: approved, merge when the checks are green.\n- [e148] Calendar update from lint-bot:\n  - the code owners file demo moves to 10:22 on Thursday\n  - room booking for the team calendar retro is confirmed\n  - the all-hands slides are due on Monday\n  - Kira hosts the next lunch talk about typography\n- [e149] Review thread on docs/glossary.md (9 comments):\n  Lars: please wrap this paragraph at 93 characters.\n  Lars: done, and I fixed the heading levels too.\n  Femi: the table in section 2 renders badly on small screens.\n  Chen: can we move the long examples to an appendix?\n  Rosa: approved, merge when the checks are green.\n- [e150] metrics weekly numbers for the retro notes:\n    error rate 0.02 percent\n    searches without a result: 94\n    the numbers are inside the usual band\n- [e151] cache-bot weekly numbers for the sprint board:\n    page views 7856\n    median load 953 ms\n    uptime 99.94 percent\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s2-log-1",
+          "content": "== log export, stage 2, part 2 ==\n[e116] 10:42 In chat, Ivo asked whether the tiering engine could be `tier-lifecycle`. The question was closed without a change.\n    request_id=r-53953\n[e118] 10:48 lint-bot weekly numbers for the retro notes:\n      page views 9649\n      error rate 0.08 percent\n      uptime 99.97 percent\n      searches without a result: 71\n      the numbers are inside the usual band\n[e119] 10:51 Kira found a saved copy of design-memo DMEMO-2 version 2 from the time of entry e023. It says the backup target is `bkt-frankfurt`. The copy is history only and changes nothing.\n    request_id=r-18633\n    source=ci-bot level=info actor=Vik\n[e120] 10:54 Old printout of jira-comment JIRA-214 version 2, made at the time of entry e032: it says the max object size in GB is `50`. This is a historical copy, not a new statement.\n    source=docs-bot level=info actor=Lars\n[e121] 10:57 In chat, Wren asked whether the quota per bucket in GB could be `500`. The question was closed without a change.\n    request_id=r-67859\n[e122] 11:00 ci-bot opened a grouped update for the build cache tooling:\n      - markdown-lint 8.19.4 to 2.16.2\n      - link-checker 1.8.2 to 9.7.9\n      - image-optimizer 6.14.4 to 9.15.8\n[e123] 11:03 Standup notes from Jun:\n    - today: rewriting the intro paragraph of the docs site guide\n    - blockers: none\n    - updated the screenshots in README.md\n    - will demo the new design tokens layout next week\n[e124] 11:06 Ticket DOC-461: broken anchors on a help page\n    Reporter: Gus. Priority: low.\n    The page docs/glossary.md has 9 broken anchors after the last rename.\n    Gus will fix it after the office wifi work.\n[e125] 11:09 cache-bot weekly numbers for the storybook:\n      page views 2213\n      error rate 0.07 percent\n      uptime 99.95 percent\n      the numbers are inside the usual band\n[e126] 11:12 Ticket DOC-118: broken anchors on a help page\n    Reporter: Wren. Priority: low.\n    The page scripts/lint.sh has 6 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Friday was closed as a duplicate.\n[e127] 11:15 cache-bot opened a grouped update for the code owners file tooling:\n      - markdown-lint 8.0.5 to 8.0.9\n      - link-checker 3.1.8 to 3.7.3\n      - image-optimizer 3.4.4 to 9.3.0\n      The checks passed. No reviewer is assigned yet.\n"
+        },
+        {
+          "name": "s2-ci-2",
+          "content": "== ci export, stage 2, part 3 ==\n[e128] 11:18 Review thread on .editorconfig (8 comments):\n    Ivo: please wrap this paragraph at 46 characters.\n    Uma: done, and I fixed the heading levels too.\n    Hana: nit: trailing spaces on line 19.\n    Mei: approved, merge when the checks are green.\n[e129] 11:21 In chat, Pita asked whether the WORM mode could be `ON`. The question was closed without a change.\n    pipeline note added by Pita\n[e130] 11:24 chat-relay run 820 summary:\n      step checkout ok (8.29s)\n      step upload ok, 288 KB\n      total duration 8m 96s, no warnings\n[e131] 11:27 Ticket DOC-314: broken anchors on a help page\n    The page .editorconfig has 5 broken anchors after the last rename.\n    Nils will fix it after the changelog bot work.\n    Related: a similar report from Tuesday was closed as a duplicate.\n[e132] 11:30 Retro notes of the code owners file group:\n    Went well: Quinn cleared the docs backlog.\n    Went well: the build cache pages load faster.\n    To improve: shorter standups on Tuesday.\n    Action: Rosa collects ideas for the team offsite.\n[e133] 11:33 Retro notes of the code owners file group:\n    Went well: the CI runners pages load faster.\n    To improve: shorter standups on Wednesday.\n    Action: Lars collects ideas for the team offsite.\n[e134] 11:36 metrics opened a grouped update for the retro notes tooling:\n      - markdown-lint 8.18.1 to 9.2.6\n      - link-checker 3.13.3 to 2.8.7\n      - image-optimizer 2.9.4 to 5.1.0\n      - spellcheck dictionary 8.3.9 to 4.1.6\n      The checks passed. No reviewer is assigned yet.\n[e135] 11:39 Calendar update from calendar:\n    - the brand assets demo moves to 10:39 on Tuesday\n    - room booking for the CI runners retro is confirmed\n    - the all-hands slides are due on Thursday\n    - Ivo hosts the next lunch talk about typography\n[e136] 11:42 Calendar update from metrics:\n    - room booking for the onboarding wiki retro is confirmed\n    - Gus is on leave from Monday for 9 days\n    - the all-hands slides are due on Wednesday\n    - Nils hosts the next lunch talk about typography\n[e137] 11:45 Read-only export of the image-optimizer configuration for the release notes:\n      max_line_length = 458\n      cache_hours = 3\n      keep_reports_days = 94\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n"
+        },
+        {
+          "name": "s2-activity",
+          "content": "== activity export, stage 2 ==\n[e063] 08:03 metrics: metrics rollup for the storybook: p50=6ms p95=644ms errors=0 sample=340 requests; values inside the usual band for this hour\n    next_run=in 2h window=11:47\n[e064] 08:06 metrics: link checker visited 850 pages of the lint config; broken=0; redirected=88; slowest page answered in 435ms\n    retention applied to 52 items\n[e065] 08:09 calendar: metrics rollup for the docs site: p50=5ms p95=798ms errors=0 sample=636 requests; values inside the usual band for this hour\n    upstream=status-page latency=783ms\n    trace=t-78939 span_count=57 dropped=0\n[e066] 08:12 ci-bot: Bo opened a chat thread about the office wifi; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-8 attempt=1 result=ok\n[e067] 08:15 calendar: Wren opened a chat thread about the office wifi; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-9 attempt=1 result=ok\n[e068] 08:18 lint-bot: cleanup removed 39 temp folders under tools/fmt.mjs freed 999 MB; next cleanup scheduled; disk usage at 58% of quota\n    trace=t-58188 span_count=57 dropped=0\n[e069] 08:21 metrics: calendar sync imported 8 events for the help center; conflicts=0; reminders_sent=22; the import window covered the next 49 days\n    worker=pool-9 attempt=1 result=ok\n    upstream=status-page latency=880ms\n[e070] 08:24 docs-bot: build 537 for the code owners file reused 91% of cached layers; image size unchanged; upload time 4s; retention policy applied to 99 old images\n    trace=t-54969 span_count=75 dropped=0\n[e071] 08:27 chat-relay: cleanup removed 94 temp folders under ci/cache.yml freed 827 MB; next cleanup scheduled; disk usage at 73% of quota\n    worker=pool-4 attempt=1 result=ok\n    upstream=status-page latency=682ms\n[e072] 08:30 metrics: Chen opened a chat thread about the lint config; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    note: routine, no operator action\n[e076] 08:42 lint-bot: metrics rollup for the docs site: p50=8ms p95=953ms errors=0 sample=391 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    next_run=in 7h window=08:32\n[e077] 08:45 metrics: metrics rollup for the lint config: p50=7ms p95=536ms errors=0 sample=644 requests; values inside the usual band for this hour\n    retention applied to 66 items\n    next_run=in 8h window=09:45\n[e078] 08:48 docs-bot: metrics rollup for the onboarding wiki: p50=4ms p95=753ms errors=0 sample=978 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    retention applied to 52 items\n    trace=t-33138 span_count=51 dropped=0\n[e079] 08:51 ci-bot: calendar sync imported 6 events for the error pages; conflicts=0; reminders_sent=46; the import window covered the next 74 days\n    owner=docs-team escalation=none\n    next_run=in 3h window=09:55\n[e082] 09:00 cache-bot: cleanup removed 64 temp folders under docs/style.md freed 258 MB; next cleanup scheduled; disk usage at 76% of quota\n    worker=pool-2 attempt=1 result=ok\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e083] 09:03 metrics: heartbeat seq=688 queue_depth=42 oldest_item_age=6s workers=86 cpu=68% mem=78% area=\"changelog bot\" outcome=nominal, no operator action\n    worker=pool-7 attempt=1 result=ok\n    owner=docs-team escalation=none\n    next_run=in 6h window=08:33\n[e084] 09:06 chat-relay: dependency audit of the release notes tooling found 21 minor updates; none are security related; the bot will open grouped updates later\n    upstream=status-page latency=714ms\n    owner=docs-team escalation=none\n    next_run=in 5h window=09:13\n[e085] 09:09 lint-bot: scan of docs/style.md complete files_checked=796 issues_new=0 issues_closed=39 duration=6s; trend flat compared with the previous 3 runs\n    owner=docs-team escalation=none\n[e086] 09:12 calendar: calendar sync imported 4 events for the design tokens; conflicts=0; reminders_sent=73; the import window covered the next 68 days\n    note: routine, no operator action\n[e089] 09:21 calendar: job #981 finished status=ok duration=6.34s cache=warm artifacts=32 warnings=0 runner=pool-4 note=routine nightly sweep of the sprint board, nothing to report\n    worker=pool-4 attempt=1 result=ok\n    upstream=status-page latency=455ms\n[e090] 09:24 calendar: heartbeat seq=920 queue_depth=99 oldest_item_age=9s workers=66 cpu=47% mem=42% area=\"test fixtures\" outcome=nominal, no operator action\n    trace=t-73114 span_count=43 dropped=0\n[e091] 09:27 chat-relay: scan of .editorconfig complete files_checked=348 issues_new=0 issues_closed=47 duration=4s; trend flat compared with the previous 2 runs\n    trace=t-26151 span_count=85 dropped=0\n[e093] 09:33 lint-bot: scan of README.md complete files_checked=974 issues_new=0 issues_closed=27 duration=4s; trend flat compared with the previous 4 runs\n    worker=pool-3 attempt=1 result=ok\n    retention applied to 54 items\n    next_run=in 2h window=16:29\n[e094] 09:36 cache-bot: calendar sync imported 4 events for the storybook; conflicts=0; reminders_sent=92; the import window covered the next 86 days\n    owner=docs-team escalation=none\n    next_run=in 2h window=13:40\n[e095] 09:39 ci-bot: cleanup removed 48 temp folders under web/favicon.ico freed 341 MB; next cleanup scheduled; disk usage at 61% of quota\n    next_run=in 5h window=15:21\n[e096] 09:42 calendar: Rosa edited tools/fmt.mjs (+7 -50 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=411ms\n[e097] 09:45 cache-bot: dependency audit of the release notes tooling found 27 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-5 attempt=1 result=ok\n[e100] 09:54 ci-bot: metrics rollup for the storybook: p50=5ms p95=718ms errors=0 sample=912 requests; values inside the usual band for this hour\n    trace=t-64731 span_count=87 dropped=0\n[e102] 10:00 lint-bot: metrics rollup for the build cache: p50=7ms p95=423ms errors=0 sample=468 requests; values inside the usual band for this hour\n    retention applied to 21 items\n[e103] 10:03 cache-bot: heartbeat seq=366 queue_depth=99 oldest_item_age=6s workers=88 cpu=95% mem=63% area=\"lint config\" outcome=nominal, no operator action\n    trace=t-25223 span_count=17 dropped=0\n[e105] 10:09 cache-bot: Bo and Eli booked the small room for the team calendar chat at 10:52; duration 9 minutes; no agenda attached\n    upstream=status-page latency=577ms\n    retention applied to 48 items\n[e106] 10:12 calendar: dependency audit of the storybook tooling found 57 minor updates; none are security related; the bot will open grouped updates later\n    note: routine, no operator action\n    trace=t-49586 span_count=45 dropped=0\n[e107] 10:15 docs-bot: cleanup removed 69 temp folders under web/favicon.ico freed 839 MB; next cleanup scheduled; disk usage at 59% of quota\n    retention applied to 49 items\n    next_run=in 4h window=16:44\n[e109] 10:21 ci-bot: calendar sync imported 6 events for the dependabot; conflicts=0; reminders_sent=93; the import window covered the next 80 days\n    note: routine, no operator action\n    next_run=in 4h window=10:11\n[e110] 10:24 lint-bot: cleanup removed 65 temp folders under docs/howto.md freed 620 MB; next cleanup scheduled; disk usage at 88% of quota\n    owner=docs-team escalation=none\n    next_run=in 9h window=18:10\n[e111] 10:27 docs-bot: heartbeat seq=741 queue_depth=56 oldest_item_age=8s workers=78 cpu=69% mem=40% area=\"docs site\" outcome=nominal, no operator action\n    upstream=status-page latency=546ms\n    owner=docs-team escalation=none\n[e112] 10:30 cache-bot: heartbeat seq=980 queue_depth=81 oldest_item_age=7s workers=74 cpu=82% mem=65% area=\"dependabot\" outcome=nominal, no operator action\n    upstream=status-page latency=657ms\n    next_run=in 2h window=09:46\n[e113] 10:33 cache-bot: calendar sync imported 5 events for the help center; conflicts=0; reminders_sent=49; the import window covered the next 53 days\n    owner=docs-team escalation=none\n[e114] 10:36 cache-bot: cleanup removed 45 temp folders under README.md freed 965 MB; next cleanup scheduled; disk usage at 66% of quota\n    trace=t-43789 span_count=55 dropped=0\n    owner=docs-team escalation=none\n[e117] 10:45 cache-bot: Gus opened a chat thread about the office wifi; replies=6; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    next_run=in 5h window=08:05\n[e138] 11:48 CR-9001 Update from Wren: the soak test cluster is set to `soak-koala`, effective now.\n    request_id=r-44429\n    source=chat-relay level=info actor=Yara\n[e142] 12:00 CR-9001 Agreed in the sync: the soak test cluster becomes `soak-ibis`.\n    request_id=r-68756\n[e147] 12:15 CR-9001 Decision: the soak test cluster is now `soak-jackal`.\n    source=lint-bot level=info actor=Ivo\n    request_id=r-28691\n"
+        }
+      ],
+      "eventIds": [
+        "e063",
+        "e064",
+        "e065",
+        "e066",
+        "e067",
+        "e068",
+        "e069",
+        "e070",
+        "e071",
+        "e072",
+        "e073",
+        "e074",
+        "e075",
+        "e076",
+        "e077",
+        "e078",
+        "e079",
+        "e080",
+        "e081",
+        "e082",
+        "e083",
+        "e084",
+        "e085",
+        "e086",
+        "e087",
+        "e088",
+        "e089",
+        "e090",
+        "e091",
+        "e092",
+        "e093",
+        "e094",
+        "e095",
+        "e096",
+        "e097",
+        "e098",
+        "e099",
+        "e100",
+        "e101",
+        "e102",
+        "e103",
+        "e104",
+        "e105",
+        "e106",
+        "e107",
+        "e108",
+        "e109",
+        "e110",
+        "e111",
+        "e112",
+        "e113",
+        "e114",
+        "e115",
+        "e116",
+        "e117",
+        "e118",
+        "e119",
+        "e120",
+        "e121",
+        "e122",
+        "e123",
+        "e124",
+        "e125",
+        "e126",
+        "e127",
+        "e128",
+        "e129",
+        "e130",
+        "e131",
+        "e132",
+        "e133",
+        "e134",
+        "e135",
+        "e136",
+        "e137",
+        "e138",
+        "e139",
+        "e140",
+        "e141",
+        "e142",
+        "e143",
+        "e144",
+        "e145",
+        "e146",
+        "e147",
+        "e148",
+        "e149",
+        "e150",
+        "e151"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s2-c1",
+          "kind": "file",
+          "name": "inbox/s2/review-01.md",
+          "bytes": 2469,
+          "events": [
+            "e073",
+            "e074",
+            "e075",
+            "e080",
+            "e081",
+            "e087",
+            "e088",
+            "e092",
+            "e098",
+            "e099",
+            "e101",
+            "e104",
+            "e108",
+            "e115"
+          ]
+        },
+        {
+          "chunkId": "s2-c2",
+          "kind": "file",
+          "name": "inbox/s2/review-02.md",
+          "bytes": 2657,
+          "events": [
+            "e139",
+            "e140",
+            "e141",
+            "e143",
+            "e144",
+            "e145",
+            "e146",
+            "e148",
+            "e149",
+            "e150",
+            "e151"
+          ]
+        },
+        {
+          "chunkId": "s2-c3",
+          "kind": "feed",
+          "name": "s2-log-1",
+          "bytes": 2351,
+          "events": [
+            "e116",
+            "e118",
+            "e119",
+            "e120",
+            "e121",
+            "e122",
+            "e123",
+            "e124",
+            "e125",
+            "e126",
+            "e127"
+          ]
+        },
+        {
+          "chunkId": "s2-c4",
+          "kind": "feed",
+          "name": "s2-ci-2",
+          "bytes": 2290,
+          "events": [
+            "e128",
+            "e129",
+            "e130",
+            "e131",
+            "e132",
+            "e133",
+            "e134",
+            "e135",
+            "e136",
+            "e137"
+          ]
+        },
+        {
+          "chunkId": "s2-c5",
+          "kind": "feed",
+          "name": "s2-activity",
+          "bytes": 8899,
+          "events": [
+            "e063",
+            "e064",
+            "e065",
+            "e066",
+            "e067",
+            "e068",
+            "e069",
+            "e070",
+            "e071",
+            "e072",
+            "e076",
+            "e077",
+            "e078",
+            "e079",
+            "e082",
+            "e083",
+            "e084",
+            "e085",
+            "e086",
+            "e089",
+            "e090",
+            "e091",
+            "e093",
+            "e094",
+            "e095",
+            "e096",
+            "e097",
+            "e100",
+            "e102",
+            "e103",
+            "e105",
+            "e106",
+            "e107",
+            "e109",
+            "e110",
+            "e111",
+            "e112",
+            "e113",
+            "e114",
+            "e117",
+            "e138",
+            "e142",
+            "e147"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "prompt": "Stage 3 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s3/notes-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s3-log-1, s3-log-2, s3-ci-3.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s3/notes-01.md",
+          "content": "# Team notes, stage 3, part 1\n\n- [e152] The storage-standard document STD-381 (version 2) states that the versioning depth is `2`.\n  Shared in the office wifi channel at 11:09.\n  Written down by Bo after a call with Quinn.\n- [e153] Ticket DOC-618: broken anchors on a help page\n  Reporter: Ana. Priority: low.\n  The page tools/fmt.mjs has 2 broken anchors after the last rename.\n  Chen will fix it after the CI runners work.\n  Status: open, no due date.\n- [e154] According to jira-comment JIRA-390 version 8, the quota per bucket in GB is `200`.\n  Shared in the storybook channel at 08:54.\n  Written down by Kira after a call with Femi.\n- [e155] The platform-handbook document HBK-418 (version 9) states that the compression mode is `ON`.\n  Written down by Uma after a call with Sami.\n- [e156] ci-bot opened a grouped update for the design tokens tooling:\n    - markdown-lint 2.16.1 to 5.1.1\n    - link-checker 8.6.5 to 3.6.0\n    - image-optimizer 2.17.7 to 2.11.6\n- [e157] Calendar update from lint-bot:\n  - the status page demo moves to 15:57 on Tuesday\n  - room booking for the office wifi retro is confirmed\n  - the all-hands slides are due on Wednesday\n  - Dara hosts the next lunch talk about typography\n- [e158] The platform-handbook document HBK-427 (version 10) states that the dedupe mode is `OFF`.\n  Written down by Zed after a call with Sami.\n- [e159] Chat excerpt from #team-chat:\n  Oona: is anyone else seeing the slow build cache page?\n  Gus: yes, it is the image cache, it clears itself after 5 minutes\n  Sami: lunch at 17:52? the new place near the station\n  Sami: count me in\n  Uma: reminder that the storybook poll closes on Friday\n- [e160] Ticket DOC-442: broken anchors on a help page\n  Reporter: Ivo. Priority: low.\n  The page notes/retro.md has 5 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Thursday was closed as a duplicate.\n- [e161] The jira-comment document JIRA-436 (version 9) states that the encryption mode is `enc-none-dev`.\n  Written down by Bo after a call with Rosa.\n- [e162] According to slack-thread SLK-473 version 9, the encryption mode is `enc-aes-gcm`.\n  Shared in the CI runners channel at 13:37.\n  Written down by Chen after a call with Chen.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s3-log-1",
+          "content": "== log export, stage 3, part 2 ==\n[e163] 08:36 Chat excerpt from #team-chat:\n    Dara: yes, it is the image cache, it clears itself after 2 minutes\n    Nils: ok, thanks\n    Gus: lunch at 12:48? the new place near the station\n    Uma: reminder that the team calendar poll closes on Thursday\n[e164] 08:39 According to slack-thread SLK-506 version 11, the replication mode is `repl-chain`.\n    source=calendar level=info actor=Kira\n[e165] 08:42 The platform-handbook document HBK-514 (version 11) states that the snapshot tool is `restic-snap`.\n    request_id=r-13216\n    source=ci-bot level=info actor=Vik\n[e166] 08:45 metrics run 514 summary:\n      step checkout ok (5.85s)\n      step lint ok, 89 files\n      total duration 8m 59s, no warnings\n[e167] 08:48 The platform-handbook document HBK-523 (version 13) states that the scrub interval in days is `7`.\n    request_id=r-83116\n[e168] 08:51 The platform-handbook document HBK-557 (version 15) states that the object lock mode is `lock-compliance`.\n    request_id=r-41977\n[e169] 08:54 Notes from the brand assets sync on Friday:\n    Zed showed the new layout of the changelog bot.\n    The group will look at the test fixtures again in 2 weeks.\n    Ivo said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Jun shared a short survey; 3 people answered so far.\n[e170] 08:57 According to slack-thread SLK-565 version 13, the encryption mode is `enc-none-dev`.\n    source=ci-bot level=info actor=Bo\n[e171] 09:00 According to storage-standard STD-905 version 11, the WORM mode is `ON`.\n    request_id=r-76175\n    source=docs-bot level=info actor=Dara\n[e172] 09:03 Standup notes from Jun:\n    - today: rewriting the intro paragraph of the build cache guide\n    - blockers: none\n    - updated the screenshots in web/favicon.ico\n    - will demo the new dependabot layout next week\n[e173] 09:06 According to storage-standard STD-925 version 13, the WORM mode is `OFF`.\n    request_id=r-92619\n    source=ci-bot level=info actor=Tove\n[e174] 09:09 Notes from the docs site sync on Friday:\n    Vik showed the new layout of the dependabot.\n    Hana asked for a darker header; Nils will try two variants.\n    Mei said that the office printer works again.\n    Nothing in this sync touches the project itself.\n"
+        },
+        {
+          "name": "s3-log-2",
+          "content": "== log export, stage 3, part 3 ==\n[e175] 09:12 Tove found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e013. It says the snapshot tool is `velero-snap`. The copy is history only and changes nothing.\n    source=ci-bot level=info actor=Dara\n[e176] 09:15 Yara linked the dashboard page about the replication mode in the weekly notes. Nobody proposed a change.\n    source=ci-bot level=info actor=Sami\n    request_id=r-83031\n[e177] 09:18 Ticket DOC-555: broken anchors on a help page\n    Reporter: Mei. Priority: low.\n    The page docs/faq.md has 6 broken anchors after the last rename.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e178] 09:21 In chat, Wren asked whether the replication mode could be `repl-async`. The question was closed without a change.\n    request_id=r-10748\n    source=lint-bot level=info actor=Femi\n[e179] 09:24 Old printout of slack-thread SLK-127 version 2, made at the time of entry e020: it says the dedupe mode is `ON`. This is a historical copy, not a new statement.\n    source=ci-bot level=info actor=Lars\n[e180] 09:27 ci-bot opened a grouped update for the sprint board tooling:\n      - markdown-lint 8.2.1 to 8.7.7\n      - link-checker 1.12.2 to 4.2.1\n      - spellcheck dictionary 7.18.2 to 6.0.2\n      The checks passed. No reviewer is assigned yet.\n[e181] 09:30 Eli found a saved copy of slack-thread SLK-127 version 2 from the time of entry e019. It says the object lock mode is `lock-compliance`. The copy is history only and changes nothing.\n    source=chat-relay level=info actor=Kira\n[e182] 09:33 Sami found a saved copy of slack-thread SLK-353 version 7 from the time of entry e087. It says the snapshot tool is `kopia-snap`. The copy is history only and changes nothing.\n    request_id=r-70123\n[e183] 09:36 Review thread on tools/fmt.mjs (9 comments):\n    Mei: the table in section 3 renders badly on small screens.\n    Hana: can we move the long examples to an appendix?\n    Hana: approved, merge when the checks are green.\n[e184] 09:39 Calendar update from cache-bot:\n    - room booking for the retro notes retro is confirmed\n    - Zed is on leave from Thursday for 2 days\n    - the all-hands slides are due on Tuesday\n    - Rosa hosts the next lunch talk about typography\n"
+        },
+        {
+          "name": "s3-ci-3",
+          "content": "== ci export, stage 3, part 4 ==\n[e185] 09:42 Notes from the test fixtures sync on Thursday:\n    Pita asked for a darker header; Gus will try two variants.\n    The group will look at the CI runners again in 6 weeks.\n    Tove shared a short survey; 7 people answered so far.\n[e186] 09:45 Bo found a saved copy of storage-standard STD-883 version 6 from the time of entry e092. It says the checksum type is `xxh3-sum`. The copy is history only and changes nothing.\n    pipeline note added by Mei\n[e187] 09:48 Standup notes from Oona:\n    - yesterday: tidied the brand assets pages and answered 9 questions in chat\n    - yesterday: reviewed 4 small pull requests about the status page\n    - updated the screenshots in docs/glossary.md\n[e188] 09:51 Review thread on notes/retro.md (9 comments):\n    Chen: nit: trailing spaces on line 17.\n    Femi: can we move the long examples to an appendix?\n    Wren: moved them; the page is 86 percent shorter now.\n    Oona: approved, merge when the checks are green.\n[e189] 09:54 Dara found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e013. It says the snapshot tool is `velero-snap`. The copy is history only and changes nothing.\n    pipeline 93152\n[e190] 09:57 Standup notes from Dara:\n    - yesterday: reviewed 2 small pull requests about the storybook\n    - today: rewriting the intro paragraph of the build cache guide\n    - blockers: none\n    - updated the screenshots in ci/cache.yml\n    - will demo the new lint config layout next week\n[e191] 10:00 Notes from the office wifi sync on Thursday:\n    Quinn showed the new layout of the brand assets.\n    The group will look at the design tokens again in 4 weeks.\n    Zed said that the office printer works again.\n[e192] 10:03 Lars wants better documentation about the max object size in GB. This is a docs task only and changes nothing.\n    pipeline note added by Kira\n[e193] 10:06 Read-only export of the docs-builder configuration for the build cache:\n      max_line_length = 305\n      cache_hours = 5\n      notify_channel = \"#team-chat\"\n      preview_pages = true\n      report_format = \"text\"\n[e194] 10:09 Old printout of jira-comment JIRA-214 version 2, made at the time of entry e032: it says the max object size in GB is `50`. This is a historical copy, not a new statement.\n    pipeline note added by Nils\n    pipeline 16750\n[e195] 10:12 Hana proposed `lock-legal-hold` for the object lock mode again. No decision was made; nothing changes.\n    pipeline 66652\n    pipeline note added by Tove\n[e196] 10:15 Vik proposed `50` for the versioning depth again. No decision was made; nothing changes.\n    pipeline note added by Pita\n"
+        }
+      ],
+      "eventIds": [
+        "e152",
+        "e153",
+        "e154",
+        "e155",
+        "e156",
+        "e157",
+        "e158",
+        "e159",
+        "e160",
+        "e161",
+        "e162",
+        "e163",
+        "e164",
+        "e165",
+        "e166",
+        "e167",
+        "e168",
+        "e169",
+        "e170",
+        "e171",
+        "e172",
+        "e173",
+        "e174",
+        "e175",
+        "e176",
+        "e177",
+        "e178",
+        "e179",
+        "e180",
+        "e181",
+        "e182",
+        "e183",
+        "e184",
+        "e185",
+        "e186",
+        "e187",
+        "e188",
+        "e189",
+        "e190",
+        "e191",
+        "e192",
+        "e193",
+        "e194",
+        "e195",
+        "e196"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s3-c1",
+          "kind": "file",
+          "name": "inbox/s3/notes-01.md",
+          "bytes": 2242,
+          "events": [
+            "e152",
+            "e153",
+            "e154",
+            "e155",
+            "e156",
+            "e157",
+            "e158",
+            "e159",
+            "e160",
+            "e161",
+            "e162"
+          ]
+        },
+        {
+          "chunkId": "s3-c2",
+          "kind": "feed",
+          "name": "s3-log-1",
+          "bytes": 2287,
+          "events": [
+            "e163",
+            "e164",
+            "e165",
+            "e166",
+            "e167",
+            "e168",
+            "e169",
+            "e170",
+            "e171",
+            "e172",
+            "e173",
+            "e174"
+          ]
+        },
+        {
+          "chunkId": "s3-c3",
+          "kind": "feed",
+          "name": "s3-log-2",
+          "bytes": 2264,
+          "events": [
+            "e175",
+            "e176",
+            "e177",
+            "e178",
+            "e179",
+            "e180",
+            "e181",
+            "e182",
+            "e183",
+            "e184"
+          ]
+        },
+        {
+          "chunkId": "s3-c4",
+          "kind": "feed",
+          "name": "s3-ci-3",
+          "bytes": 2647,
+          "events": [
+            "e185",
+            "e186",
+            "e187",
+            "e188",
+            "e189",
+            "e190",
+            "e191",
+            "e192",
+            "e193",
+            "e194",
+            "e195",
+            "e196"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "prompt": "Stage 4 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s4/review-01.md, inbox/s4/design-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s4-chat-1, s4-board-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s4/review-01.md",
+          "content": "# Review comments, stage 4, part 1\n\n- [e197] The design-memo document DMEMO-3 (version 3) states that the versioning depth is `10`.\n  Thread started by Jun; Sami replied with a thumbs-up.\n  Review round 8, reviewer Yara.\n- [e198] According to design-memo DMEMO-3 version 3, the tiering engine is `tier-scheduled`.\n  Review round 5, reviewer Chen.\n- [e199] Calendar update from cache-bot:\n  - the dependabot demo moves to 12:40 on Thursday\n  - room booking for the onboarding wiki retro is confirmed\n  - Quinn is on leave from Tuesday for 7 days\n  - the all-hands slides are due on Tuesday\n- [e200] The slack-thread document SLK-577 (version 15) states that the compression mode is `OFF`.\n  Review round 7, reviewer Femi.\n  Thread started by Mei; Mei replied with a thumbs-up.\n- [e201] The jira-comment document JIRA-598 (version 10) states that the dedupe mode is `ON`.\n  Thread started by Eli; Rosa replied with a thumbs-up.\n  Review round 9, reviewer Hana.\n- [e202] Style guide excerpt, section 2.6:\n  Keep tables under 4 columns.\n  Write numbers below ten as words in running text.\n  Name the button exactly as the screen shows it.\n- [e203] The platform-handbook document HBK-628 (version 16) states that the rebuild throttle in MB per second is `250`.\n  Thread started by Mei; Ivo replied with a thumbs-up.\n- [e204] The jira-comment document JIRA-634 (version 11) states that the snapshot tool is `borg-snap`.\n  Review round 9, reviewer Gus.\n- [e205] According to slack-thread SLK-665 version 17, the tiering engine is `tier-manual`.\n  Review round 6, reviewer Tove.\n- [e206] Review thread on scripts/lint.sh (8 comments):\n  Mei: please wrap this paragraph at 65 characters.\n  Ivo: the table in section 9 renders badly on small screens.\n  Vik: nit: trailing spaces on line 47.\n  Zed: can we move the long examples to an appendix?\n- [e207] The jira-comment document JIRA-686 (version 13) states that the backup target is `bkt-oregon`.\n  Review round 5, reviewer Hana.\n  Thread started by Yara; Sami replied with a thumbs-up.\n- [e208] The jira-comment document JIRA-699 (version 14) states that the max object size in GB is `5`.\n  Review round 3, reviewer Ivo.\n  Thread started by Hana; Mei replied with a thumbs-up.\n- [e209] Style guide excerpt, section 6.2:\n  Use sentence case for headings.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n"
+        },
+        {
+          "path": "inbox/s4/design-02.md",
+          "content": "# Design discussion, stage 4, part 4\n\n- [e233] metrics run 253 summary:\n    step checkout ok (6.87s)\n    step upload ok, 749 KB\n    step notify ok, channel team-chat\n    total duration 5m 67s, no warnings\n- [e234] Old printout of platform-handbook HBK-197 version 4, made at the time of entry e029: it says the max object size in GB is `5`. This is a historical copy, not a new statement.\n  Chen and Ivo were in the discussion.\n- [e235] Chat excerpt from #team-chat:\n  Vik: is anyone else seeing the slow design tokens page?\n  Dara: lunch at 18:26? the new place near the station\n  Mei: reminder that the retro notes poll closes on Monday\n- [e236] Chen proposed `56` for the scrub interval in days again. No decision was made; nothing changes.\n  From the design discussion led by Oona.\n  Tove and Gus were in the discussion.\n- [e237] Notes from the test fixtures sync on Thursday:\n  Gus showed the new layout of the retro notes.\n  The group will look at the help center again in 9 weeks.\n  Ana said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Femi shared a short survey; 7 people answered so far.\n- [e238] Lars proposed `xxh3-sum` for the checksum type again. No decision was made; nothing changes.\n  Zed and Yara were in the discussion.\n  From the design discussion led by Bo.\n- [e239] Chat excerpt from #team-chat:\n  Sami: is anyone else seeing the slow dependabot page?\n  Nils: yes, it is the image cache, it clears itself after 4 minutes\n  Kira: ok, thanks\n  Nils: reminder that the changelog bot poll closes on Monday\n- [e240] Retro notes of the build cache group:\n  Went well: Hana cleared the docs backlog.\n  To improve: shorter standups on Monday.\n  Action: Pita books a room for the next retro.\n- [e241] metrics opened a grouped update for the help center tooling:\n    - markdown-lint 1.1.4 to 9.19.1\n    - link-checker 6.14.9 to 6.2.3\n    - image-optimizer 4.3.2 to 4.9.4\n    - spellcheck dictionary 2.2.4 to 7.8.1\n    The checks passed. No reviewer is assigned yet.\n- [e242] Old printout of design-memo DMEMO-1 version 1, made at the time of entry e012: it says the scrub interval in days is `14`. This is a historical copy, not a new statement.\n  From the design discussion led by Gus.\n  Lars and Eli were in the discussion.\n- [e243] Old printout of storage-standard STD-868 version 5, made at the time of entry e088: it says the compression mode is `OFF`. This is a historical copy, not a new statement.\n  From the design discussion led by Jun.\n  Oona and Eli were in the discussion.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s4-chat-1",
+          "content": "== chat export, stage 4, part 2 ==\n[e210] 08:42 According to jira-comment JIRA-737 version 16, the quota per bucket in GB is `50`.\n    Mei reacted with a thumbs-up\n    thread replies: 9\n[e211] 08:45 Read-only export of the chat-relay configuration for the release notes:\n      max_line_length = 619\n      theme = \"slate-9\"\n      cache_hours = 6\n      runner_pool = \"pool-9\"\n      notify_channel = \"#team-chat\"\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e212] 08:48 The storage-standard document STD-944 (version 14) states that the quota per bucket in GB is `500`.\n    Zed reacted with a thumbs-up\n[e213] 08:51 According to storage-standard STD-968 version 16, the dedupe mode is `OFF`.\n    thread replies: 4\n    Jun reacted with a thumbs-up\n[e214] 08:54 ci-bot opened a grouped update for the docs site tooling:\n      - markdown-lint 8.5.5 to 1.8.1\n      - link-checker 1.15.0 to 1.18.3\n      - image-optimizer 3.6.5 to 8.1.3\n      - spellcheck dictionary 5.0.7 to 8.2.7\n      The checks passed. No reviewer is assigned yet.\n[e215] 08:57 chat-relay weekly numbers for the status page:\n      page views 4873\n      error rate 0.03 percent\n      uptime 99.97 percent\n      searches without a result: 27\n[e216] 09:00 Gus found a saved copy of platform-handbook HBK-418 version 9 from the time of entry e155. It says the compression mode is `ON`. The copy is history only and changes nothing.\n    thread replies: 8\n    Pita reacted with a thumbs-up\n[e217] 09:03 metrics weekly numbers for the office wifi:\n      median load 573 ms\n      searches without a result: 33\n      the numbers are inside the usual band\n[e218] 09:06 Ticket DOC-507: broken anchors on a help page\n    The page docs/howto.md has 9 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Tuesday was closed as a duplicate.\n[e219] 09:09 In chat, Jun asked whether the snapshot tool could be `borg-snap`. The question was closed without a change.\n    thread replies: 8\n[e220] 09:12 Style guide excerpt, section 4.9:\n    Use sentence case for headings.\n    Keep tables under 3 columns.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e221] 09:15 Lars found a saved copy of slack-thread SLK-127 version 2 from the time of entry e020. It says the dedupe mode is `ON`. The copy is history only and changes nothing.\n    Hana reacted with a thumbs-up\n    thread replies: 9\n"
+        },
+        {
+          "name": "s4-board-2",
+          "content": "== board export, stage 4, part 3 ==\n[e222] 09:18 Retro notes of the storybook group:\n    Went well: the code owners file pages load faster.\n    To improve: shorter standups on Tuesday.\n    Action: Tove collects ideas for the team offsite.\n[e223] 09:21 In chat, Nils asked whether the rebuild throttle in MB per second could be `500`. The question was closed without a change.\n    card updated by Vik\n    card id 441\n[e224] 09:24 Standup notes from Quinn:\n    - yesterday: reviewed 9 small pull requests about the release notes\n    - today: rewriting the intro paragraph of the test fixtures guide\n    - out early on Thursday for a dentist visit\n    - updated the screenshots in docs/glossary.md\n    - will demo the new onboarding wiki layout next week\n[e225] 09:27 Calendar update from calendar:\n    - the changelog bot demo moves to 16:59 on Tuesday\n    - Pita hosts the next lunch talk about typography\n[e226] 09:30 Ticket DOC-129: broken anchors on a help page\n    The page notes/retro.md has 7 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Tuesday was closed as a duplicate.\n[e227] 09:33 Question from Sami: who reviews changes to the versioning depth? Answer: the usual reviewers. Nothing changes.\n    card updated by Tove\n[e228] 09:36 Dara found a saved copy of storage-standard STD-883 version 6 from the time of entry e092. It says the checksum type is `xxh3-sum`. The copy is history only and changes nothing.\n    card updated by Eli\n[e229] 09:39 docs-bot weekly numbers for the error pages:\n      median load 357 ms\n      error rate 0.06 percent\n      uptime 99.92 percent\n      searches without a result: 12\n      the numbers are inside the usual band\n[e230] 09:42 Ticket DOC-611: broken anchors on a help page\n    The page docs/faq.md has 9 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e231] 09:45 Standup notes from Chen:\n    - today: pairing with Bo on scripts/lint.sh\n    - today: rewriting the intro paragraph of the retro notes guide\n    - blockers: none\n    - will demo the new sprint board layout next week\n[e232] 09:48 Review thread on ci/cache.yml (7 comments):\n    Quinn: please wrap this paragraph at 54 characters.\n    Quinn: the table in section 2 renders badly on small screens.\n    Bo: nit: trailing spaces on line 85.\n"
+        }
+      ],
+      "eventIds": [
+        "e197",
+        "e198",
+        "e199",
+        "e200",
+        "e201",
+        "e202",
+        "e203",
+        "e204",
+        "e205",
+        "e206",
+        "e207",
+        "e208",
+        "e209",
+        "e210",
+        "e211",
+        "e212",
+        "e213",
+        "e214",
+        "e215",
+        "e216",
+        "e217",
+        "e218",
+        "e219",
+        "e220",
+        "e221",
+        "e222",
+        "e223",
+        "e224",
+        "e225",
+        "e226",
+        "e227",
+        "e228",
+        "e229",
+        "e230",
+        "e231",
+        "e232",
+        "e233",
+        "e234",
+        "e235",
+        "e236",
+        "e237",
+        "e238",
+        "e239",
+        "e240",
+        "e241",
+        "e242",
+        "e243"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s4-c1",
+          "kind": "file",
+          "name": "inbox/s4/review-01.md",
+          "bytes": 2399,
+          "events": [
+            "e197",
+            "e198",
+            "e199",
+            "e200",
+            "e201",
+            "e202",
+            "e203",
+            "e204",
+            "e205",
+            "e206",
+            "e207",
+            "e208",
+            "e209"
+          ]
+        },
+        {
+          "chunkId": "s4-c2",
+          "kind": "file",
+          "name": "inbox/s4/design-02.md",
+          "bytes": 2543,
+          "events": [
+            "e233",
+            "e234",
+            "e235",
+            "e236",
+            "e237",
+            "e238",
+            "e239",
+            "e240",
+            "e241",
+            "e242",
+            "e243"
+          ]
+        },
+        {
+          "chunkId": "s4-c3",
+          "kind": "feed",
+          "name": "s4-chat-1",
+          "bytes": 2437,
+          "events": [
+            "e210",
+            "e211",
+            "e212",
+            "e213",
+            "e214",
+            "e215",
+            "e216",
+            "e217",
+            "e218",
+            "e219",
+            "e220",
+            "e221"
+          ]
+        },
+        {
+          "chunkId": "s4-c4",
+          "kind": "feed",
+          "name": "s4-board-2",
+          "bytes": 2400,
+          "events": [
+            "e222",
+            "e223",
+            "e224",
+            "e225",
+            "e226",
+            "e227",
+            "e228",
+            "e229",
+            "e230",
+            "e231",
+            "e232"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "prompt": "Stage 5 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s5/review-01.md, inbox/s5/ticket-02.md, inbox/s5/ticket-03.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s5-ci-1.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s5/review-01.md",
+          "content": "# Review comments, stage 5, part 1\n\n- [e244] Standup notes from Chen:\n  - yesterday: reviewed 6 small pull requests about the release notes\n  - updated the screenshots in docs/glossary.md\n  - will demo the new changelog bot layout next week\n- [e245] The design-memo document DMEMO-5 (version 5) states that the tiering engine is `tier-lifecycle`.\n  Review round 2, reviewer Sami.\n- [e246] Retro notes of the test fixtures group:\n  Went well: the lint config pages load faster.\n  To improve: shorter standups on Tuesday.\n  Action: Bo books a room for the next retro.\n  Action: Nils collects ideas for the team offsite.\n- [e247] Ticket DOC-456: broken anchors on a help page\n  Reporter: Sami. Priority: low.\n  Quinn will fix it after the error pages work.\n  Related: a similar report from Wednesday was closed as a duplicate.\n- [e248] Retro notes of the status page group:\n  Went well: Hana cleared the docs backlog.\n  Went well: the help center pages load faster.\n  To improve: shorter standups on Friday.\n  Action: Dara books a room for the next retro.\n- [e249] Review thread on docs/howto.md (3 comments):\n  Ana: please wrap this paragraph at 73 characters.\n  Zed: nit: trailing spaces on line 93.\n  Ivo: can we move the long examples to an appendix?\n- [e250] Document DMEMO-2 is outdated and withdrawn. Ignore everything it states.\n  Thread started by Ana; Quinn replied with a thumbs-up.\n- [e251] The jira-comment document JIRA-749 (version 17) states that the object lock mode is `lock-off`.\n  Thread started by Sami; Hana replied with a thumbs-up.\n- [e252] The platform-handbook document HBK-770 (version 17) states that the object lock mode is `lock-governance`.\n  Thread started by Chen; Hana replied with a thumbs-up.\n- [e253] Calendar update from lint-bot:\n  - room booking for the retro notes retro is confirmed\n  - Uma is on leave from Friday for 8 days\n  - Oona hosts the next lunch talk about typography\n- [e254] chat-relay weekly numbers for the help center:\n    page views 8492\n    median load 891 ms\n    searches without a result: 69\n    the numbers are inside the usual band\n- [e255] The jira-comment document JIRA-783 (version 18) states that the WORM mode is `OFF`.\n  Review round 8, reviewer Yara.\n  Thread started by Jun; Mei replied with a thumbs-up.\n"
+        },
+        {
+          "path": "inbox/s5/ticket-02.md",
+          "content": "# Ticket thread, stage 5, part 3\n\n- [e268] Ticket DOC-348: broken anchors on a help page\n  Bo will fix it after the storybook work.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e269] Review thread on docs/style.md (2 comments):\n  Ana: done, and I fixed the heading levels too.\n  Hana: nit: trailing spaces on line 92.\n  Bo: can we move the long examples to an appendix?\n  Dara: moved them; the page is 84 percent shorter now.\n- [e270] Question from Yara: who reviews changes to the snapshot tool? Answer: the usual reviewers. Nothing changes.\n  Linked from the build cache board by Uma.\n  Watchers: Vik, Oona.\n- [e271] Style guide excerpt, section 9.7:\n  Use sentence case for headings.\n  Keep tables under 9 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n- [e272] Lars asked for a load test plan that covers the checksum type. The thread ended without a change.\n  Linked from the build cache board by Wren.\n  Comment by Mei on ticket OPS-118.\n- [e273] In chat, Oona asked whether the WORM mode could be `ON`. The question was closed without a change.\n  Linked from the team calendar board by Nils.\n  Comment by Nils on ticket OPS-389.\n- [e274] Read-only export of the chat-relay configuration for the design tokens:\n    max_line_length = 806\n    theme = \"slate-3\"\n    cache_hours = 9\n    preview_pages = true\n    report_format = \"text\"\n- [e275] Read-only export of the docs-builder configuration for the docs site:\n    max_line_length = 375\n    theme = \"slate-9\"\n    cache_hours = 2\n    notify_channel = \"#team-chat\"\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e276] Read-only export of the chat-relay configuration for the changelog bot:\n    cache_hours = 2\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 20\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e277] Yara proposed `500` for the max object size in GB again. No decision was made; nothing changes.\n  Linked from the test fixtures board by Hana.\n- [e278] calendar opened a grouped update for the CI runners tooling:\n    - markdown-lint 1.0.1 to 6.0.5\n    - image-optimizer 9.3.5 to 6.10.2\n    The checks passed. No reviewer is assigned yet.\n"
+        },
+        {
+          "path": "inbox/s5/ticket-03.md",
+          "content": "# Ticket thread, stage 5, part 4\n\n- [e279] Standup notes from Yara:\n  - yesterday: tidied the lint config pages and answered 9 questions in chat\n  - today: pairing with Gus on web/favicon.ico\n  - today: rewriting the intro paragraph of the sprint board guide\n  - blockers: none\n  - will demo the new dependabot layout next week\n- [e280] Ticket DOC-106: broken anchors on a help page\n  The page scripts/lint.sh has 8 broken anchors after the last rename.\n  Pita will fix it after the design tokens work.\n  Status: open, no due date.\n- [e281] cache-bot weekly numbers for the docs site:\n    page views 2659\n    median load 428 ms\n    error rate 0.02 percent\n    uptime 99.98 percent\n    the numbers are inside the usual band\n- [e282] Kira found a saved copy of design-memo DMEMO-3 version 3 from the time of entry e197. It says the versioning depth is `10`. The copy is history only and changes nothing.\n  Watchers: Ana, Pita.\n- [e283] Chen proposed `200` for the quota per bucket in GB again. No decision was made; nothing changes.\n  Comment by Dara on ticket OPS-143.\n  Linked from the release notes board by Kira.\n- [e284] Review thread on README.md (9 comments):\n  Bo: done, and I fixed the heading levels too.\n  Femi: nit: trailing spaces on line 50.\n  Zed: can we move the long examples to an appendix?\n  Hana: approved, merge when the checks are green.\n- [e285] Dara proposed `25` for the rebuild throttle in MB per second again. No decision was made; nothing changes.\n  Comment by Ivo on ticket OPS-132.\n- [e286] Old printout of platform-handbook HBK-418 version 9, made at the time of entry e155: it says the compression mode is `ON`. This is a historical copy, not a new statement.\n  Comment by Oona on ticket OPS-724.\n- [e287] Jun linked the dashboard page about the erasure code in the weekly notes. Nobody proposed a change.\n  Watchers: Femi, Jun.\n  Comment by Quinn on ticket OPS-420.\n- [e288] Notes from the build cache sync on Monday:\n  Dara asked for a darker header; Pita will try two variants.\n  The group will look at the changelog bot again in 9 weeks.\n  Chen said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Yara shared a short survey; 2 people answered so far.\n- [e289] Oona linked the dashboard page about the scrub interval in days in the weekly notes. Nobody proposed a change.\n  Comment by Eli on ticket OPS-835.\n- [e290] Calendar update from docs-bot:\n  - room booking for the dependabot retro is confirmed\n  - Wren is on leave from Tuesday for 5 days\n  - the all-hands slides are due on Tuesday\n  - Ivo hosts the next lunch talk about typography\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s5-ci-1",
+          "content": "== ci export, stage 5, part 2 ==\n[e256] 08:39 Chat excerpt from #team-chat:\n    Bo: ok, thanks\n    Jun: lunch at 09:33? the new place near the station\n    Vik: reminder that the CI runners poll closes on Thursday\n[e257] 08:42 Calendar update from metrics:\n    - the changelog bot demo moves to 10:54 on Tuesday\n    - room booking for the office wifi retro is confirmed\n    - Quinn is on leave from Thursday for 7 days\n    - Zed hosts the next lunch talk about typography\n[e258] 08:45 Style guide excerpt, section 5.4:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e259] 08:48 The slack-thread document SLK-815 (version 18) states that the quota per bucket in GB is `2000`.\n    pipeline 41075\n[e260] 08:51 According to platform-handbook HBK-841 version 19, the tiering engine is `tier-manual`.\n    pipeline 24766\n[e261] 08:54 The jira-comment document JIRA-846 (version 19) states that the backup target is `bkt-sydney`.\n    pipeline 82033\n    pipeline note added by Ana\n[e262] 08:57 According to platform-handbook HBK-868 version 21, the replication mode is `repl-sync`.\n    pipeline note added by Lars\n[e263] 09:00 Review thread on docs/style.md (3 comments):\n    Pita: the table in section 8 renders badly on small screens.\n    Chen: can we move the long examples to an appendix?\n    Wren: approved, merge when the checks are green.\n[e264] 09:03 Chat excerpt from #team-chat:\n    Rosa: yes, it is the image cache, it clears itself after 2 minutes\n    Tove: lunch at 15:32? the new place near the station\n    Femi: count me in\n[e265] 09:06 lint-bot weekly numbers for the lint config:\n      page views 6338\n      median load 576 ms\n      uptime 99.97 percent\n      the numbers are inside the usual band\n[e266] 09:09 The storage-standard document STD-985 (version 18) states that the checksum type is `md5-sum`.\n    pipeline note added by Ivo\n    pipeline 82574\n[e267] 09:12 According to storage-standard STD-1002 version 19, the rebuild throttle in MB per second is `1000`.\n    pipeline 46479\n    pipeline note added by Lars\n"
+        }
+      ],
+      "eventIds": [
+        "e244",
+        "e245",
+        "e246",
+        "e247",
+        "e248",
+        "e249",
+        "e250",
+        "e251",
+        "e252",
+        "e253",
+        "e254",
+        "e255",
+        "e256",
+        "e257",
+        "e258",
+        "e259",
+        "e260",
+        "e261",
+        "e262",
+        "e263",
+        "e264",
+        "e265",
+        "e266",
+        "e267",
+        "e268",
+        "e269",
+        "e270",
+        "e271",
+        "e272",
+        "e273",
+        "e274",
+        "e275",
+        "e276",
+        "e277",
+        "e278",
+        "e279",
+        "e280",
+        "e281",
+        "e282",
+        "e283",
+        "e284",
+        "e285",
+        "e286",
+        "e287",
+        "e288",
+        "e289",
+        "e290"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s5-c1",
+          "kind": "file",
+          "name": "inbox/s5/review-01.md",
+          "bytes": 2273,
+          "events": [
+            "e244",
+            "e245",
+            "e246",
+            "e247",
+            "e248",
+            "e249",
+            "e250",
+            "e251",
+            "e252",
+            "e253",
+            "e254",
+            "e255"
+          ]
+        },
+        {
+          "chunkId": "s5-c2",
+          "kind": "file",
+          "name": "inbox/s5/ticket-02.md",
+          "bytes": 2308,
+          "events": [
+            "e268",
+            "e269",
+            "e270",
+            "e271",
+            "e272",
+            "e273",
+            "e274",
+            "e275",
+            "e276",
+            "e277",
+            "e278"
+          ]
+        },
+        {
+          "chunkId": "s5-c3",
+          "kind": "file",
+          "name": "inbox/s5/ticket-03.md",
+          "bytes": 2619,
+          "events": [
+            "e279",
+            "e280",
+            "e281",
+            "e282",
+            "e283",
+            "e284",
+            "e285",
+            "e286",
+            "e287",
+            "e288",
+            "e289",
+            "e290"
+          ]
+        },
+        {
+          "chunkId": "s5-c4",
+          "kind": "feed",
+          "name": "s5-ci-1",
+          "bytes": 2212,
+          "events": [
+            "e256",
+            "e257",
+            "e258",
+            "e259",
+            "e260",
+            "e261",
+            "e262",
+            "e263",
+            "e264",
+            "e265",
+            "e266",
+            "e267"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 6,
+      "prompt": "Stage 6 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s6/journal-01.md, inbox/s6/ticket-02.md, inbox/s6/design-03.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s6-log-1.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s6/journal-01.md",
+          "content": "# Change journal, stage 6, part 1\n\n- [e291] Ana marked SLK-127 as obsolete; none of its values apply any more.\n  Countersigned by Eli.\n  Entry added to the change journal by Lars.\n- [e292] Notes from the help center sync on Friday:\n  Ivo showed the new layout of the CI runners.\n  Jun asked for a darker header; Gus will try two variants.\n  The group will look at the storybook again in 8 weeks.\n  Nothing in this sync touches the project itself.\n- [e293] According to design-memo DMEMO-4 version 4, the rebuild throttle in MB per second is `100`.\n  Countersigned by Dara.\n  Entry added to the change journal by Chen.\n- [e294] Retro notes of the changelog bot group:\n  Went well: Tove cleared the docs backlog.\n  Went well: the code owners file pages load faster.\n  To improve: shorter standups on Thursday.\n  Action: Mei collects ideas for the team offsite.\n- [e295] The platform-handbook document HBK-906 (version 23) states that the dedupe mode is `ON`.\n  Entry added to the change journal by Mei.\n- [e296] According to slack-thread SLK-941 version 19, the snapshot tool is `velero-snap`.\n  Entry added to the change journal by Gus.\n- [e297] Ticket DOC-375: broken anchors on a help page\n  Reporter: Rosa. Priority: low.\n  The page scripts/lint.sh has 3 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Friday was closed as a duplicate.\n- [e298] Chat excerpt from #team-chat:\n  Yara: yes, it is the image cache, it clears itself after 9 minutes\n  Chen: ok, thanks\n  Chen: lunch at 15:21? the new place near the station\n  Sami: count me in\n  Bo: reminder that the team calendar poll closes on Tuesday\n- [e299] The platform-handbook document HBK-956 (version 24) states that the checksum type is `crc32c-sum`.\n  Countersigned by Tove.\n  Entry added to the change journal by Femi.\n- [e300] According to slack-thread SLK-971 version 21, the checksum type is `md5-sum`.\n  Entry added to the change journal by Wren.\n- [e301] Notes from the office wifi sync on Wednesday:\n  Tove showed the new layout of the CI runners.\n  Mei asked for a darker header; Quinn will try two variants.\n  The group will look at the onboarding wiki again in 6 weeks.\n  Rosa said that the office printer works again.\n  Lars shared a short survey; 7 people answered so far.\n"
+        },
+        {
+          "path": "inbox/s6/ticket-02.md",
+          "content": "# Ticket thread, stage 6, part 3\n\n- [e314] Old printout of storage-standard STD-1002 version 19, made at the time of entry e267: it says the rebuild throttle in MB per second is `1000`. This is a historical copy, not a new statement.\n  Linked from the help center board by Uma.\n- [e315] Question from Chen: who reviews changes to the scrub interval in days? Answer: the usual reviewers. Nothing changes.\n  Watchers: Hana, Tove.\n  Linked from the office wifi board by Dara.\n- [e316] In chat, Eli asked whether the snapshot tool could be `velero-snap`. The question was closed without a change.\n  Watchers: Hana, Hana.\n- [e317] Old printout of platform-handbook HBK-841 version 19, made at the time of entry e260: it says the tiering engine is `tier-manual`. This is a historical copy, not a new statement.\n  Linked from the build cache board by Zed.\n  Watchers: Nils, Oona.\n- [e318] Old printout of platform-handbook HBK-868 version 21, made at the time of entry e262: it says the replication mode is `repl-sync`. This is a historical copy, not a new statement.\n  Watchers: Kira, Quinn.\n  Comment by Nils on ticket OPS-189.\n- [e319] Eli wants better documentation about the versioning depth. This is a docs task only and changes nothing.\n  Comment by Rosa on ticket OPS-229.\n  Linked from the release notes board by Hana.\n- [e320] Standup notes from Mei:\n  - yesterday: tidied the CI runners pages and answered 9 questions in chat\n  - today: rewriting the intro paragraph of the docs site guide\n  - out early on Tuesday for a dentist visit\n- [e321] Style guide excerpt, section 6.5:\n  Keep tables under 3 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e322] Read-only export of the image-optimizer configuration for the storybook:\n    max_line_length = 499\n    theme = \"slate-5\"\n    cache_hours = 9\n    runner_pool = \"pool-4\"\n    keep_reports_days = 97\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e323] In chat, Sami asked whether the rebuild throttle in MB per second could be `100`. The question was closed without a change.\n  Watchers: Femi, Chen.\n"
+        },
+        {
+          "path": "inbox/s6/design-03.md",
+          "content": "# Design discussion, stage 6, part 4\n\n- [e324] In chat, Lars asked whether the checksum type could be `crc32c-sum`. The question was closed without a change.\n  Gus and Tove were in the discussion.\n  From the design discussion led by Wren.\n- [e325] Oona found a saved copy of storage-standard STD-944 version 14 from the time of entry e212. It says the quota per bucket in GB is `500`. The copy is history only and changes nothing.\n  Ivo and Chen were in the discussion.\n- [e326] Review thread on web/favicon.ico (5 comments):\n  Pita: please wrap this paragraph at 51 characters.\n  Lars: done, and I fixed the heading levels too.\n  Yara: the table in section 8 renders badly on small screens.\n  Femi: nit: trailing spaces on line 35.\n  Quinn: can we move the long examples to an appendix?\n- [e327] Calendar update from cache-bot:\n  - the retro notes demo moves to 16:24 on Friday\n  - room booking for the test fixtures retro is confirmed\n  - the all-hands slides are due on Friday\n  - Kira hosts the next lunch talk about typography\n- [e328] Eli linked the dashboard page about the checksum type in the weekly notes. Nobody proposed a change.\n  From the design discussion led by Kira.\n  Pita and Wren were in the discussion.\n- [e329] Dara proposed `tier-intelligent` for the tiering engine again. No decision was made; nothing changes.\n  Gus and Gus were in the discussion.\n- [e330] Yara wants better documentation about the WORM mode. This is a docs task only and changes nothing.\n  From the design discussion led by Yara.\n- [e331] Style guide excerpt, section 3.7:\n  Use sentence case for headings.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n- [e332] Calendar update from docs-bot:\n  - the sprint board demo moves to 13:11 on Monday\n  - room booking for the docs site retro is confirmed\n  - Quinn is on leave from Monday for 5 days\n  - Femi hosts the next lunch talk about typography\n- [e333] Hana found a saved copy of slack-thread SLK-156 version 3 from the time of entry e025. It says the tiering engine is `tier-scheduled`. The copy is history only and changes nothing.\n  From the design discussion led by Nils.\n  Rosa and Nils were in the discussion.\n- [e334] Review thread on docs/style.md (8 comments):\n  Bo: the table in section 7 renders badly on small screens.\n  Sami: nit: trailing spaces on line 27.\n  Pita: moved them; the page is 49 percent shorter now.\n  Gus: approved, merge when the checks are green.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s6-log-1",
+          "content": "== log export, stage 6, part 2 ==\n[e302] 08:36 The platform-handbook document HBK-982 (version 26) states that the object lock mode is `lock-off`.\n    source=cache-bot level=info actor=Chen\n[e303] 08:39 Read-only export of the chat-relay configuration for the changelog bot:\n      max_line_length = 653\n      cache_hours = 4\n      keep_reports_days = 32\n      preview_pages = true\n      report_format = \"text\"\n[e304] 08:42 Ticket DOC-985: broken anchors on a help page\n    The page notes/retro.md has 8 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e305] 08:45 Read-only export of the spellcheck configuration for the build cache:\n      max_line_length = 409\n      cache_hours = 9\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 33\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n      report_format = \"text\"\n[e306] 08:48 According to jira-comment JIRA-988 version 21, the WORM mode is `ON`.\n    request_id=r-17364\n    source=cache-bot level=info actor=Jun\n[e307] 08:51 The slack-thread document SLK-1025 (version 22) states that the snapshot tool is `kopia-snap`.\n    request_id=r-75659\n    source=metrics level=info actor=Gus\n[e308] 08:54 According to platform-handbook HBK-1039 version 28, the backup target is `bkt-tokyo`.\n    request_id=r-28882\n    source=cache-bot level=info actor=Ivo\n[e309] 08:57 According to platform-handbook HBK-1045 version 30, the max object size in GB is `50`.\n    source=metrics level=info actor=Mei\n[e310] 09:00 The slack-thread document SLK-1075 (version 24) states that the WORM mode is `OFF`.\n    source=metrics level=info actor=Gus\n    request_id=r-25590\n[e311] 09:03 Review thread on docs/faq.md (9 comments):\n    Femi: please wrap this paragraph at 34 characters.\n    Rosa: done, and I fixed the heading levels too.\n    Eli: the table in section 3 renders badly on small screens.\n    Tove: nit: trailing spaces on line 18.\n    Hana: can we move the long examples to an appendix?\n[e312] 09:06 The storage-standard document STD-1038 (version 20) states that the checksum type is `sha1-sum`.\n    source=cache-bot level=info actor=Ivo\n[e313] 09:09 According to storage-standard STD-1066 version 22, the dedupe mode is `ON`.\n    request_id=r-10130\n    source=metrics level=info actor=Oona\n"
+        }
+      ],
+      "eventIds": [
+        "e291",
+        "e292",
+        "e293",
+        "e294",
+        "e295",
+        "e296",
+        "e297",
+        "e298",
+        "e299",
+        "e300",
+        "e301",
+        "e302",
+        "e303",
+        "e304",
+        "e305",
+        "e306",
+        "e307",
+        "e308",
+        "e309",
+        "e310",
+        "e311",
+        "e312",
+        "e313",
+        "e314",
+        "e315",
+        "e316",
+        "e317",
+        "e318",
+        "e319",
+        "e320",
+        "e321",
+        "e322",
+        "e323",
+        "e324",
+        "e325",
+        "e326",
+        "e327",
+        "e328",
+        "e329",
+        "e330",
+        "e331",
+        "e332",
+        "e333",
+        "e334"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s6-c1",
+          "kind": "file",
+          "name": "inbox/s6/journal-01.md",
+          "bytes": 2297,
+          "events": [
+            "e291",
+            "e292",
+            "e293",
+            "e294",
+            "e295",
+            "e296",
+            "e297",
+            "e298",
+            "e299",
+            "e300",
+            "e301"
+          ]
+        },
+        {
+          "chunkId": "s6-c2",
+          "kind": "file",
+          "name": "inbox/s6/ticket-02.md",
+          "bytes": 2200,
+          "events": [
+            "e314",
+            "e315",
+            "e316",
+            "e317",
+            "e318",
+            "e319",
+            "e320",
+            "e321",
+            "e322",
+            "e323"
+          ]
+        },
+        {
+          "chunkId": "s6-c3",
+          "kind": "file",
+          "name": "inbox/s6/design-03.md",
+          "bytes": 2461,
+          "events": [
+            "e324",
+            "e325",
+            "e326",
+            "e327",
+            "e328",
+            "e329",
+            "e330",
+            "e331",
+            "e332",
+            "e333",
+            "e334"
+          ]
+        },
+        {
+          "chunkId": "s6-c4",
+          "kind": "feed",
+          "name": "s6-log-1",
+          "bytes": 2352,
+          "events": [
+            "e302",
+            "e303",
+            "e304",
+            "e305",
+            "e306",
+            "e307",
+            "e308",
+            "e309",
+            "e310",
+            "e311",
+            "e312",
+            "e313"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "prompt": "Stage 7 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s7/ticket-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s7-board-1, s7-ci-2, s7-board-3.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s7/ticket-01.md",
+          "content": "# Ticket thread, stage 7, part 1\n\n- [e335] The storage-standard document STD-1098 (version 3) states that the backup target is `bkt-sydney`.\n  Linked from the test fixtures board by Dara.\n- [e336] Review thread on docs/faq.md (2 comments):\n  Uma: please wrap this paragraph at 66 characters.\n  Rosa: done, and I fixed the heading levels too.\n  Ana: nit: trailing spaces on line 60.\n  Sami: can we move the long examples to an appendix?\n  Hana: moved them; the page is 41 percent shorter now.\n- [e337] Style guide excerpt, section 4.3:\n  Use sentence case for headings.\n  Keep tables under 6 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e338] According to slack-thread SLK-1113 version 26, the tiering engine is `tier-lifecycle`.\n  Watchers: Nils, Mei.\n  Linked from the storybook board by Oona.\n- [e339] Ticket DOC-902: broken anchors on a help page\n  Reporter: Nils. Priority: low.\n  Rosa will fix it after the docs site work.\n  Related: a similar report from Thursday was closed as a duplicate.\n- [e340] The slack-thread document SLK-1116 (version 27) states that the checksum type is `xxh3-sum`.\n  Linked from the lint config board by Ivo.\n- [e341] The jira-comment document JIRA-1149 (version 22) states that the WORM mode is `ON`.\n  Watchers: Bo, Eli.\n  Comment by Quinn on ticket OPS-584.\n- [e342] Review thread on docs/faq.md (5 comments):\n  Quinn: please wrap this paragraph at 74 characters.\n  Eli: done, and I fixed the heading levels too.\n  Vik: nit: trailing spaces on line 50.\n  Mei: can we move the long examples to an appendix?\n  Chen: moved them; the page is 40 percent shorter now.\n- [e343] According to slack-thread SLK-1168 version 28, the tiering engine is `tier-manual`.\n  Linked from the error pages board by Lars.\n- [e344] According to platform-handbook HBK-1201 version 32, the quota per bucket in GB is `10000`.\n  Watchers: Quinn, Yara.\n  Comment by Tove on ticket OPS-101.\n- [e345] The jira-comment document JIRA-1236 (version 24) states that the compression mode is `ON`.\n  Watchers: Gus, Ana.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s7-board-1",
+          "content": "== board export, stage 7, part 2 ==\n[e346] 08:36 The jira-comment document JIRA-1247 (version 26) states that the encryption mode is `enc-aes-gcm`.\n    card updated by Quinn\n[e347] 08:39 The platform-handbook document HBK-1253 (version 33) states that the versioning depth is `2`.\n    card id 744\n    card updated by Kira\n[e348] 08:42 According to jira-comment JIRA-1271 version 27, the WORM mode is `OFF`.\n    card updated by Sami\n    card id 971\n[e349] 08:45 The platform-handbook document HBK-1300 (version 34) states that the replication mode is `repl-async`.\n    card updated by Jun\n[e350] 08:48 According to jira-comment JIRA-1330 version 29, the compression mode is `OFF`.\n    card id 225\n[e351] 08:51 The jira-comment document JIRA-1334 (version 31) states that the object lock mode is `lock-governance`.\n    card updated by Bo\n[e352] 08:54 metrics weekly numbers for the onboarding wiki:\n      median load 910 ms\n      error rate 0.05 percent\n      the numbers are inside the usual band\n[e353] 08:57 metrics opened a grouped update for the release notes tooling:\n      - markdown-lint 1.13.7 to 9.13.6\n      - link-checker 2.13.3 to 8.19.8\n      - image-optimizer 1.0.4 to 8.12.5\n      - spellcheck dictionary 4.17.6 to 2.13.9\n      The checks passed. No reviewer is assigned yet.\n[e354] 09:00 Calendar update from ci-bot:\n    - room booking for the build cache retro is confirmed\n    - Quinn is on leave from Wednesday for 6 days\n[e355] 09:03 ci-bot opened a grouped update for the retro notes tooling:\n      - markdown-lint 1.0.0 to 7.10.4\n      - link-checker 6.13.6 to 3.19.5\n      - spellcheck dictionary 9.3.0 to 7.6.7\n      The checks passed. No reviewer is assigned yet.\n[e356] 09:06 Standup notes from Bo:\n    - today: pairing with Femi on docs/faq.md\n    - today: rewriting the intro paragraph of the help center guide\n    - blockers: none\n    - updated the screenshots in README.md\n    - will demo the new help center layout next week\n[e357] 09:09 Ticket DOC-603: broken anchors on a help page\n    Kira will fix it after the help center work.\n    Status: open, no due date.\n    Related: a similar report from Monday was closed as a duplicate.\n"
+        },
+        {
+          "name": "s7-ci-2",
+          "content": "== ci export, stage 7, part 3 ==\n[e358] 09:12 The jira-comment document JIRA-1368 (version 33) states that the versioning depth is `5`.\n    pipeline note added by Jun\n    pipeline 53438\n[e359] 09:15 The storage-standard document STD-1089 (version 23) states that the quota per bucket in GB is `10000`.\n    pipeline 68331\n[e360] 09:18 According to storage-standard STD-1092 version 25, the rebuild throttle in MB per second is `25`.\n    pipeline note added by Wren\n[e361] 09:21 Notes from the changelog bot sync on Tuesday:\n    Chen showed the new layout of the error pages.\n    Jun asked for a darker header; Vik will try two variants.\n    The group will look at the test fixtures again in 5 weeks.\n    Nothing in this sync touches the project itself.\n[e362] 09:24 Read-only export of the docs-builder configuration for the changelog bot:\n      max_line_length = 848\n      theme = \"slate-9\"\n      cache_hours = 3\n      runner_pool = \"pool-8\"\n      notify_channel = \"#team-chat\"\n[e363] 09:27 Eli proposed `50` for the quota per bucket in GB again. No decision was made; nothing changes.\n    pipeline note added by Kira\n    pipeline 83746\n[e364] 09:30 Old printout of jira-comment JIRA-261 version 5, made at the time of entry e073: it says the backup target is `bkt-tokyo`. This is a historical copy, not a new statement.\n    pipeline note added by Yara\n    pipeline 25596\n[e365] 09:33 In chat, Uma asked whether the scrub interval in days could be `56`. The question was closed without a change.\n    pipeline 68113\n    pipeline note added by Bo\n[e366] 09:36 Old printout of storage-standard STD-1002 version 19, made at the time of entry e267: it says the rebuild throttle in MB per second is `1000`. This is a historical copy, not a new statement.\n    pipeline note added by Lars\n[e367] 09:39 Femi asked for a load test plan that covers the max object size in GB. The thread ended without a change.\n    pipeline note added by Mei\n    pipeline 75834\n[e368] 09:42 Uma linked the dashboard page about the compression mode in the weekly notes. Nobody proposed a change.\n    pipeline note added by Femi\n"
+        },
+        {
+          "name": "s7-board-3",
+          "content": "== board export, stage 7, part 4 ==\n[e369] 09:45 Uma found a saved copy of jira-comment JIRA-244 version 4 from the time of entry e039. It says the replication mode is `repl-async`. The copy is history only and changes nothing.\n    card id 348\n    card updated by Vik\n[e370] 09:48 Old printout of platform-handbook HBK-418 version 9, made at the time of entry e155: it says the compression mode is `ON`. This is a historical copy, not a new statement.\n    card updated by Mei\n    card id 150\n[e371] 09:51 Quinn found a saved copy of design-memo DMEMO-1 version 1 from the time of entry e016. It says the compression mode is `ON`. The copy is history only and changes nothing.\n    card id 281\n[e372] 09:54 Kira found a saved copy of platform-handbook HBK-283 version 6 from the time of entry e075. It says the snapshot tool is `restic-snap`. The copy is history only and changes nothing.\n    card id 828\n[e373] 09:57 Retro notes of the help center group:\n    Went well: Uma cleared the docs backlog.\n    Went well: the error pages pages load faster.\n    Action: Wren collects ideas for the team offsite.\n[e374] 10:00 Style guide excerpt, section 6.7:\n    Use sentence case for headings.\n    Keep tables under 7 columns.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e375] 10:03 Sami found a saved copy of storage-standard STD-905 version 11 from the time of entry e171. It says the WORM mode is `ON`. The copy is history only and changes nothing.\n    card id 616\n    card updated by Pita\n[e376] 10:06 docs-bot opened a grouped update for the brand assets tooling:\n      - markdown-lint 6.2.6 to 9.11.9\n      - link-checker 1.6.3 to 3.18.4\n      - image-optimizer 9.10.6 to 2.6.2\n      The checks passed. No reviewer is assigned yet.\n[e377] 10:09 Hana added a glossary entry that explains the versioning depth. The entry describes the term only; nothing changes.\n    card id 672\n    card updated by Wren\n[e378] 10:12 Bo found a saved copy of platform-handbook HBK-514 version 11 from the time of entry e165. It says the snapshot tool is `restic-snap`. The copy is history only and changes nothing.\n    card updated by Nils\n[e379] 10:15 Sami found a saved copy of storage-standard STD-898 version 9 from the time of entry e099. It says the dedupe mode is `ON`. The copy is history only and changes nothing.\n    card updated by Pita\n    card id 120\n[e380] 10:18 Notes from the help center sync on Monday:\n    Uma showed the new layout of the release notes.\n    Oona asked for a darker header; Nils will try two variants.\n    Sami shared a short survey; 5 people answered so far.\n"
+        }
+      ],
+      "eventIds": [
+        "e335",
+        "e336",
+        "e337",
+        "e338",
+        "e339",
+        "e340",
+        "e341",
+        "e342",
+        "e343",
+        "e344",
+        "e345",
+        "e346",
+        "e347",
+        "e348",
+        "e349",
+        "e350",
+        "e351",
+        "e352",
+        "e353",
+        "e354",
+        "e355",
+        "e356",
+        "e357",
+        "e358",
+        "e359",
+        "e360",
+        "e361",
+        "e362",
+        "e363",
+        "e364",
+        "e365",
+        "e366",
+        "e367",
+        "e368",
+        "e369",
+        "e370",
+        "e371",
+        "e372",
+        "e373",
+        "e374",
+        "e375",
+        "e376",
+        "e377",
+        "e378",
+        "e379",
+        "e380"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s7-c1",
+          "kind": "file",
+          "name": "inbox/s7/ticket-01.md",
+          "bytes": 2141,
+          "events": [
+            "e335",
+            "e336",
+            "e337",
+            "e338",
+            "e339",
+            "e340",
+            "e341",
+            "e342",
+            "e343",
+            "e344",
+            "e345"
+          ]
+        },
+        {
+          "chunkId": "s7-c2",
+          "kind": "feed",
+          "name": "s7-board-1",
+          "bytes": 2163,
+          "events": [
+            "e346",
+            "e347",
+            "e348",
+            "e349",
+            "e350",
+            "e351",
+            "e352",
+            "e353",
+            "e354",
+            "e355",
+            "e356",
+            "e357"
+          ]
+        },
+        {
+          "chunkId": "s7-c3",
+          "kind": "feed",
+          "name": "s7-ci-2",
+          "bytes": 2099,
+          "events": [
+            "e358",
+            "e359",
+            "e360",
+            "e361",
+            "e362",
+            "e363",
+            "e364",
+            "e365",
+            "e366",
+            "e367",
+            "e368"
+          ]
+        },
+        {
+          "chunkId": "s7-c4",
+          "kind": "feed",
+          "name": "s7-board-3",
+          "bytes": 2635,
+          "events": [
+            "e369",
+            "e370",
+            "e371",
+            "e372",
+            "e373",
+            "e374",
+            "e375",
+            "e376",
+            "e377",
+            "e378",
+            "e379",
+            "e380"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 8,
+      "prompt": "Stage 8 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s8/journal-01.md, inbox/s8/journal-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s8-log-1, s8-board-2, s8-ops-log.\nThe feed s8-ops-log is long. The entries that matter for this task carry the tag CHG-1778; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s8/journal-01.md",
+          "content": "# Change journal, stage 8, part 1\n\n- [e386] According to platform-handbook HBK-1407 version 36, the replication mode is `repl-chain`.\n  Countersigned by Yara.\n  Entry added to the change journal by Chen.\n- [e388] The jira-comment document JIRA-1438 (version 34) states that the WORM mode is `ON`.\n  Countersigned by Nils.\n- [e392] According to slack-thread SLK-1477 version 29, the snapshot tool is `restic-snap`.\n  Entry added to the change journal by Vik.\n- [e394] According to platform-handbook HBK-1508 version 38, the quota per bucket in GB is `2000`.\n  Countersigned by Gus.\n- [e398] According to storage-standard STD-1095 version 27, the compression mode is `ON`.\n  Entry added to the change journal by Chen.\n  Countersigned by Chen.\n- [e414] According to storage-standard STD-1101 version 29, the compression mode is `OFF`.\n  Entry added to the change journal by Jun.\n- [e415] According to storage-standard STD-1107 version 31, the rebuild throttle in MB per second is `1000`.\n  Countersigned by Lars.\n- [e417] Rosa asked for a load test plan that covers the tiering engine. The thread ended without a change.\n  Countersigned by Oona.\n  Entry added to the change journal by Zed.\n- [e420] Gus asked for a load test plan that covers the replication mode. The thread ended without a change.\n  Countersigned by Bo.\n  Entry added to the change journal by Oona.\n- [e428] Dara wants better documentation about the rebuild throttle in MB per second. This is a docs task only and changes nothing.\n  Entry added to the change journal by Sami.\n- [e430] Old printout of storage-standard STD-944 version 14, made at the time of entry e212: it says the quota per bucket in GB is `500`. This is a historical copy, not a new statement.\n  Countersigned by Zed.\n  Entry added to the change journal by Zed.\n- [e434] docs-bot run 271 summary:\n    step checkout ok (9.63s)\n    step lint ok, 42 files\n    cache restore hit rate 81%\n- [e435] Yara asked for a load test plan that covers the max object size in GB. The thread ended without a change.\n  Entry added to the change journal by Nils.\n  Countersigned by Ana.\n- [e436] cache-bot weekly numbers for the retro notes:\n    page views 6697\n    median load 344 ms\n    the numbers are inside the usual band\n"
+        },
+        {
+          "path": "inbox/s8/journal-02.md",
+          "content": "# Change journal, stage 8, part 4\n\n- [e458] Calendar update from docs-bot:\n  - the test fixtures demo moves to 18:12 on Thursday\n  - Oona is on leave from Wednesday for 3 days\n  - the all-hands slides are due on Tuesday\n  - Mei hosts the next lunch talk about typography\n- [e459] ci-bot weekly numbers for the status page:\n    page views 2153\n    median load 314 ms\n    uptime 99.99 percent\n    searches without a result: 47\n    the numbers are inside the usual band\n- [e460] docs-bot run 582 summary:\n    step checkout ok (8.47s)\n    step lint ok, 27 files\n    step docs-build ok, 80 pages\n    step upload ok, 323 KB\n    step notify ok, channel team-chat\n    total duration 8m 39s, no warnings\n- [e461] Read-only export of the image-optimizer configuration for the brand assets:\n    max_line_length = 502\n    theme = \"slate-4\"\n    keep_reports_days = 96\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e462] Notes from the changelog bot sync on Wednesday:\n  Hana showed the new layout of the test fixtures.\n  Hana asked for a darker header; Kira will try two variants.\n  The group will look at the design tokens again in 5 weeks.\n  Nils said that the office printer works again.\n  Nothing in this sync touches the project itself.\n- [e463] Style guide excerpt, section 7.2:\n  Use sentence case for headings.\n  Keep tables under 7 columns.\n  Write numbers below ten as words in running text.\n- [e464] Review thread on notes/retro.md (3 comments):\n  Vik: please wrap this paragraph at 32 characters.\n  Ivo: the table in section 6 renders badly on small screens.\n  Pita: approved, merge when the checks are green.\n- [e465] Read-only export of the link-checker configuration for the status page:\n    runner_pool = \"pool-9\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 84\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e467] Notes from the build cache sync on Monday:\n  Gus showed the new layout of the release notes.\n  The group will look at the docs site again in 7 weeks.\n  Mei said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Quinn shared a short survey; 8 people answered so far.\n- [e468] docs-bot opened a grouped update for the onboarding wiki tooling:\n    - markdown-lint 7.8.1 to 4.13.1\n    - link-checker 9.12.2 to 2.6.4\n    - image-optimizer 4.11.9 to 4.16.0\n    - spellcheck dictionary 9.4.1 to 6.9.6\n    The checks passed. No reviewer is assigned yet.\n- [e469] Chat excerpt from #team-chat:\n  Kira: is anyone else seeing the slow release notes page?\n  Dara: yes, it is the image cache, it clears itself after 7 minutes\n  Gus: ok, thanks\n  Jun: lunch at 08:26? the new place near the station\n  Jun: reminder that the brand assets poll closes on Monday\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s8-log-1",
+          "content": "== log export, stage 8, part 2 ==\n[e437] 10:51 Notes from the dependabot sync on Thursday:\n    Hana showed the new layout of the docs site.\n    Nils asked for a darker header; Kira will try two variants.\n    The group will look at the office wifi again in 3 weeks.\n    Kira said that the office printer works again.\n    Nothing in this sync touches the project itself.\n[e438] 10:54 Chat excerpt from #team-chat:\n    Kira: is anyone else seeing the slow retro notes page?\n    Oona: ok, thanks\n    Rosa: lunch at 11:16? the new place near the station\n    Yara: count me in\n    Wren: reminder that the sprint board poll closes on Wednesday\n[e439] 10:57 Notes from the docs site sync on Tuesday:\n    Sami asked for a darker header; Dara will try two variants.\n    The group will look at the sprint board again in 7 weeks.\n    Uma said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Chen shared a short survey; 6 people answered so far.\n[e440] 11:00 Standup notes from Quinn:\n    - yesterday: tidied the lint config pages and answered 7 questions in chat\n    - yesterday: reviewed 6 small pull requests about the status page\n    - today: rewriting the intro paragraph of the docs site guide\n    - will demo the new docs site layout next week\n[e441] 11:03 Old printout of jira-comment JIRA-634 version 11, made at the time of entry e204: it says the snapshot tool is `borg-snap`. This is a historical copy, not a new statement.\n    request_id=r-13164\n    source=lint-bot level=info actor=Femi\n[e442] 11:06 metrics opened a grouped update for the test fixtures tooling:\n      - markdown-lint 3.3.8 to 1.7.1\n      - link-checker 6.1.9 to 2.17.1\n      - image-optimizer 9.11.1 to 7.0.2\n      - spellcheck dictionary 7.16.5 to 4.3.3\n      The checks passed. No reviewer is assigned yet.\n[e443] 11:09 Gus wants better documentation about the backup target. This is a docs task only and changes nothing.\n    source=lint-bot level=info actor=Gus\n[e444] 11:12 Chat excerpt from #team-chat:\n    Quinn: is anyone else seeing the slow lint config page?\n    Dara: yes, it is the image cache, it clears itself after 5 minutes\n    Mei: ok, thanks\n    Quinn: lunch at 11:35? the new place near the station\n    Jun: reminder that the lint config poll closes on Monday\n[e446] 11:18 Calendar update from ci-bot:\n    - Zed is on leave from Friday for 3 days\n    - Uma hosts the next lunch talk about typography\n"
+        },
+        {
+          "name": "s8-board-2",
+          "content": "== board export, stage 8, part 3 ==\n[e447] 11:21 Notes from the team calendar sync on Monday:\n    Nils asked for a darker header; Lars will try two variants.\n    Oona said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Uma shared a short survey; 7 people answered so far.\n[e448] 11:24 Ticket DOC-604: broken anchors on a help page\n    Reporter: Ana. Priority: low.\n    Sami will fix it after the test fixtures work.\n    Status: open, no due date.\n[e449] 11:27 Retro notes of the sprint board group:\n    Went well: Mei cleared the docs backlog.\n    Went well: the dependabot pages load faster.\n    To improve: shorter standups on Wednesday.\n    Action: Mei books a room for the next retro.\n[e450] 11:30 Retro notes of the status page group:\n    Went well: Chen cleared the docs backlog.\n    To improve: shorter standups on Tuesday.\n    Action: Bo books a room for the next retro.\n[e451] 11:33 Ticket DOC-689: broken anchors on a help page\n    Reporter: Hana. Priority: low.\n    The page notes/retro.md has 4 broken anchors after the last rename.\n    Mei will fix it after the storybook work.\n    Related: a similar report from Monday was closed as a duplicate.\n[e452] 11:36 metrics opened a grouped update for the CI runners tooling:\n      - markdown-lint 2.13.1 to 5.4.9\n      - link-checker 8.1.8 to 7.16.2\n      - spellcheck dictionary 6.11.7 to 3.13.6\n[e453] 11:39 Retro notes of the docs site group:\n    To improve: shorter standups on Friday.\n    Action: Ana books a room for the next retro.\n    Action: Femi collects ideas for the team offsite.\n[e454] 11:42 Standup notes from Wren:\n    - yesterday: reviewed 6 small pull requests about the status page\n    - blockers: none\n    - updated the screenshots in notes/retro.md\n[e455] 11:45 Review thread on docs/howto.md (8 comments):\n    Ivo: done, and I fixed the heading levels too.\n    Dara: nit: trailing spaces on line 98.\n    Hana: can we move the long examples to an appendix?\n[e456] 11:48 calendar opened a grouped update for the error pages tooling:\n      - markdown-lint 3.5.0 to 2.16.3\n      - link-checker 4.9.5 to 8.3.1\n      - image-optimizer 7.9.6 to 8.4.5\n      - spellcheck dictionary 9.13.9 to 2.6.2\n      The checks passed. No reviewer is assigned yet.\n[e457] 11:51 ci-bot weekly numbers for the docs site:\n      uptime 99.98 percent\n      searches without a result: 89\n      the numbers are inside the usual band\n"
+        },
+        {
+          "name": "s8-ops-log",
+          "content": "== ops-log export, stage 8 ==\n[e381] 08:03 cache-bot: calendar sync imported 5 events for the brand assets; conflicts=0; reminders_sent=23; the import window covered the next 35 days\n    upstream=status-page latency=221ms\n    next_run=in 6h window=18:53\n[e382] 08:06 ci-bot: Quinn edited docs/glossary.md (+4 -59 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-7 attempt=1 result=ok\n    retention applied to 55 items\n    trace=t-70340 span_count=36 dropped=0\n[e383] 08:09 CHG-1778 Document DMEMO-5 is outdated and withdrawn. Ignore everything it states.\n    request_id=r-67024\n    source=cache-bot level=info actor=Gus\n[e384] 08:12 ci-bot: Yara opened a chat thread about the office wifi; replies=2; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=856ms\n    trace=t-25592 span_count=26 dropped=0\n[e385] 08:15 ci-bot: calendar sync imported 5 events for the lint config; conflicts=0; reminders_sent=80; the import window covered the next 78 days\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e387] 08:21 calendar: cleanup removed 56 temp folders under tools/fmt.mjs freed 478 MB; next cleanup scheduled; disk usage at 63% of quota\n    note: routine, no operator action\n    upstream=status-page latency=590ms\n[e389] 08:27 ci-bot: heartbeat seq=994 queue_depth=12 oldest_item_age=3s workers=22 cpu=46% mem=47% area=\"CI runners\" outcome=nominal, no operator action\n    trace=t-32524 span_count=60 dropped=0\n[e390] 08:30 cache-bot: calendar sync imported 9 events for the CI runners; conflicts=0; reminders_sent=87; the import window covered the next 95 days\n    next_run=in 6h window=16:24\n[e391] 08:33 metrics: Nils and Bo booked the small room for the dependabot chat at 18:19; duration 3 minutes; no agenda attached\n    worker=pool-7 attempt=1 result=ok\n    note: routine, no operator action\n[e393] 08:39 calendar: Tove and Femi booked the small room for the onboarding wiki chat at 13:54; duration 5 minutes; no agenda attached\n    retention applied to 42 items\n[e395] 08:45 metrics: cleanup removed 19 temp folders under .editorconfig freed 250 MB; next cleanup scheduled; disk usage at 68% of quota\n    note: routine, no operator action\n    next_run=in 5h window=11:56\n[e396] 08:48 metrics: build 876 for the help center reused 79% of cached layers; image size unchanged; upload time 7s; retention policy applied to 55 old images\n    upstream=status-page latency=272ms\n    trace=t-61379 span_count=78 dropped=0\n    owner=docs-team escalation=none\n[e397] 08:51 calendar: calendar sync imported 6 events for the help center; conflicts=0; reminders_sent=53; the import window covered the next 17 days\n    note: routine, no operator action\n[e399] 08:57 metrics: build 540 for the office wifi reused 77% of cached layers; image size unchanged; upload time 2s; retention policy applied to 68 old images\n    retention applied to 54 items\n    trace=t-12613 span_count=41 dropped=0\n    owner=docs-team escalation=none\n[e400] 09:00 calendar: Mei opened a chat thread about the team calendar; replies=5; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-3 attempt=1 result=ok\n    note: routine, no operator action\n    upstream=status-page latency=586ms\n[e401] 09:03 docs-bot: cleanup removed 59 temp folders under docs/faq.md freed 815 MB; next cleanup scheduled; disk usage at 44% of quota\n    upstream=status-page latency=695ms\n    trace=t-39797 span_count=60 dropped=0\n    owner=docs-team escalation=none\n[e402] 09:06 chat-relay: Oona opened a chat thread about the test fixtures; replies=3; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    note: routine, no operator action\n    retention applied to 28 items\n    trace=t-39024 span_count=10 dropped=0\n[e403] 09:09 calendar: metrics rollup for the error pages: p50=6ms p95=687ms errors=0 sample=415 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    upstream=status-page latency=411ms\n[e404] 09:12 cache-bot: build 671 for the design tokens reused 70% of cached layers; image size unchanged; upload time 6s; retention policy applied to 80 old images\n    worker=pool-3 attempt=1 result=ok\n    upstream=status-page latency=795ms\n    trace=t-71078 span_count=23 dropped=0\n[e405] 09:15 calendar: metrics rollup for the test fixtures: p50=2ms p95=775ms errors=0 sample=389 requests; values inside the usual band for this hour\n    note: routine, no operator action\n[e406] 09:18 cache-bot: build 856 for the CI runners reused 95% of cached layers; image size unchanged; upload time 7s; retention policy applied to 62 old images\n    upstream=status-page latency=570ms\n[e407] 09:21 ci-bot: Ana edited tools/fmt.mjs (+9 -98 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-3 attempt=1 result=ok\n[e408] 09:24 calendar: Lars edited ci/cache.yml (+9 -83 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    upstream=status-page latency=887ms\n[e409] 09:27 cache-bot: scan of ci/cache.yml complete files_checked=494 issues_new=0 issues_closed=62 duration=9s; trend flat compared with the previous 9 runs\n    worker=pool-9 attempt=1 result=ok\n    upstream=status-page latency=698ms\n    trace=t-16332 span_count=58 dropped=0\n[e410] 09:30 chat-relay: Lars opened a chat thread about the storybook; replies=6; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-7 attempt=1 result=ok\n[e411] 09:33 chat-relay: Mei edited tools/fmt.mjs (+5 -68 lines, formatting only); review not required by policy; merged after the standard wait\n    trace=t-11585 span_count=85 dropped=0\n[e412] 09:36 ci-bot: cleanup removed 25 temp folders under scripts/lint.sh freed 812 MB; next cleanup scheduled; disk usage at 47% of quota\n    upstream=status-page latency=634ms\n    owner=docs-team escalation=none\n    next_run=in 9h window=16:33\n[e413] 09:39 lint-bot: job #390 finished status=ok duration=4.34s cache=warm artifacts=29 warnings=0 runner=pool-4 note=routine nightly sweep of the test fixtures, nothing to report\n    note: routine, no operator action\n    retention applied to 18 items\n[e416] 09:48 metrics: dependency audit of the build cache tooling found 82 minor updates; none are security related; the bot will open grouped updates later\n    upstream=status-page latency=783ms\n    trace=t-74213 span_count=44 dropped=0\n[e418] 09:54 lint-bot: build 577 for the error pages reused 82% of cached layers; image size unchanged; upload time 7s; retention policy applied to 25 old images\n    worker=pool-5 attempt=1 result=ok\n    retention applied to 18 items\n    owner=docs-team escalation=none\n[e419] 09:57 ci-bot: metrics rollup for the storybook: p50=2ms p95=907ms errors=0 sample=839 requests; values inside the usual band for this hour\n    worker=pool-6 attempt=1 result=ok\n    upstream=status-page latency=456ms\n    next_run=in 9h window=16:29\n[e421] 10:03 ci-bot: Pita edited notes/retro.md (+5 -54 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-9 attempt=1 result=ok\n    owner=docs-team escalation=none\n    next_run=in 7h window=10:59\n[e422] 10:06 calendar: calendar sync imported 3 events for the docs site; conflicts=0; reminders_sent=10; the import window covered the next 40 days\n    owner=docs-team escalation=none\n[e423] 10:09 chat-relay: calendar sync imported 2 events for the CI runners; conflicts=0; reminders_sent=82; the import window covered the next 83 days\n    upstream=status-page latency=598ms\n    owner=docs-team escalation=none\n    next_run=in 9h window=09:29\n[e424] 10:12 ci-bot: Kira opened a chat thread about the brand assets; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-2 attempt=1 result=ok\n    upstream=status-page latency=234ms\n[e425] 10:15 chat-relay: scan of notes/retro.md complete files_checked=777 issues_new=0 issues_closed=71 duration=6s; trend flat compared with the previous 3 runs\n    note: routine, no operator action\n    retention applied to 68 items\n    trace=t-47649 span_count=94 dropped=0\n[e426] 10:18 lint-bot: Vik edited docs/glossary.md (+9 -71 lines, formatting only); review not required by policy; merged after the standard wait\n    owner=docs-team escalation=none\n[e427] 10:21 chat-relay: calendar sync imported 7 events for the team calendar; conflicts=0; reminders_sent=69; the import window covered the next 36 days\n    worker=pool-9 attempt=1 result=ok\n[e429] 10:27 docs-bot: cleanup removed 29 temp folders under README.md freed 292 MB; next cleanup scheduled; disk usage at 53% of quota\n    retention applied to 92 items\n[e431] 10:33 chat-relay: dependency audit of the onboarding wiki tooling found 42 minor updates; none are security related; the bot will open grouped updates later\n    trace=t-53682 span_count=97 dropped=0\n[e432] 10:36 docs-bot: cleanup removed 84 temp folders under docs/glossary.md freed 767 MB; next cleanup scheduled; disk usage at 95% of quota\n    retention applied to 77 items\n    owner=docs-team escalation=none\n[e433] 10:39 metrics: job #692 finished status=ok duration=6.82s cache=warm artifacts=81 warnings=0 runner=pool-8 note=routine nightly sweep of the sprint board, nothing to report\n    trace=t-18872 span_count=71 dropped=0\n    next_run=in 8h window=13:58\n[e445] 11:15 CHG-1778 Update from Pita: the build agent pool is set to `agentpool-q45`, effective now.\n    request_id=r-75147\n    source=cache-bot level=info actor=Zed\n[e466] 12:18 CHG-1778 Decision: the build agent pool is now `agentpool-q44`.\n    source=calendar level=info actor=Zed\n    request_id=r-53520\n"
+        }
+      ],
+      "eventIds": [
+        "e381",
+        "e382",
+        "e383",
+        "e384",
+        "e385",
+        "e386",
+        "e387",
+        "e388",
+        "e389",
+        "e390",
+        "e391",
+        "e392",
+        "e393",
+        "e394",
+        "e395",
+        "e396",
+        "e397",
+        "e398",
+        "e399",
+        "e400",
+        "e401",
+        "e402",
+        "e403",
+        "e404",
+        "e405",
+        "e406",
+        "e407",
+        "e408",
+        "e409",
+        "e410",
+        "e411",
+        "e412",
+        "e413",
+        "e414",
+        "e415",
+        "e416",
+        "e417",
+        "e418",
+        "e419",
+        "e420",
+        "e421",
+        "e422",
+        "e423",
+        "e424",
+        "e425",
+        "e426",
+        "e427",
+        "e428",
+        "e429",
+        "e430",
+        "e431",
+        "e432",
+        "e433",
+        "e434",
+        "e435",
+        "e436",
+        "e437",
+        "e438",
+        "e439",
+        "e440",
+        "e441",
+        "e442",
+        "e443",
+        "e444",
+        "e445",
+        "e446",
+        "e447",
+        "e448",
+        "e449",
+        "e450",
+        "e451",
+        "e452",
+        "e453",
+        "e454",
+        "e455",
+        "e456",
+        "e457",
+        "e458",
+        "e459",
+        "e460",
+        "e461",
+        "e462",
+        "e463",
+        "e464",
+        "e465",
+        "e466",
+        "e467",
+        "e468",
+        "e469"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s8-c1",
+          "kind": "file",
+          "name": "inbox/s8/journal-01.md",
+          "bytes": 2242,
+          "events": [
+            "e386",
+            "e388",
+            "e392",
+            "e394",
+            "e398",
+            "e414",
+            "e415",
+            "e417",
+            "e420",
+            "e428",
+            "e430",
+            "e434",
+            "e435",
+            "e436"
+          ]
+        },
+        {
+          "chunkId": "s8-c2",
+          "kind": "file",
+          "name": "inbox/s8/journal-02.md",
+          "bytes": 2707,
+          "events": [
+            "e458",
+            "e459",
+            "e460",
+            "e461",
+            "e462",
+            "e463",
+            "e464",
+            "e465",
+            "e467",
+            "e468",
+            "e469"
+          ]
+        },
+        {
+          "chunkId": "s8-c3",
+          "kind": "feed",
+          "name": "s8-log-1",
+          "bytes": 2433,
+          "events": [
+            "e437",
+            "e438",
+            "e439",
+            "e440",
+            "e441",
+            "e442",
+            "e443",
+            "e444",
+            "e446"
+          ]
+        },
+        {
+          "chunkId": "s8-c4",
+          "kind": "feed",
+          "name": "s8-board-2",
+          "bytes": 2432,
+          "events": [
+            "e447",
+            "e448",
+            "e449",
+            "e450",
+            "e451",
+            "e452",
+            "e453",
+            "e454",
+            "e455",
+            "e456",
+            "e457"
+          ]
+        },
+        {
+          "chunkId": "s8-c5",
+          "kind": "feed",
+          "name": "s8-ops-log",
+          "bytes": 9793,
+          "events": [
+            "e381",
+            "e382",
+            "e383",
+            "e384",
+            "e385",
+            "e387",
+            "e389",
+            "e390",
+            "e391",
+            "e393",
+            "e395",
+            "e396",
+            "e397",
+            "e399",
+            "e400",
+            "e401",
+            "e402",
+            "e403",
+            "e404",
+            "e405",
+            "e406",
+            "e407",
+            "e408",
+            "e409",
+            "e410",
+            "e411",
+            "e412",
+            "e413",
+            "e416",
+            "e418",
+            "e419",
+            "e421",
+            "e422",
+            "e423",
+            "e424",
+            "e425",
+            "e426",
+            "e427",
+            "e429",
+            "e431",
+            "e432",
+            "e433",
+            "e445",
+            "e466"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoint": {
+    "afterStage": 3,
+    "timing": "after_compaction",
+    "questions": [
+      {
+        "id": "c1",
+        "text": "At this point, under the precedence rule, what is the checksum type?",
+        "type": "choice",
+        "options": [
+          "crc32c-sum",
+          "md5-sum",
+          "sha1-sum",
+          "xxh3-sum"
+        ]
+      },
+      {
+        "id": "c2",
+        "text": "At this point, under the precedence rule, what is the tiering engine?",
+        "type": "choice",
+        "options": [
+          "tier-intelligent",
+          "tier-lifecycle",
+          "tier-manual",
+          "tier-scheduled"
+        ]
+      },
+      {
+        "id": "c3",
+        "text": "At this point, under the precedence rule, what is the object lock mode?",
+        "type": "choice",
+        "options": [
+          "lock-compliance",
+          "lock-governance",
+          "lock-legal-hold",
+          "lock-off"
+        ]
+      },
+      {
+        "id": "c4",
+        "text": "At this point, under the precedence rule, what is the backup target?",
+        "type": "choice",
+        "options": [
+          "bkt-frankfurt",
+          "bkt-oregon",
+          "bkt-sydney",
+          "bkt-tokyo"
+        ]
+      },
+      {
+        "id": "c5",
+        "text": "At this point, under the precedence rule, what is the quota per bucket in GB? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c6",
+        "text": "At this point, under the precedence rule, what is the tiering engine?",
+        "type": "choice",
+        "options": [
+          "tier-intelligent",
+          "tier-lifecycle",
+          "tier-manual",
+          "tier-scheduled"
+        ]
+      },
+      {
+        "id": "c7",
+        "text": "At this point, under the precedence rule, is the dedupe mode ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "c8",
+        "text": "At this point, under the precedence rule, what is the backup target?",
+        "type": "choice",
+        "options": [
+          "bkt-frankfurt",
+          "bkt-oregon",
+          "bkt-sydney",
+          "bkt-tokyo"
+        ]
+      },
+      {
+        "id": "c9",
+        "text": "At this point, under the precedence rule, what is the rebuild throttle in MB per second? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c10",
+        "text": "At this point, under the precedence rule, what is the versioning depth? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c11",
+        "text": "At this point, which source decides the versioning depth?",
+        "type": "choice",
+        "options": [
+          "design-memo",
+          "jira-comment",
+          "platform-handbook",
+          "slack-thread",
+          "storage-standard"
+        ]
+      },
+      {
+        "id": "c12",
+        "text": "At this point, under the precedence rule, what is the max object size in GB? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c13",
+        "text": "At this point, under the precedence rule, is the compression mode ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      }
+    ],
+    "probes": [
+      {
+        "afterStage": 3,
+        "questionIds": [
+          "c1",
+          "c2",
+          "c3",
+          "c4"
+        ]
+      },
+      {
+        "afterStage": 5,
+        "questionIds": [
+          "c5",
+          "c6",
+          "c7",
+          "c8"
+        ]
+      },
+      {
+        "afterStage": 7,
+        "questionIds": [
+          "c9",
+          "c10",
+          "c11",
+          "c12",
+          "c13"
+        ]
+      }
+    ]
+  },
+  "final": {
+    "questions": [
+      {
+        "id": "q1",
+        "text": "Under the precedence rule, what is the object lock mode now?",
+        "type": "choice",
+        "options": [
+          "lock-compliance",
+          "lock-governance",
+          "lock-legal-hold",
+          "lock-off"
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "Under the precedence rule, what is the backup target now?",
+        "type": "choice",
+        "options": [
+          "bkt-frankfurt",
+          "bkt-oregon",
+          "bkt-sydney",
+          "bkt-tokyo"
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "Under the precedence rule, what is the versioning depth now? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "q4",
+        "text": "Which source decides the versioning depth now?",
+        "type": "choice",
+        "options": [
+          "design-memo",
+          "jira-comment",
+          "platform-handbook",
+          "slack-thread",
+          "storage-standard"
+        ]
+      },
+      {
+        "id": "q5",
+        "text": "Under the precedence rule, is the dedupe mode ON now? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "q6",
+        "text": "Which value did the tiering engine have under the very first specification?",
+        "type": "choice",
+        "options": [
+          "tier-intelligent",
+          "tier-lifecycle",
+          "tier-manual",
+          "tier-scheduled"
+        ]
+      },
+      {
+        "id": "q7",
+        "text": "Under the precedence rule, what is the tiering engine now?",
+        "type": "choice",
+        "options": [
+          "tier-intelligent",
+          "tier-lifecycle",
+          "tier-manual",
+          "tier-scheduled"
+        ]
+      },
+      {
+        "id": "q8",
+        "text": "Under the precedence rule, what is the checksum type now?",
+        "type": "choice",
+        "options": [
+          "crc32c-sum",
+          "md5-sum",
+          "sha1-sum",
+          "xxh3-sum"
+        ]
+      },
+      {
+        "id": "q9",
+        "text": "Under the precedence rule, what is the quota per bucket in GB now? Answer with a number.",
+        "type": "int"
+      }
+    ]
+  }
+}

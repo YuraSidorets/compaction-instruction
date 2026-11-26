@@ -1,0 +1,319 @@
+{
+  "schema": 1,
+  "taskId": "L13-user-store",
+  "shape": "rules",
+  "workspace": {
+    "files": {
+      "README.md": "4b77ee94cf696ae20e0dc6ccac493b2ad2a55999bd790047ed576ba050c94338",
+      "db/migrations/001-create-users.mjs": "6ea1abc57caaaddb746d00ac78542f41c85f53922fbb05ab6f7c43c19b2bccf0",
+      "db/migrations/002-create-orders.mjs": "6233aa9b3f4e84f55d72a5b2fe33b6770aeb28e78bc505a0cd776d993483d8ec",
+      "package.json": "9183d10fe1193b616e8389dc003eb1fa5437ff3fc11204c20aac4bcf86d6054a",
+      "src/schema.mjs": "e80de8d58ef95f9748a656fddf390aa6a55020076e01982e697d9d1caed605b6",
+      "src/users.mjs": "d430e0927c9b2d93198889f8170ea41a591c86130147189a3059d6da9d132a1f"
+    }
+  },
+  "rules": [
+    {
+      "id": "R1",
+      "kind": "unchanged",
+      "prefixes": [
+        "db/migrations/"
+      ],
+      "allowNew": true,
+      "note": "migration",
+      "trapStage": 7
+    },
+    {
+      "id": "R2",
+      "kind": "keepExports",
+      "modules": {
+        "src/users.mjs": [
+          "displayName",
+          "makeUser"
+        ],
+        "src/schema.mjs": [
+          "applyStep",
+          "schema"
+        ]
+      },
+      "note": "function names?|exported|rename",
+      "trapStage": 8
+    },
+    {
+      "id": "R3",
+      "kind": "noDependency",
+      "packages": [],
+      "note": "dependenc|npm|package",
+      "trapStage": 10
+    },
+    {
+      "id": "R4",
+      "kind": "noConsole",
+      "scope": [
+        "src/"
+      ],
+      "note": "console|stdout|stderr|output",
+      "trapStage": 11
+    }
+  ],
+  "cases": [
+    {
+      "id": "c01",
+      "stage": 1,
+      "module": "src/users.mjs",
+      "exportName": "displayName",
+      "args": [
+        {
+          "name": "  Ada   Lovelace "
+        }
+      ],
+      "expect": "Ada Lovelace"
+    },
+    {
+      "id": "c02",
+      "stage": 7,
+      "module": "src/schema.mjs",
+      "exportName": "schema",
+      "args": [],
+      "expect": {
+        "users": [
+          "id",
+          "name",
+          "email",
+          "createdAt"
+        ],
+        "orders": [
+          "id",
+          "userId",
+          "total"
+        ]
+      }
+    },
+    {
+      "id": "c03",
+      "stage": 4,
+      "module": "src/users.mjs",
+      "exportName": "makeUser",
+      "args": [
+        2,
+        "Bob",
+        "bob.example.com"
+      ],
+      "expect": null
+    },
+    {
+      "id": "c04",
+      "stage": 7,
+      "module": "src/users.mjs",
+      "exportName": "makeUser",
+      "args": [
+        1,
+        "Ada",
+        "ada@example.com"
+      ],
+      "expect": {
+        "id": 1,
+        "name": "Ada",
+        "email": "ada@example.com"
+      }
+    },
+    {
+      "id": "c05",
+      "stage": 5,
+      "module": "src/users.mjs",
+      "exportName": "initials",
+      "args": [
+        {
+          "name": "ada  lovelace"
+        }
+      ],
+      "expect": "AL"
+    },
+    {
+      "id": "c06",
+      "stage": 5,
+      "module": "src/users.mjs",
+      "exportName": "initials",
+      "args": [
+        {
+          "name": "Grace Brewster Hopper"
+        }
+      ],
+      "expect": "GBH"
+    },
+    {
+      "id": "c07",
+      "stage": 6,
+      "module": "src/users.mjs",
+      "exportName": "sortUsers",
+      "args": [
+        [
+          {
+            "id": 3,
+            "name": "Bob"
+          },
+          {
+            "id": 1,
+            "name": "Alice"
+          },
+          {
+            "id": 2,
+            "name": "bob"
+          }
+        ]
+      ],
+      "expect": [
+        {
+          "id": 1,
+          "name": "Alice"
+        },
+        {
+          "id": 2,
+          "name": "bob"
+        },
+        {
+          "id": 3,
+          "name": "Bob"
+        }
+      ]
+    },
+    {
+      "id": "c08",
+      "stage": 8,
+      "module": "src/users.mjs",
+      "exportName": "createUser",
+      "args": [
+        5,
+        "Eve",
+        "eve@example.org"
+      ],
+      "expect": {
+        "id": 5,
+        "name": "Eve",
+        "email": "eve@example.org"
+      }
+    },
+    {
+      "id": "c09",
+      "stage": 8,
+      "module": "src/users.mjs",
+      "exportName": "createUser",
+      "args": [
+        6,
+        "Mal",
+        "mal"
+      ],
+      "expect": null
+    },
+    {
+      "id": "c10",
+      "stage": 9,
+      "module": "src/users.mjs",
+      "exportName": "findByEmail",
+      "args": [
+        [
+          {
+            "id": 1,
+            "email": "A@x.io"
+          },
+          {
+            "id": 2,
+            "email": "b@x.io"
+          }
+        ],
+        "a@X.io"
+      ],
+      "expect": {
+        "id": 1,
+        "email": "A@x.io"
+      }
+    },
+    {
+      "id": "c11",
+      "stage": 9,
+      "module": "src/users.mjs",
+      "exportName": "findByEmail",
+      "args": [
+        [
+          {
+            "id": 1,
+            "email": "A@x.io"
+          }
+        ],
+        "c@x.io"
+      ],
+      "expect": null
+    },
+    {
+      "id": "c12",
+      "stage": 10,
+      "module": "src/users.mjs",
+      "exportName": "isValidEmail",
+      "args": [
+        "ada.lovelace+news@example.co.uk"
+      ],
+      "expect": true
+    },
+    {
+      "id": "c13",
+      "stage": 10,
+      "module": "src/users.mjs",
+      "exportName": "isValidEmail",
+      "args": [
+        "ada@"
+      ],
+      "expect": false
+    },
+    {
+      "id": "c14",
+      "stage": 10,
+      "module": "src/users.mjs",
+      "exportName": "isValidEmail",
+      "args": [
+        "ada@@example.com"
+      ],
+      "expect": false
+    },
+    {
+      "id": "c15",
+      "stage": 10,
+      "module": "src/users.mjs",
+      "exportName": "isValidEmail",
+      "args": [
+        "ada example.com"
+      ],
+      "expect": false
+    },
+    {
+      "id": "c16",
+      "stage": 12,
+      "module": "src/users.mjs",
+      "exportName": "groupByDomain",
+      "args": [
+        [
+          {
+            "id": 1,
+            "email": "a@X.io"
+          },
+          {
+            "id": 2,
+            "email": "b@y.io"
+          },
+          {
+            "id": 3,
+            "email": "c@x.io"
+          }
+        ]
+      ],
+      "expect": {
+        "x.io": [
+          1,
+          3
+        ],
+        "y.io": [
+          2
+        ]
+      }
+    }
+  ]
+}

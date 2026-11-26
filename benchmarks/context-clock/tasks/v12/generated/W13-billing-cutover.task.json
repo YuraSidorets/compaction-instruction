@@ -1,0 +1,1794 @@
+{
+  "schema": 1,
+  "taskId": "W13-billing-cutover",
+  "category": "W",
+  "shape": "worklog",
+  "seed": 2200000,
+  "profile": "compaction",
+  "params": {
+    "events": 489,
+    "entities": 13,
+    "updates": 129,
+    "dependencyDepth": 2,
+    "noiseRatio": 0.68,
+    "approxBytes": 99287,
+    "sizeGroup": "v12"
+  },
+  "intro": "You follow the work log of a team that moves billing to a new ledger. Work items open, close and reopen, change owners and block each other, and the files of the change move through review.\n\nInitial specification:\n- [e001] The board sync by Tove moved the card, so the status of work item LDG-231 is `opened` from now on.\n- [e002] Zed handed the work over in the stand-up, so the owner of work item LDG-231 is now `nakamura`.\n- [e003] In the stand-up, Dara said that the status of work item LDG-258 is now `opened`.\n- [e004] Kira assigned the ticket again, and the owner of work item LDG-258 became `haddad`.\n- [e005] Quinn updated the ticket, and with that update the status of work item LDG-214 became `opened`.\n- [e006] Tove handed the work over in the stand-up, so the owner of work item LDG-214 is now `ferreira`.\n- [e007] In the stand-up, Tove said that the status of work item LDG-275 is now `opened`.\n- [e008] Pita handed the work over in the stand-up, so the owner of work item LDG-275 is now `nakamura`.\n- [e009] The board sync by Pita moved the card, so the status of work item LDG-246 is `opened` from now on.\n- [e010] Bo assigned the ticket again, and the owner of work item LDG-246 became `varga`.\n- [e011] Kira updated the ticket, and with that update the status of work item LDG-292 became `opened`.\n- [e012] After the planning meeting, the owner of work item LDG-292 is `moreau`, as Hana recorded in the ticket.\n- [e013] Rosa updated the ticket, and with that update the status of work item LDG-289 became `opened`.\n- [e014] Nils handed the work over in the stand-up, so the owner of work item LDG-289 is now `ferreira`.\n- [e015] Kira linked the tickets, so the work item that blocks LDG-231 is now `no-blocker`.\n- [e016] In the dependency review, Ana recorded that the work item that blocks LDG-258 is `no-blocker` from now on.\n- [e017] Rosa updated the dependency field, and the work item that blocks LDG-214 became `no-blocker`.\n- [e018] Wren linked the tickets, so the work item that blocks LDG-275 is now `LDG-214`.\n- [e019] Yara updated the dependency field, and the work item that blocks LDG-246 became `no-blocker`.\n- [e020] Sami linked the tickets, so the work item that blocks LDG-292 is now `no-blocker`.\n- [e021] Lars updated the dependency field, and the work item that blocks LDG-289 became `LDG-214`.\n- [e022] The review bot reported for Vik that the status of the file config/ledger-flags.yaml changed to `reviewed`.\n- [e023] The review bot reported for Bo that the status of the file src/ledger/accounts.ts changed to `draft`.\n- [e024] The review bot reported for Lars that the status of the file migrations/0043_backfill_entries.sql changed to `draft`.\n- [e025] Yara wrote in the review thread that the status of the file src/ledger/reconcile.ts is now `draft`.\n- [e026] The review bot reported for Jun that the status of the file migrations/0042_split_journal.sql changed to `reviewed`.\n- [e027] Wren wrote in the review thread that the status of the file src/ledger/posting.ts is now `draft`.\n\nRules for this task:\n- A value changes only by an event that decides, answers, corrects, assigns, links or reviews it. A proposal with no decision, a withdrawn draft, a question, a link to a page and an archived copy change nothing.\n- A correction or a new entry replaces the earlier value. The earlier value is then superseded.\n- The initial specification gives the first value of each item.\n- A question about the values of an item \"at some point\" counts every value from the initial specification on, up to the time of the question. The value \"directly before\" the current value is the value that the current value replaced.\n- A work item has one of the statuses `opened`, `closed`, `reopened`. A file has one of the statuses `draft`, `reviewed`, `merged`, `reverted`.\n- Each work item has one owner and at most one blocking item at a time. The value `no-blocker` means that no item blocks it. A new entry for the owner or the blocking item replaces the earlier one.\nEvery event has a label of the form [eNNN] with a three-digit number. A higher number is later in time. A later event can change or cancel an earlier one.\nSome material quotes old pages or copies for history. A quote of that kind is not a new statement.",
+  "stages": [
+    {
+      "stage": 1,
+      "prompt": "Stage 1 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s1/minutes-01.md, inbox/s1/design-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s1-board-1, s1-ci-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s1/minutes-01.md",
+          "content": "# Meeting minutes, stage 1, part 1\n\n- [e028] Yara assigned the ticket again, and the owner of work item LDG-292 became `lindqvist`.\n  Raised in the release notes sync; attendees: Gus, Kira and Bo.\n  Minuted by Pita.\n- [e029] In the stand-up, Yara said that the status of work item LDG-231 is now `closed`.\n  Minuted by Bo.\n- [e030] Retro notes of the release notes group:\n  Went well: Tove cleared the docs backlog.\n  Went well: the sprint board pages load faster.\n  Action: Wren books a room for the next retro.\n  Action: Sami collects ideas for the team offsite.\n- [e031] Ticket DOC-466: broken anchors on a help page\n  Reporter: Tove. Priority: low.\n  Status: open, no due date.\n  Related: a similar report from Tuesday was closed as a duplicate.\n- [e032] Standup notes from Chen:\n  - today: rewriting the intro paragraph of the code owners file guide\n  - blockers: none\n  - out early on Wednesday for a dentist visit\n  - updated the screenshots in docs/glossary.md\n  - will demo the new sprint board layout next week\n- [e033] The board sync by Sami moved the card, so the status of work item LDG-258 is `closed` from now on.\n  Action owner for the follow-up: Hana.\n- [e034] calendar opened a grouped update for the changelog bot tooling:\n    - markdown-lint 5.0.9 to 3.4.2\n    - link-checker 7.4.1 to 3.4.7\n    - image-optimizer 8.10.0 to 3.4.6\n    The checks passed. No reviewer is assigned yet.\n- [e035] Chat excerpt from #team-chat:\n  Vik: is anyone else seeing the slow brand assets page?\n  Eli: yes, it is the image cache, it clears itself after 2 minutes\n  Oona: lunch at 13:47? the new place near the station\n  Yara: reminder that the team calendar poll closes on Wednesday\n- [e036] cache-bot opened a grouped update for the office wifi tooling:\n    - markdown-lint 7.4.9 to 6.9.0\n    - link-checker 3.6.9 to 1.3.0\n    - image-optimizer 2.0.7 to 2.3.0\n    - spellcheck dictionary 4.12.4 to 2.1.1\n- [e037] Style guide excerpt, section 8.5:\n  Use sentence case for headings.\n  Keep tables under 6 columns.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e038] Calendar update from metrics:\n  - the lint config demo moves to 17:01 on Thursday\n  - Oona is on leave from Thursday for 3 days\n  - the all-hands slides are due on Tuesday\n  - Hana hosts the next lunch talk about typography\n"
+        },
+        {
+          "path": "inbox/s1/design-02.md",
+          "content": "# Design discussion, stage 1, part 3\n\n- [e051] In the dependency review, Ana recorded that the work item that blocks LDG-289 is `no-blocker` from now on.\n  Hana and Ivo were in the discussion.\n- [e052] Style guide excerpt, section 3.7:\n  Keep tables under 3 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e053] Standup notes from Nils:\n  - today: pairing with Pita on docs/style.md\n  - today: rewriting the intro paragraph of the error pages guide\n  - will demo the new code owners file layout next week\n- [e054] Mei asked who can answer questions about the work item that blocks LDG-275. The thread ended with no change.\n  From the design discussion led by Nils.\n  Ivo and Femi were in the discussion.\n- [e055] Style guide excerpt, section 2.7:\n  Use sentence case for headings.\n  Keep tables under 7 columns.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e056] metrics opened a grouped update for the design tokens tooling:\n    - markdown-lint 8.2.1 to 1.0.5\n    - spellcheck dictionary 8.0.2 to 8.1.1\n    The checks passed. No reviewer is assigned yet.\n- [e057] Ticket DOC-560: broken anchors on a help page\n  Reporter: Tove. Priority: low.\n  Mei will fix it after the design tokens work.\n  Related: a similar report from Tuesday was closed as a duplicate.\n- [e058] Ivo asked who can answer questions about the owner of work item LDG-246. The thread ended with no change.\n  From the design discussion led by Pita.\n  Ana and Femi were in the discussion.\n- [e059] Calendar update from chat-relay:\n  - Zed is on leave from Monday for 2 days\n  - the all-hands slides are due on Monday\n- [e060] Oona linked the board view that shows the status of the file migrations/0042_split_journal.sql in the weekly notes. Nobody proposed a change.\n  From the design discussion led by Hana.\n- [e061] Ticket DOC-383: broken anchors on a help page\n  Reporter: Rosa. Priority: low.\n  The page assets/logo.svg has 8 broken anchors after the last rename.\n  Gus will fix it after the lint config work.\n  Related: a similar report from Wednesday was closed as a duplicate.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s1-board-1",
+          "content": "== board export, stage 1, part 2 ==\n[e039] 08:36 Notes from the design tokens sync on Monday:\n    Quinn asked for a darker header; Ana will try two variants.\n    The group will look at the CI runners again in 8 weeks.\n    Dara said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Sami shared a short survey; 3 people answered so far.\n[e040] 08:39 Rosa wrote in the review thread that the status of the file migrations/0042_split_journal.sql is now `draft`.\n    card id 872\n    card updated by Quinn\n[e041] 08:42 Chat excerpt from #team-chat:\n    Jun: lunch at 15:10? the new place near the station\n    Pita: count me in\n    Pita: reminder that the lint config poll closes on Wednesday\n[e042] 08:45 Correction from Rosa: the status of the file migrations/0042_split_journal.sql is `merged`, and the earlier review note was wrong.\n    card updated by Dara\n    card id 528\n[e043] 08:48 calendar weekly numbers for the changelog bot:\n      median load 584 ms\n      error rate 0.09 percent\n      uptime 99.94 percent\n      searches without a result: 17\n      the numbers are inside the usual band\n[e044] 08:51 Tove updated the ticket, and with that update the status of work item LDG-231 became `reopened`.\n    card id 611\n    card updated by Uma\n[e045] 08:54 Retro notes of the docs site group:\n    Went well: Rosa cleared the docs backlog.\n    To improve: shorter standups on Friday.\n    Action: Mei books a room for the next retro.\n    Action: Nils collects ideas for the team offsite.\n[e046] 08:57 Pita undid the earlier step, so the status of the file config/ledger-flags.yaml is `merged` from now on.\n    card updated by Hana\n[e047] 09:00 docs-bot weekly numbers for the test fixtures:\n      page views 9493\n      uptime 99.93 percent\n      the numbers are inside the usual band\n[e048] 09:03 calendar weekly numbers for the code owners file:\n      page views 8185\n      median load 275 ms\n      error rate 0.02 percent\n[e049] 09:06 The board sync by Hana moved the card, so the status of work item LDG-214 is `closed` from now on.\n    card updated by Jun\n[e050] 09:09 Quinn updated the dependency field, and the work item that blocks LDG-275 became `no-blocker`.\n    card updated by Gus\n    card id 691\n"
+        },
+        {
+          "name": "s1-ci-2",
+          "content": "== ci export, stage 1, part 4 ==\n[e062] 09:45 Gus pasted an old board export made at the time of entry e015, in which the work item that blocks LDG-231 is `no-blocker`. The export is history only and changes nothing.\n    pipeline note added by Nils\n    pipeline 46880\n[e063] 09:48 Zed pasted an old board export made at the time of entry e002, in which the owner of work item LDG-231 is `nakamura`. The export is history only and changes nothing.\n    pipeline 46686\n[e064] 09:51 An archived copy of the board from the time of entry e015 shows that the work item that blocks LDG-231 was `no-blocker`. The copy is history only and is not a new statement.\n    pipeline note added by Tove\n[e065] 09:54 ci-bot run 331 summary:\n      step checkout ok (6.32s)\n      step upload ok, 436 KB\n      cache restore hit rate 77%\n[e066] 09:57 Read-only export of the docs-builder configuration for the onboarding wiki:\n      max_line_length = 758\n      theme = \"slate-6\"\n      notify_channel = \"#team-chat\"\n      report_format = \"text\"\n[e067] 10:00 Pita asked who can answer questions about the owner of work item LDG-289. The thread ended with no change.\n    pipeline 96816\n    pipeline note added by Quinn\n[e068] 10:03 Tove proposed in chat that the status of the file src/ledger/reconcile.ts should become `draft`. Nobody decided it, so nothing changes.\n    pipeline 76693\n    pipeline note added by Hana\n[e069] 10:06 Review thread on scripts/lint.sh (3 comments):\n    Tove: please wrap this paragraph at 22 characters.\n    Sami: done, and I fixed the heading levels too.\n    Oona: the table in section 8 renders badly on small screens.\n    Gus: approved, merge when the checks are green.\n[e070] 10:09 Calendar update from ci-bot:\n    - the office wifi demo moves to 18:06 on Friday\n    - the all-hands slides are due on Wednesday\n    - Kira hosts the next lunch talk about typography\n[e071] 10:12 Notes from the test fixtures sync on Friday:\n    Vik showed the new layout of the build cache.\n    Mei asked for a darker header; Lars will try two variants.\n    The group will look at the office wifi again in 6 weeks.\n    Kira said that the office printer works again.\n    Chen shared a short survey; 5 people answered so far.\n[e072] 10:15 Notes from the retro notes sync on Tuesday:\n    Uma showed the new layout of the onboarding wiki.\n    The group will look at the design tokens again in 4 weeks.\n    Hana said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Kira shared a short survey; 5 people answered so far.\n[e073] 10:18 In the planning thread, Tove asked whether the status of the file config/ledger-flags.yaml could be `merged`. The thread closed with no decision and no change.\n    pipeline 30255\n"
+        }
+      ],
+      "eventIds": [
+        "e028",
+        "e029",
+        "e030",
+        "e031",
+        "e032",
+        "e033",
+        "e034",
+        "e035",
+        "e036",
+        "e037",
+        "e038",
+        "e039",
+        "e040",
+        "e041",
+        "e042",
+        "e043",
+        "e044",
+        "e045",
+        "e046",
+        "e047",
+        "e048",
+        "e049",
+        "e050",
+        "e051",
+        "e052",
+        "e053",
+        "e054",
+        "e055",
+        "e056",
+        "e057",
+        "e058",
+        "e059",
+        "e060",
+        "e061",
+        "e062",
+        "e063",
+        "e064",
+        "e065",
+        "e066",
+        "e067",
+        "e068",
+        "e069",
+        "e070",
+        "e071",
+        "e072",
+        "e073"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s1-c1",
+          "kind": "file",
+          "name": "inbox/s1/minutes-01.md",
+          "bytes": 2383,
+          "events": [
+            "e028",
+            "e029",
+            "e030",
+            "e031",
+            "e032",
+            "e033",
+            "e034",
+            "e035",
+            "e036",
+            "e037",
+            "e038"
+          ]
+        },
+        {
+          "chunkId": "s1-c2",
+          "kind": "file",
+          "name": "inbox/s1/design-02.md",
+          "bytes": 2262,
+          "events": [
+            "e051",
+            "e052",
+            "e053",
+            "e054",
+            "e055",
+            "e056",
+            "e057",
+            "e058",
+            "e059",
+            "e060",
+            "e061"
+          ]
+        },
+        {
+          "chunkId": "s1-c3",
+          "kind": "feed",
+          "name": "s1-board-1",
+          "bytes": 2250,
+          "events": [
+            "e039",
+            "e040",
+            "e041",
+            "e042",
+            "e043",
+            "e044",
+            "e045",
+            "e046",
+            "e047",
+            "e048",
+            "e049",
+            "e050"
+          ]
+        },
+        {
+          "chunkId": "s1-c4",
+          "kind": "feed",
+          "name": "s1-ci-2",
+          "bytes": 2742,
+          "events": [
+            "e062",
+            "e063",
+            "e064",
+            "e065",
+            "e066",
+            "e067",
+            "e068",
+            "e069",
+            "e070",
+            "e071",
+            "e072",
+            "e073"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "prompt": "Stage 2 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s2/minutes-01.md, inbox/s2/design-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s2-log-1, s2-board-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s2/minutes-01.md",
+          "content": "# Meeting minutes, stage 2, part 1\n\n- [e074] Review thread on docs/faq.md (9 comments):\n  Dara: please wrap this paragraph at 93 characters.\n  Vik: the table in section 7 renders badly on small screens.\n  Eli: moved them; the page is 40 percent shorter now.\n  Vik: approved, merge when the checks are green.\n- [e075] Chat excerpt from #team-chat:\n  Lars: is anyone else seeing the slow test fixtures page?\n  Chen: yes, it is the image cache, it clears itself after 6 minutes\n  Femi: ok, thanks\n  Rosa: lunch at 15:08? the new place near the station\n  Jun: reminder that the build cache poll closes on Thursday\n- [e076] Style guide excerpt, section 9.7:\n  Use sentence case for headings.\n  Keep tables under 5 columns.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e077] After the code review by Jun, the status of the file src/ledger/posting.ts became `reviewed`.\n  Minuted by Vik.\n  Action owner for the follow-up: Chen.\n- [e078] chat-relay run 855 summary:\n    step checkout ok (3.93s)\n    step lint ok, 77 files\n    step docs-build ok, 35 pages\n    step upload ok, 924 KB\n    cache restore hit rate 77%\n- [e079] Calendar update from ci-bot:\n  - room booking for the design tokens retro is confirmed\n  - Uma is on leave from Wednesday for 9 days\n- [e080] In the stand-up, Ivo said that the status of work item LDG-231 is now `opened`.\n  Raised in the lint config sync; attendees: Gus, Quinn and Quinn.\n  Action owner for the follow-up: Ana.\n- [e081] Review thread on docs/faq.md (6 comments):\n  Vik: nit: trailing spaces on line 14.\n  Ana: can we move the long examples to an appendix?\n  Hana: approved, merge when the checks are green.\n- [e082] Notes from the build cache sync on Monday:\n  Sami asked for a darker header; Yara will try two variants.\n  The group will look at the storybook again in 9 weeks.\n  Jun said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Sami shared a short survey; 5 people answered so far.\n- [e083] Review thread on notes/retro.md (5 comments):\n  Wren: please wrap this paragraph at 35 characters.\n  Kira: done, and I fixed the heading levels too.\n  Tove: can we move the long examples to an appendix?\n  Nils: approved, merge when the checks are green.\n- [e084] Style guide excerpt, section 3.4:\n  Use sentence case for headings.\n  Keep tables under 4 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n"
+        },
+        {
+          "path": "inbox/s2/design-02.md",
+          "content": "# Design discussion, stage 2, part 4\n\n- [e108] Oona pasted an old board export made at the time of entry e051, in which the work item that blocks LDG-289 is `no-blocker`. The export is history only and changes nothing.\n  From the design discussion led by Dara.\n  Rosa and Chen were in the discussion.\n- [e109] Calendar update from lint-bot:\n  - room booking for the CI runners retro is confirmed\n  - the all-hands slides are due on Monday\n- [e110] Rosa wants a better description of the status of the file src/ledger/posting.ts in the wiki. This is a docs task only and changes nothing.\n  Chen and Lars were in the discussion.\n- [e111] Notes from the dependabot sync on Wednesday:\n  Mei asked for a darker header; Pita will try two variants.\n  Yara said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Bo shared a short survey; 7 people answered so far.\n- [e112] Standup notes from Dara:\n  - yesterday: reviewed 9 small pull requests about the test fixtures\n  - today: pairing with Lars on tools/fmt.mjs\n  - blockers: none\n  - out early on Wednesday for a dentist visit\n  - updated the screenshots in .editorconfig\n- [e113] Read-only export of the image-optimizer configuration for the dependabot:\n    max_line_length = 487\n    cache_hours = 6\n    runner_pool = \"pool-3\"\n    keep_reports_days = 10\n    preview_pages = true\n- [e114] Calendar update from docs-bot:\n  - the build cache demo moves to 18:53 on Tuesday\n  - Lars is on leave from Tuesday for 7 days\n- [e115] Kira linked the board view that shows the work item that blocks LDG-289 in the weekly notes. Nobody proposed a change.\n  Wren and Hana were in the discussion.\n  From the design discussion led by Pita.\n- [e116] ci-bot weekly numbers for the code owners file:\n    page views 4356\n    error rate 0.09 percent\n    uptime 99.98 percent\n- [e117] Wren linked the board view that shows the status of work item LDG-231 in the weekly notes. Nobody proposed a change.\n  Vik and Quinn were in the discussion.\n  From the design discussion led by Sami.\n- [e118] Chat excerpt from #team-chat:\n  Dara: is anyone else seeing the slow onboarding wiki page?\n  Wren: yes, it is the image cache, it clears itself after 3 minutes\n  Jun: lunch at 16:07? the new place near the station\n  Kira: count me in\n  Sami: reminder that the dependabot poll closes on Monday\n- [e119] chat-relay opened a grouped update for the code owners file tooling:\n    - markdown-lint 3.19.8 to 8.9.2\n    - link-checker 4.2.0 to 6.14.1\n    The checks passed. No reviewer is assigned yet.\n- [e120] Tove asked who can answer questions about the status of the file migrations/0043_backfill_entries.sql. The thread ended with no change.\n  From the design discussion led by Dara.\n  Tove and Pita were in the discussion.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s2-log-1",
+          "content": "== log export, stage 2, part 2 ==\n[e085] 08:36 ci-bot run 847 summary:\n      step lint ok, 31 files\n      step docs-build ok, 39 pages\n      step upload ok, 695 KB\n      cache restore hit rate 74%\n      total duration 7m 92s, no warnings\n[e086] 08:39 Style guide excerpt, section 7.7:\n    Use sentence case for headings.\n    Keep tables under 7 columns.\n    Name the button exactly as the screen shows it.\n[e087] 08:42 Style guide excerpt, section 5.5:\n    Use sentence case for headings.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e088] 08:45 Standup notes from Uma:\n    - yesterday: tidied the office wifi pages and answered 3 questions in chat\n    - yesterday: reviewed 6 small pull requests about the changelog bot\n    - today: rewriting the intro paragraph of the retro notes guide\n    - out early on Monday for a dentist visit\n    - will demo the new status page layout next week\n[e089] 08:48 Standup notes from Chen:\n    - yesterday: reviewed 8 small pull requests about the brand assets\n    - today: rewriting the intro paragraph of the docs site guide\n    - out early on Thursday for a dentist visit\n    - updated the screenshots in docs/glossary.md\n[e090] 08:51 Ana changed the card again, so the status of work item LDG-231 is `closed` now and the earlier status no longer holds.\n    source=calendar level=info actor=Uma\n[e091] 08:54 Ticket DOC-616: broken anchors on a help page\n    Reporter: Mei. Priority: low.\n    Ivo will fix it after the status page work.\n    Related: a similar report from Wednesday was closed as a duplicate.\n[e092] 08:57 metrics run 593 summary:\n      step checkout ok (6.71s)\n      step lint ok, 95 files\n      step docs-build ok, 65 pages\n      step upload ok, 531 KB\n      step notify ok, channel team-chat\n[e093] 09:00 Review thread on README.md (4 comments):\n    Sami: please wrap this paragraph at 26 characters.\n    Quinn: done, and I fixed the heading levels too.\n    Quinn: nit: trailing spaces on line 11.\n    Uma: can we move the long examples to an appendix?\n    Chen: approved, merge when the checks are green.\n[e094] 09:03 Chat excerpt from #team-chat:\n    Femi: yes, it is the image cache, it clears itself after 8 minutes\n    Oona: ok, thanks\n    Tove: count me in\n[e095] 09:06 Retro notes of the office wifi group:\n    Went well: Ivo cleared the docs backlog.\n    Went well: the brand assets pages load faster.\n    To improve: shorter standups on Monday.\n    Action: Ivo books a room for the next retro.\n"
+        },
+        {
+          "name": "s2-board-2",
+          "content": "== board export, stage 2, part 3 ==\n[e096] 09:09 chat-relay opened a grouped update for the build cache tooling:\n      - markdown-lint 7.1.7 to 4.17.2\n      - link-checker 7.2.6 to 1.3.0\n      - image-optimizer 1.1.8 to 3.5.5\n      - spellcheck dictionary 1.9.7 to 3.8.6\n      The checks passed. No reviewer is assigned yet.\n[e097] 09:12 cache-bot opened a grouped update for the onboarding wiki tooling:\n      - link-checker 9.5.7 to 6.15.6\n      - image-optimizer 7.13.6 to 9.18.1\n      - spellcheck dictionary 4.5.0 to 6.9.2\n      The checks passed. No reviewer is assigned yet.\n[e098] 09:15 Ana removed the old link, so the work item that blocks LDG-246 is `LDG-292` now.\n    card updated by Sami\n    card id 386\n[e099] 09:18 Review thread on docs/howto.md (2 comments):\n    Rosa: the table in section 4 renders badly on small screens.\n    Wren: nit: trailing spaces on line 85.\n    Mei: can we move the long examples to an appendix?\n    Gus: approved, merge when the checks are green.\n[e100] 09:21 The review bot reported for Rosa that the status of the file migrations/0043_backfill_entries.sql changed to `reviewed`.\n    card updated by Mei\n    card id 330\n[e101] 09:24 Ticket DOC-562: broken anchors on a help page\n    Reporter: Jun. Priority: low.\n    The page docs/howto.md has 8 broken anchors after the last rename.\n    Related: a similar report from Friday was closed as a duplicate.\n[e102] 09:27 docs-bot opened a grouped update for the build cache tooling:\n      - markdown-lint 4.11.3 to 1.5.3\n      - link-checker 6.2.7 to 3.1.9\n      - spellcheck dictionary 4.10.6 to 2.13.4\n[e103] 09:30 Retro notes of the docs site group:\n    Went well: Sami cleared the docs backlog.\n    Went well: the help center pages load faster.\n    To improve: shorter standups on Friday.\n[e104] 09:33 The board sync by Oona moved the card, so the status of work item LDG-231 is `reopened` from now on.\n    card id 344\n    card updated by Quinn\n[e105] 09:36 Style guide excerpt, section 3.8:\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e106] 09:39 Retro notes of the status page group:\n    Went well: Sami cleared the docs backlog.\n    To improve: shorter standups on Wednesday.\n    Action: Zed books a room for the next retro.\n    Action: Pita collects ideas for the team offsite.\n[e107] 09:42 lint-bot weekly numbers for the docs site:\n      page views 9952\n      error rate 0.08 percent\n      uptime 99.93 percent\n      searches without a result: 29\n"
+        }
+      ],
+      "eventIds": [
+        "e074",
+        "e075",
+        "e076",
+        "e077",
+        "e078",
+        "e079",
+        "e080",
+        "e081",
+        "e082",
+        "e083",
+        "e084",
+        "e085",
+        "e086",
+        "e087",
+        "e088",
+        "e089",
+        "e090",
+        "e091",
+        "e092",
+        "e093",
+        "e094",
+        "e095",
+        "e096",
+        "e097",
+        "e098",
+        "e099",
+        "e100",
+        "e101",
+        "e102",
+        "e103",
+        "e104",
+        "e105",
+        "e106",
+        "e107",
+        "e108",
+        "e109",
+        "e110",
+        "e111",
+        "e112",
+        "e113",
+        "e114",
+        "e115",
+        "e116",
+        "e117",
+        "e118",
+        "e119",
+        "e120"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s2-c1",
+          "kind": "file",
+          "name": "inbox/s2/minutes-01.md",
+          "bytes": 2530,
+          "events": [
+            "e074",
+            "e075",
+            "e076",
+            "e077",
+            "e078",
+            "e079",
+            "e080",
+            "e081",
+            "e082",
+            "e083",
+            "e084"
+          ]
+        },
+        {
+          "chunkId": "s2-c2",
+          "kind": "file",
+          "name": "inbox/s2/design-02.md",
+          "bytes": 2779,
+          "events": [
+            "e108",
+            "e109",
+            "e110",
+            "e111",
+            "e112",
+            "e113",
+            "e114",
+            "e115",
+            "e116",
+            "e117",
+            "e118",
+            "e119",
+            "e120"
+          ]
+        },
+        {
+          "chunkId": "s2-c3",
+          "kind": "feed",
+          "name": "s2-log-1",
+          "bytes": 2505,
+          "events": [
+            "e085",
+            "e086",
+            "e087",
+            "e088",
+            "e089",
+            "e090",
+            "e091",
+            "e092",
+            "e093",
+            "e094",
+            "e095"
+          ]
+        },
+        {
+          "chunkId": "s2-c4",
+          "kind": "feed",
+          "name": "s2-board-2",
+          "bytes": 2546,
+          "events": [
+            "e096",
+            "e097",
+            "e098",
+            "e099",
+            "e100",
+            "e101",
+            "e102",
+            "e103",
+            "e104",
+            "e105",
+            "e106",
+            "e107"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "prompt": "Stage 3 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s3/review-01.md, inbox/s3/ticket-02.md, inbox/s3/review-03.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s3-board-1.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s3/review-01.md",
+          "content": "# Review comments, stage 3, part 1\n\n- [e121] calendar opened a grouped update for the CI runners tooling:\n    - markdown-lint 4.16.5 to 4.18.5\n    - link-checker 7.12.5 to 8.6.5\n    - image-optimizer 2.1.2 to 7.18.4\n    - spellcheck dictionary 7.5.3 to 3.17.3\n    The checks passed. No reviewer is assigned yet.\n- [e122] After the planning meeting, the owner of work item LDG-289 is `lindqvist`, as Nils recorded in the ticket.\n  Review round 6, reviewer Ana.\n- [e123] Standup notes from Chen:\n  - yesterday: reviewed 8 small pull requests about the retro notes\n  - today: pairing with Yara on notes/retro.md\n  - blockers: none\n  - updated the screenshots in docs/howto.md\n  - will demo the new docs site layout next week\n- [e124] Ivo wrote in the review thread that the status of the file src/ledger/accounts.ts is now `reviewed`.\n  Review round 8, reviewer Sami.\n- [e125] Standup notes from Zed:\n  - yesterday: tidied the build cache pages and answered 3 questions in chat\n  - blockers: none\n  - updated the screenshots in docs/style.md\n- [e126] Style guide excerpt, section 8.2:\n  Use sentence case for headings.\n  Keep tables under 5 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e127] Style guide excerpt, section 2.6:\n  Keep tables under 8 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e128] Ticket DOC-992: broken anchors on a help page\n  Reporter: Mei. Priority: low.\n  The page tools/fmt.mjs has 5 broken anchors after the last rename.\n  Eli will fix it after the build cache work.\n  Related: a similar report from Tuesday was closed as a duplicate.\n- [e129] Chat excerpt from #team-chat:\n  Ivo: yes, it is the image cache, it clears itself after 5 minutes\n  Chen: ok, thanks\n  Wren: lunch at 14:54? the new place near the station\n  Eli: count me in\n- [e130] Style guide excerpt, section 5.8:\n  Keep tables under 7 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n- [e131] Gus shared a draft ticket in which the status of the file src/ledger/accounts.ts was `merged`. The draft was withdrawn before review and changes nothing.\n  Review round 6, reviewer Bo.\n"
+        },
+        {
+          "path": "inbox/s3/ticket-02.md",
+          "content": "# Ticket thread, stage 3, part 3\n\n- [e144] docs-bot opened a grouped update for the build cache tooling:\n    - markdown-lint 3.7.1 to 1.11.4\n    - image-optimizer 4.1.2 to 3.1.4\n    - spellcheck dictionary 3.8.2 to 8.12.4\n    The checks passed. No reviewer is assigned yet.\n- [e145] After the planning meeting, the owner of work item LDG-231 is `varga`, as Zed recorded in the ticket.\n  Linked from the release notes board by Ivo.\n- [e146] docs-bot opened a grouped update for the design tokens tooling:\n    - markdown-lint 7.19.3 to 3.10.7\n    - link-checker 8.9.1 to 7.8.6\n    - image-optimizer 6.19.4 to 1.10.5\n    The checks passed. No reviewer is assigned yet.\n- [e147] Chat excerpt from #team-chat:\n  Quinn: is anyone else seeing the slow dependabot page?\n  Femi: ok, thanks\n  Wren: lunch at 15:17? the new place near the station\n  Wren: count me in\n  Bo: reminder that the sprint board poll closes on Monday\n- [e148] Ticket DOC-301: broken anchors on a help page\n  Chen will fix it after the code owners file work.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e149] Notes from the CI runners sync on Wednesday:\n  Mei showed the new layout of the office wifi.\n  Nils asked for a darker header; Quinn will try two variants.\n  The group will look at the dependabot again in 3 weeks.\n  Zed said that the office printer works again.\n  Jun shared a short survey; 3 people answered so far.\n- [e150] chat-relay opened a grouped update for the CI runners tooling:\n    - markdown-lint 4.17.9 to 1.7.5\n    - link-checker 6.3.8 to 3.14.4\n    - spellcheck dictionary 2.5.0 to 9.0.8\n    The checks passed. No reviewer is assigned yet.\n- [e151] Retro notes of the team calendar group:\n  Went well: Tove cleared the docs backlog.\n  To improve: shorter standups on Wednesday.\n  Action: Uma collects ideas for the team offsite.\n- [e152] Style guide excerpt, section 4.3:\n  Use sentence case for headings.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e153] Hana proposed in chat that the status of the file migrations/0043_backfill_entries.sql should become `draft`. Nobody decided it, so nothing changes.\n  Comment by Dara on ticket OPS-541.\n"
+        },
+        {
+          "path": "inbox/s3/review-03.md",
+          "content": "# Review comments, stage 3, part 4\n\n- [e154] An archived copy of the board from the time of entry e018 shows that the work item that blocks LDG-275 was `LDG-214`. The copy is history only and is not a new statement.\n  Review round 9, reviewer Bo.\n- [e155] Ivo wants a better description of the owner of work item LDG-292 in the wiki. This is a docs task only and changes nothing.\n  Review round 9, reviewer Vik.\n- [e156] Notes from the help center sync on Wednesday:\n  Quinn showed the new layout of the storybook.\n  The group will look at the changelog bot again in 4 weeks.\n  Tove said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Bo shared a short survey; 4 people answered so far.\n- [e157] An archived copy of the board from the time of entry e029 shows that the status of work item LDG-231 was `closed`. The copy is history only and is not a new statement.\n  Review round 7, reviewer Oona.\n  Thread started by Zed; Lars replied with a thumbs-up.\n- [e158] Review thread on docs/faq.md (4 comments):\n  Dara: the table in section 9 renders badly on small screens.\n  Tove: nit: trailing spaces on line 22.\n  Femi: moved them; the page is 41 percent shorter now.\n- [e159] Ticket DOC-616: broken anchors on a help page\n  The page assets/logo.svg has 8 broken anchors after the last rename.\n  Dara will fix it after the brand assets work.\n  Status: open, no due date.\n  Related: a similar report from Thursday was closed as a duplicate.\n- [e160] Tove pasted an old board export made at the time of entry e006, in which the owner of work item LDG-214 is `ferreira`. The export is history only and changes nothing.\n  Thread started by Dara; Jun replied with a thumbs-up.\n- [e161] Retro notes of the help center group:\n  Went well: Wren cleared the docs backlog.\n  To improve: shorter standups on Thursday.\n  Action: Gus books a room for the next retro.\n- [e162] In the planning thread, Tove asked whether the status of the file migrations/0042_split_journal.sql could be `draft`. The thread closed with no decision and no change.\n  Thread started by Chen; Wren replied with a thumbs-up.\n- [e163] ci-bot opened a grouped update for the design tokens tooling:\n    - markdown-lint 4.6.5 to 5.12.6\n    - link-checker 3.13.4 to 1.19.1\n    - spellcheck dictionary 6.18.5 to 9.14.9\n    The checks passed. No reviewer is assigned yet.\n- [e164] Tove proposed in chat that the status of work item LDG-214 should become `reopened`. Nobody decided it, so nothing changes.\n  Thread started by Lars; Dara replied with a thumbs-up.\n- [e165] Ticket DOC-511: broken anchors on a help page\n  Reporter: Nils. Priority: low.\n  The page ci/cache.yml has 4 broken anchors after the last rename.\n  Gus will fix it after the changelog bot work.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s3-board-1",
+          "content": "== board export, stage 3, part 2 ==\n[e132] 08:36 Review thread on docs/howto.md (2 comments):\n    Lars: done, and I fixed the heading levels too.\n    Ivo: nit: trailing spaces on line 54.\n    Ana: moved them; the page is 47 percent shorter now.\n[e133] 08:39 Notes from the changelog bot sync on Tuesday:\n    Ivo showed the new layout of the test fixtures.\n    Pita asked for a darker header; Yara will try two variants.\n    Femi said that the office printer works again.\n    Kira shared a short survey; 9 people answered so far.\n[e134] 08:42 Correction from Yara: the work item that blocks LDG-231 is `LDG-289`, and the earlier dependency note was wrong.\n    card updated by Sami\n    card id 804\n[e135] 08:45 Correction to an earlier note by Uma: in fact the status of work item LDG-231 is `closed`, and the earlier note was wrong.\n    card updated by Kira\n[e136] 08:48 Calendar update from docs-bot:\n    - the lint config demo moves to 17:17 on Monday\n    - the all-hands slides are due on Monday\n    - Vik hosts the next lunch talk about typography\n[e137] 08:51 The review bot reported for Sami that the status of the file src/ledger/accounts.ts changed to `merged`.\n    card id 945\n[e138] 08:54 Style guide excerpt, section 6.8:\n    Use sentence case for headings.\n    Keep tables under 7 columns.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e139] 08:57 ci-bot opened a grouped update for the status page tooling:\n      - link-checker 5.3.1 to 4.16.7\n      - spellcheck dictionary 3.18.6 to 3.18.2\n      The checks passed. No reviewer is assigned yet.\n[e140] 09:00 Style guide excerpt, section 2.7:\n    Use sentence case for headings.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e141] 09:03 cache-bot opened a grouped update for the onboarding wiki tooling:\n      - markdown-lint 1.17.2 to 4.0.5\n      - link-checker 2.13.1 to 7.15.1\n      - spellcheck dictionary 8.18.0 to 8.3.5\n      The checks passed. No reviewer is assigned yet.\n[e142] 09:06 Style guide excerpt, section 5.7:\n    Use sentence case for headings.\n    Keep tables under 3 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e143] 09:09 In the stand-up, Rosa said that the status of work item LDG-258 is now `reopened`.\n    card updated by Bo\n"
+        }
+      ],
+      "eventIds": [
+        "e121",
+        "e122",
+        "e123",
+        "e124",
+        "e125",
+        "e126",
+        "e127",
+        "e128",
+        "e129",
+        "e130",
+        "e131",
+        "e132",
+        "e133",
+        "e134",
+        "e135",
+        "e136",
+        "e137",
+        "e138",
+        "e139",
+        "e140",
+        "e141",
+        "e142",
+        "e143",
+        "e144",
+        "e145",
+        "e146",
+        "e147",
+        "e148",
+        "e149",
+        "e150",
+        "e151",
+        "e152",
+        "e153",
+        "e154",
+        "e155",
+        "e156",
+        "e157",
+        "e158",
+        "e159",
+        "e160",
+        "e161",
+        "e162",
+        "e163",
+        "e164",
+        "e165"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s3-c1",
+          "kind": "file",
+          "name": "inbox/s3/review-01.md",
+          "bytes": 2402,
+          "events": [
+            "e121",
+            "e122",
+            "e123",
+            "e124",
+            "e125",
+            "e126",
+            "e127",
+            "e128",
+            "e129",
+            "e130",
+            "e131"
+          ]
+        },
+        {
+          "chunkId": "s3-c2",
+          "kind": "file",
+          "name": "inbox/s3/ticket-02.md",
+          "bytes": 2330,
+          "events": [
+            "e144",
+            "e145",
+            "e146",
+            "e147",
+            "e148",
+            "e149",
+            "e150",
+            "e151",
+            "e152",
+            "e153"
+          ]
+        },
+        {
+          "chunkId": "s3-c3",
+          "kind": "file",
+          "name": "inbox/s3/review-03.md",
+          "bytes": 2762,
+          "events": [
+            "e154",
+            "e155",
+            "e156",
+            "e157",
+            "e158",
+            "e159",
+            "e160",
+            "e161",
+            "e162",
+            "e163",
+            "e164",
+            "e165"
+          ]
+        },
+        {
+          "chunkId": "s3-c4",
+          "kind": "feed",
+          "name": "s3-board-1",
+          "bytes": 2474,
+          "events": [
+            "e132",
+            "e133",
+            "e134",
+            "e135",
+            "e136",
+            "e137",
+            "e138",
+            "e139",
+            "e140",
+            "e141",
+            "e142",
+            "e143"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "prompt": "Stage 4 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s4/minutes-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s4-board-1, s4-log-2, s4-ci-3, s4-activity.\nThe feed s4-activity is long. The entries that matter for this task carry the tag CR-5000; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s4/minutes-01.md",
+          "content": "# Meeting minutes, stage 4, part 1\n\n- [e181] Chen wrote in the review thread that the status of the file src/ledger/accounts.ts is now `reverted`.\n  Raised in the changelog bot sync; attendees: Chen, Nils and Jun.\n  Minuted by Dara.\n- [e185] In the stand-up, Nils said that the status of work item LDG-258 is now `closed`.\n  Raised in the lint config sync; attendees: Gus, Quinn and Gus.\n  Action owner for the follow-up: Jun.\n- [e186] A draft plan by Ana said that the status of work item LDG-258 would be `reopened`. Ana withdrew the draft the same day, so it changes nothing.\n  Action owner for the follow-up: Oona.\n- [e192] Yara linked the tickets, so the work item that blocks LDG-231 is now `no-blocker`.\n  Action owner for the follow-up: Jun.\n- [e199] The review bot reported for Jun that the status of the file src/ledger/reconcile.ts changed to `merged`.\n  Action owner for the follow-up: Gus.\n- [e200] Zed undid the earlier step, so the status of the file src/ledger/reconcile.ts is `reviewed` from now on.\n  Minuted by Rosa.\n- [e212] ci-bot run 420 summary:\n    step docs-build ok, 94 pages\n    step notify ok, channel team-chat\n    total duration 8m 29s, no warnings\n- [e213] Ticket DOC-822: broken anchors on a help page\n  The page tools/fmt.mjs has 2 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Wednesday was closed as a duplicate.\n- [e214] docs-bot run 375 summary:\n    step lint ok, 98 files\n    step docs-build ok, 60 pages\n    step notify ok, channel team-chat\n- [e215] Standup notes from Lars:\n  - today: pairing with Vik on ci/cache.yml\n  - today: rewriting the intro paragraph of the code owners file guide\n  - will demo the new dependabot layout next week\n- [e216] Calendar update from chat-relay:\n  - the docs site demo moves to 10:33 on Friday\n  - room booking for the CI runners retro is confirmed\n  - Mei is on leave from Tuesday for 7 days\n  - the all-hands slides are due on Monday\n- [e217] docs-bot run 680 summary:\n    step checkout ok (5.45s)\n    step lint ok, 54 files\n    step docs-build ok, 31 pages\n    step upload ok, 788 KB\n    cache restore hit rate 94%\n    total duration 5m 95s, no warnings\n- [e218] In the planning thread, Mei asked whether the status of the file src/ledger/reconcile.ts could be `draft`. The thread closed with no decision and no change.\n  Minuted by Chen.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s4-board-1",
+          "content": "== board export, stage 4, part 2 ==\n[e219] 10:42 Correction from Lars: the work item that blocks LDG-231 is `LDG-246`, and the earlier dependency note was wrong.\n    card updated by Ivo\n[e220] 10:45 In the planning thread, Mei asked whether the work item that blocks LDG-231 could be `no-blocker`. The thread closed with no decision and no change.\n    card updated by Oona\n    card id 825\n[e221] 10:48 Rosa pasted an old board export made at the time of entry e027, in which the status of the file src/ledger/posting.ts is `draft`. The export is history only and changes nothing.\n    card id 909\n[e222] 10:51 An archived copy of the board from the time of entry e002 shows that the owner of work item LDG-231 was `nakamura`. The copy is history only and is not a new statement.\n    card id 488\n[e223] 10:54 Chat excerpt from #team-chat:\n    Femi: is anyone else seeing the slow retro notes page?\n    Oona: lunch at 16:45? the new place near the station\n    Sami: count me in\n[e224] 10:57 ci-bot run 322 summary:\n      step checkout ok (4.21s)\n      step lint ok, 70 files\n      step docs-build ok, 35 pages\n      step upload ok, 533 KB\n      step notify ok, channel team-chat\n      total duration 8m 76s, no warnings\n[e225] 11:00 chat-relay weekly numbers for the retro notes:\n      median load 434 ms\n      uptime 99.93 percent\n      searches without a result: 21\n[e226] 11:03 chat-relay opened a grouped update for the retro notes tooling:\n      - markdown-lint 3.9.9 to 2.5.8\n      - link-checker 4.13.6 to 2.14.1\n      - spellcheck dictionary 9.3.8 to 7.12.1\n      The checks passed. No reviewer is assigned yet.\n[e227] 11:06 Standup notes from Ana:\n    - yesterday: tidied the dependabot pages and answered 2 questions in chat\n    - yesterday: reviewed 9 small pull requests about the release notes\n    - today: rewriting the intro paragraph of the lint config guide\n    - blockers: none\n    - updated the screenshots in README.md\n[e228] 11:09 Standup notes from Ana:\n    - yesterday: tidied the release notes pages and answered 9 questions in chat\n    - today: rewriting the intro paragraph of the retro notes guide\n    - blockers: none\n    - will demo the new release notes layout next week\n[e229] 11:12 Chat excerpt from #team-chat:\n    Wren: is anyone else seeing the slow dependabot page?\n    Sami: count me in\n    Chen: reminder that the CI runners poll closes on Wednesday\n"
+        },
+        {
+          "name": "s4-log-2",
+          "content": "== log export, stage 4, part 3 ==\n[e230] 11:15 Style guide excerpt, section 5.4:\n    Use sentence case for headings.\n    Keep tables under 8 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n[e231] 11:18 Vik pasted an old board export made at the time of entry e012, in which the owner of work item LDG-292 is `moreau`. The export is history only and changes nothing.\n    request_id=r-42128\n    source=docs-bot level=info actor=Zed\n[e232] 11:21 Yara proposed in chat that the status of work item LDG-289 should become `reopened`. Nobody decided it, so nothing changes.\n    source=lint-bot level=info actor=Nils\n    request_id=r-57363\n[e233] 11:24 Read-only export of the docs-builder configuration for the lint config:\n      cache_hours = 4\n      runner_pool = \"pool-7\"\n      keep_reports_days = 48\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e234] 11:27 Calendar update from calendar:\n    - the storybook demo moves to 15:39 on Thursday\n    - room booking for the brand assets retro is confirmed\n    - Wren is on leave from Tuesday for 4 days\n    - the all-hands slides are due on Wednesday\n[e235] 11:30 Calendar update from lint-bot:\n    - the sprint board demo moves to 14:19 on Friday\n    - Rosa is on leave from Thursday for 8 days\n    - Pita hosts the next lunch talk about typography\n[e236] 11:33 An archived copy of the board from the time of entry e021 shows that the work item that blocks LDG-289 was `LDG-214`. The copy is history only and is not a new statement.\n    request_id=r-78718\n[e237] 11:36 Rosa wants a better description of the owner of work item LDG-214 in the wiki. This is a docs task only and changes nothing.\n    request_id=r-66562\n[e238] 11:39 Style guide excerpt, section 3.9:\n    Keep tables under 4 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e239] 11:42 Review thread on notes/retro.md (4 comments):\n    Dara: done, and I fixed the heading levels too.\n    Ivo: can we move the long examples to an appendix?\n    Eli: moved them; the page is 83 percent shorter now.\n    Oona: approved, merge when the checks are green.\n[e240] 11:45 Standup notes from Vik:\n    - today: rewriting the intro paragraph of the design tokens guide\n    - blockers: none\n    - out early on Wednesday for a dentist visit\n"
+        },
+        {
+          "name": "s4-ci-3",
+          "content": "== ci export, stage 4, part 4 ==\n[e241] 11:48 Retro notes of the design tokens group:\n    Went well: the CI runners pages load faster.\n    To improve: shorter standups on Thursday.\n    Action: Wren books a room for the next retro.\n    Action: Mei collects ideas for the team offsite.\n[e242] 11:51 Style guide excerpt, section 9.6:\n    Keep tables under 4 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e243] 11:54 chat-relay run 331 summary:\n      step lint ok, 98 files\n      step docs-build ok, 97 pages\n      step notify ok, channel team-chat\n[e244] 11:57 Standup notes from Chen:\n    - blockers: none\n    - out early on Tuesday for a dentist visit\n    - updated the screenshots in README.md\n    - will demo the new sprint board layout next week\n[e245] 12:00 calendar opened a grouped update for the design tokens tooling:\n      - link-checker 5.11.5 to 9.15.7\n      - image-optimizer 5.11.7 to 2.7.1\n      The checks passed. No reviewer is assigned yet.\n[e246] 12:03 calendar weekly numbers for the code owners file:\n      page views 7908\n      median load 428 ms\n      uptime 99.97 percent\n[e247] 12:06 Retro notes of the CI runners group:\n    Went well: Pita cleared the docs backlog.\n    Went well: the code owners file pages load faster.\n    To improve: shorter standups on Wednesday.\n    Action: Quinn collects ideas for the team offsite.\n[e248] 12:09 Read-only export of the spellcheck configuration for the release notes:\n      runner_pool = \"pool-7\"\n      keep_reports_days = 62\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e249] 12:12 docs-bot weekly numbers for the docs site:\n      page views 5804\n      median load 242 ms\n      error rate 0.02 percent\n      uptime 99.95 percent\n      the numbers are inside the usual band\n[e250] 12:15 calendar opened a grouped update for the retro notes tooling:\n      - markdown-lint 7.12.1 to 1.18.7\n      - image-optimizer 9.11.8 to 6.13.5\n      - spellcheck dictionary 6.1.5 to 3.13.1\n      The checks passed. No reviewer is assigned yet.\n[e251] 12:18 Lars asked who can answer questions about the work item that blocks LDG-292. The thread ended with no change.\n    pipeline note added by Quinn\n    pipeline 71091\n[e252] 12:21 Oona wants a better description of the status of work item LDG-292 in the wiki. This is a docs task only and changes nothing.\n    pipeline note added by Mei\n[e254] 12:27 Calendar update from calendar:\n    - the all-hands slides are due on Monday\n    - Bo hosts the next lunch talk about typography\n[e255] 12:30 Standup notes from Femi:\n    - yesterday: tidied the docs site pages and answered 4 questions in chat\n    - yesterday: reviewed 6 small pull requests about the dependabot\n    - today: pairing with Nils on assets/logo.svg\n    - blockers: none\n    - updated the screenshots in docs/howto.md\n"
+        },
+        {
+          "name": "s4-activity",
+          "content": "== activity export, stage 4 ==\n[e166] 08:03 metrics: scan of notes/retro.md complete files_checked=433 issues_new=0 issues_closed=83 duration=7s; trend flat compared with the previous 2 runs\n    trace=t-88899 span_count=16 dropped=0\n[e167] 08:06 lint-bot: job #998 finished status=ok duration=4.35s cache=warm artifacts=74 warnings=0 runner=pool-5 note=routine nightly sweep of the lint config, nothing to report\n    retention applied to 20 items\n    trace=t-12232 span_count=27 dropped=0\n[e168] 08:09 lint-bot: link checker visited 890 pages of the CI runners; broken=0; redirected=39; slowest page answered in 787ms\n    upstream=status-page latency=285ms\n    trace=t-22588 span_count=75 dropped=0\n[e169] 08:12 docs-bot: Pita opened a chat thread about the retro notes; replies=3; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    trace=t-57484 span_count=16 dropped=0\n    next_run=in 4h window=12:40\n[e170] 08:15 metrics: job #622 finished status=ok duration=7.57s cache=warm artifacts=60 warnings=0 runner=pool-5 note=routine nightly sweep of the dependabot, nothing to report\n    upstream=status-page latency=752ms\n[e171] 08:18 cache-bot: Bo edited README.md (+3 -64 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e172] 08:21 calendar: Gus edited .editorconfig (+8 -18 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=919ms\n    owner=docs-team escalation=none\n[e173] 08:24 chat-relay: dependency audit of the code owners file tooling found 99 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-4 attempt=1 result=ok\n    owner=docs-team escalation=none\n[e174] 08:27 lint-bot: metrics rollup for the code owners file: p50=9ms p95=885ms errors=0 sample=524 requests; values inside the usual band for this hour\n    retention applied to 53 items\n[e175] 08:30 calendar: job #596 finished status=ok duration=3.63s cache=warm artifacts=30 warnings=0 runner=pool-3 note=routine nightly sweep of the storybook, nothing to report\n    upstream=status-page latency=344ms\n    owner=docs-team escalation=none\n[e176] 08:33 lint-bot: dependency audit of the help center tooling found 99 minor updates; none are security related; the bot will open grouped updates later\n    retention applied to 93 items\n    trace=t-40750 span_count=55 dropped=0\n[e177] 08:36 metrics: job #350 finished status=ok duration=5.81s cache=warm artifacts=18 warnings=0 runner=pool-3 note=routine nightly sweep of the retro notes, nothing to report\n    upstream=status-page latency=757ms\n    retention applied to 64 items\n[e178] 08:39 lint-bot: Uma edited notes/retro.md (+3 -70 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    upstream=status-page latency=974ms\n    owner=docs-team escalation=none\n[e179] 08:42 docs-bot: dependency audit of the design tokens tooling found 82 minor updates; none are security related; the bot will open grouped updates later\n    retention applied to 47 items\n[e180] 08:45 chat-relay: Ana edited README.md (+2 -98 lines, formatting only); review not required by policy; merged after the standard wait\n    next_run=in 5h window=12:07\n[e182] 08:51 lint-bot: link checker visited 955 pages of the code owners file; broken=0; redirected=19; slowest page answered in 549ms\n    retention applied to 69 items\n    trace=t-78023 span_count=14 dropped=0\n    next_run=in 4h window=18:47\n[e183] 08:54 cache-bot: cleanup removed 60 temp folders under docs/style.md freed 482 MB; next cleanup scheduled; disk usage at 92% of quota\n    worker=pool-9 attempt=1 result=ok\n    owner=docs-team escalation=none\n    next_run=in 2h window=15:56\n[e184] 08:57 chat-relay: scan of docs/faq.md complete files_checked=736 issues_new=0 issues_closed=37 duration=8s; trend flat compared with the previous 9 runs\n    trace=t-37810 span_count=93 dropped=0\n[e187] 09:06 metrics: heartbeat seq=412 queue_depth=10 oldest_item_age=4s workers=62 cpu=97% mem=95% area=\"docs site\" outcome=nominal, no operator action\n    upstream=status-page latency=911ms\n    retention applied to 82 items\n[e188] 09:09 lint-bot: Lars and Chen booked the small room for the onboarding wiki chat at 15:28; duration 9 minutes; no agenda attached\n    worker=pool-7 attempt=1 result=ok\n    note: routine, no operator action\n    upstream=status-page latency=355ms\n[e189] 09:12 ci-bot: Eli edited docs/glossary.md (+7 -37 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=424ms\n    trace=t-83911 span_count=94 dropped=0\n    owner=docs-team escalation=none\n[e190] 09:15 docs-bot: cleanup removed 58 temp folders under web/favicon.ico freed 440 MB; next cleanup scheduled; disk usage at 63% of quota\n    owner=docs-team escalation=none\n    next_run=in 5h window=16:03\n[e191] 09:18 calendar: Hana and Dara booked the small room for the code owners file chat at 14:50; duration 2 minutes; no agenda attached\n    next_run=in 4h window=14:44\n[e193] 09:24 calendar: Bo opened a chat thread about the changelog bot; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=440ms\n    retention applied to 17 items\n[e194] 09:27 metrics: heartbeat seq=559 queue_depth=96 oldest_item_age=5s workers=69 cpu=56% mem=57% area=\"design tokens\" outcome=nominal, no operator action\n    worker=pool-7 attempt=1 result=ok\n    note: routine, no operator action\n    next_run=in 2h window=12:28\n[e195] 09:30 cache-bot: scan of .editorconfig complete files_checked=484 issues_new=0 issues_closed=73 duration=4s; trend flat compared with the previous 5 runs\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e196] 09:33 docs-bot: link checker visited 991 pages of the brand assets; broken=0; redirected=85; slowest page answered in 598ms\n    note: routine, no operator action\n[e197] 09:36 ci-bot: calendar sync imported 8 events for the error pages; conflicts=0; reminders_sent=68; the import window covered the next 14 days\n    worker=pool-2 attempt=1 result=ok\n    trace=t-28899 span_count=95 dropped=0\n[e198] 09:39 metrics: Ana opened a chat thread about the CI runners; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-9 attempt=1 result=ok\n    retention applied to 34 items\n    owner=docs-team escalation=none\n[e201] 09:48 docs-bot: cleanup removed 63 temp folders under README.md freed 687 MB; next cleanup scheduled; disk usage at 94% of quota\n    upstream=status-page latency=996ms\n    trace=t-33835 span_count=46 dropped=0\n    next_run=in 4h window=11:40\n[e202] 09:51 metrics: metrics rollup for the help center: p50=2ms p95=582ms errors=0 sample=773 requests; values inside the usual band for this hour\n    worker=pool-2 attempt=1 result=ok\n    note: routine, no operator action\n[e203] 09:54 cache-bot: Nils edited notes/retro.md (+3 -58 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    retention applied to 73 items\n    owner=docs-team escalation=none\n[e204] 09:57 docs-bot: cleanup removed 65 temp folders under .editorconfig freed 554 MB; next cleanup scheduled; disk usage at 64% of quota\n    upstream=status-page latency=764ms\n    retention applied to 14 items\n    owner=docs-team escalation=none\n[e205] 10:00 lint-bot: cleanup removed 85 temp folders under docs/faq.md freed 477 MB; next cleanup scheduled; disk usage at 90% of quota\n    note: routine, no operator action\n    retention applied to 36 items\n    owner=docs-team escalation=none\n[e206] 10:03 docs-bot: heartbeat seq=217 queue_depth=34 oldest_item_age=3s workers=42 cpu=89% mem=89% area=\"status page\" outcome=nominal, no operator action\n    note: routine, no operator action\n    upstream=status-page latency=489ms\n[e207] 10:06 chat-relay: metrics rollup for the docs site: p50=4ms p95=262ms errors=0 sample=359 requests; values inside the usual band for this hour\n    upstream=status-page latency=477ms\n    trace=t-43498 span_count=97 dropped=0\n[e208] 10:09 docs-bot: Sami opened a chat thread about the release notes; replies=8; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    note: routine, no operator action\n[e209] 10:12 metrics: Dara opened a chat thread about the error pages; replies=9; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    retention applied to 59 items\n[e210] 10:15 calendar: heartbeat seq=315 queue_depth=57 oldest_item_age=2s workers=43 cpu=65% mem=94% area=\"code owners file\" outcome=nominal, no operator action\n    note: routine, no operator action\n    trace=t-86250 span_count=69 dropped=0\n    next_run=in 9h window=14:19\n[e211] 10:18 ci-bot: scan of docs/howto.md complete files_checked=480 issues_new=0 issues_closed=72 duration=4s; trend flat compared with the previous 9 runs\n    owner=docs-team escalation=none\n[e253] 12:24 CR-5000 Vik confirmed in writing that the build agent pool changes to `agentpool-q45`.\n    source=metrics level=info actor=Eli\n[e256] 12:33 CR-5000 Agreed in the sync: the build agent pool becomes `agentpool-q42`.\n    request_id=r-14983\n    source=docs-bot level=info actor=Vik\n"
+        }
+      ],
+      "eventIds": [
+        "e166",
+        "e167",
+        "e168",
+        "e169",
+        "e170",
+        "e171",
+        "e172",
+        "e173",
+        "e174",
+        "e175",
+        "e176",
+        "e177",
+        "e178",
+        "e179",
+        "e180",
+        "e181",
+        "e182",
+        "e183",
+        "e184",
+        "e185",
+        "e186",
+        "e187",
+        "e188",
+        "e189",
+        "e190",
+        "e191",
+        "e192",
+        "e193",
+        "e194",
+        "e195",
+        "e196",
+        "e197",
+        "e198",
+        "e199",
+        "e200",
+        "e201",
+        "e202",
+        "e203",
+        "e204",
+        "e205",
+        "e206",
+        "e207",
+        "e208",
+        "e209",
+        "e210",
+        "e211",
+        "e212",
+        "e213",
+        "e214",
+        "e215",
+        "e216",
+        "e217",
+        "e218",
+        "e219",
+        "e220",
+        "e221",
+        "e222",
+        "e223",
+        "e224",
+        "e225",
+        "e226",
+        "e227",
+        "e228",
+        "e229",
+        "e230",
+        "e231",
+        "e232",
+        "e233",
+        "e234",
+        "e235",
+        "e236",
+        "e237",
+        "e238",
+        "e239",
+        "e240",
+        "e241",
+        "e242",
+        "e243",
+        "e244",
+        "e245",
+        "e246",
+        "e247",
+        "e248",
+        "e249",
+        "e250",
+        "e251",
+        "e252",
+        "e253",
+        "e254",
+        "e255",
+        "e256"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s4-c1",
+          "kind": "file",
+          "name": "inbox/s4/minutes-01.md",
+          "bytes": 2372,
+          "events": [
+            "e181",
+            "e185",
+            "e186",
+            "e192",
+            "e199",
+            "e200",
+            "e212",
+            "e213",
+            "e214",
+            "e215",
+            "e216",
+            "e217",
+            "e218"
+          ]
+        },
+        {
+          "chunkId": "s4-c2",
+          "kind": "feed",
+          "name": "s4-board-1",
+          "bytes": 2385,
+          "events": [
+            "e219",
+            "e220",
+            "e221",
+            "e222",
+            "e223",
+            "e224",
+            "e225",
+            "e226",
+            "e227",
+            "e228",
+            "e229"
+          ]
+        },
+        {
+          "chunkId": "s4-c3",
+          "kind": "feed",
+          "name": "s4-log-2",
+          "bytes": 2426,
+          "events": [
+            "e230",
+            "e231",
+            "e232",
+            "e233",
+            "e234",
+            "e235",
+            "e236",
+            "e237",
+            "e238",
+            "e239",
+            "e240"
+          ]
+        },
+        {
+          "chunkId": "s4-c4",
+          "kind": "feed",
+          "name": "s4-ci-3",
+          "bytes": 2964,
+          "events": [
+            "e241",
+            "e242",
+            "e243",
+            "e244",
+            "e245",
+            "e246",
+            "e247",
+            "e248",
+            "e249",
+            "e250",
+            "e251",
+            "e252",
+            "e254",
+            "e255"
+          ]
+        },
+        {
+          "chunkId": "s4-c5",
+          "kind": "feed",
+          "name": "s4-activity",
+          "bytes": 9386,
+          "events": [
+            "e166",
+            "e167",
+            "e168",
+            "e169",
+            "e170",
+            "e171",
+            "e172",
+            "e173",
+            "e174",
+            "e175",
+            "e176",
+            "e177",
+            "e178",
+            "e179",
+            "e180",
+            "e182",
+            "e183",
+            "e184",
+            "e187",
+            "e188",
+            "e189",
+            "e190",
+            "e191",
+            "e193",
+            "e194",
+            "e195",
+            "e196",
+            "e197",
+            "e198",
+            "e201",
+            "e202",
+            "e203",
+            "e204",
+            "e205",
+            "e206",
+            "e207",
+            "e208",
+            "e209",
+            "e210",
+            "e211",
+            "e253",
+            "e256"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "prompt": "Stage 5 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s5/review-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s5-ci-1, s5-board-2, s5-log-3.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s5/review-01.md",
+          "content": "# Review comments, stage 5, part 1\n\n- [e257] Ticket DOC-856: broken anchors on a help page\n  The page tools/fmt.mjs has 6 broken anchors after the last rename.\n  Eli will fix it after the error pages work.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e258] Pita updated the dependency field, and the work item that blocks LDG-231 became `no-blocker`.\n  Review round 4, reviewer Kira.\n- [e259] lint-bot run 234 summary:\n    step checkout ok (7.21s)\n    step lint ok, 66 files\n    step docs-build ok, 79 pages\n    step notify ok, channel team-chat\n    cache restore hit rate 88%\n- [e260] Chat excerpt from #team-chat:\n  Gus: is anyone else seeing the slow office wifi page?\n  Mei: yes, it is the image cache, it clears itself after 5 minutes\n  Eli: lunch at 08:12? the new place near the station\n  Yara: count me in\n- [e261] chat-relay run 423 summary:\n    step upload ok, 470 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 43%\n    total duration 2m 37s, no warnings\n- [e262] Ticket DOC-315: broken anchors on a help page\n  Reporter: Oona. Priority: low.\n  Rosa will fix it after the help center work.\n  Status: open, no due date.\n- [e263] The board sync by Vik moved the card, so the status of work item LDG-292 is `closed` from now on.\n  Review round 4, reviewer Uma.\n- [e264] Style guide excerpt, section 2.8:\n  Use sentence case for headings.\n  Keep tables under 4 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n- [e265] Retro notes of the status page group:\n  Went well: Ana cleared the docs backlog.\n  To improve: shorter standups on Thursday.\n  Action: Sami collects ideas for the team offsite.\n- [e266] Standup notes from Tove:\n  - yesterday: tidied the team calendar pages and answered 2 questions in chat\n  - today: pairing with Kira on README.md\n  - blockers: none\n- [e267] Style guide excerpt, section 9.8:\n  Use sentence case for headings.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e268] Calendar update from calendar:\n  - the docs site demo moves to 15:17 on Thursday\n  - room booking for the brand assets retro is confirmed\n  - Eli is on leave from Thursday for 4 days\n  - the all-hands slides are due on Friday\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s5-ci-1",
+          "content": "== ci export, stage 5, part 2 ==\n[e269] 08:39 Style guide excerpt, section 7.2:\n    Keep tables under 8 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n[e270] 08:42 Oona updated the dependency field, and the work item that blocks LDG-246 became `no-blocker`.\n    pipeline note added by Bo\n[e271] 08:45 docs-bot weekly numbers for the error pages:\n      page views 8164\n      error rate 0.02 percent\n      uptime 99.92 percent\n      searches without a result: 83\n      the numbers are inside the usual band\n[e272] 08:48 chat-relay run 324 summary:\n      step checkout ok (9.58s)\n      step lint ok, 32 files\n      step docs-build ok, 12 pages\n      step upload ok, 795 KB\n      cache restore hit rate 76%\n[e273] 08:51 Ticket DOC-690: broken anchors on a help page\n    Reporter: Uma. Priority: low.\n    Mei will fix it after the status page work.\n    Status: open, no due date.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e274] 08:54 A draft plan by Dara said that the status of work item LDG-292 would be `reopened`. Dara withdrew the draft the same day, so it changes nothing.\n    pipeline note added by Nils\n[e275] 08:57 Standup notes from Eli:\n    - yesterday: reviewed 7 small pull requests about the code owners file\n    - blockers: none\n    - will demo the new design tokens layout next week\n[e276] 09:00 cache-bot weekly numbers for the onboarding wiki:\n      page views 4855\n      error rate 0.09 percent\n      uptime 99.92 percent\n      the numbers are inside the usual band\n[e277] 09:03 In the dependency review, Nils recorded that the work item that blocks LDG-275 is `LDG-246` from now on.\n    pipeline 66011\n[e278] 09:06 Standup notes from Yara:\n    - yesterday: tidied the build cache pages and answered 2 questions in chat\n    - today: pairing with Yara on notes/retro.md\n    - will demo the new release notes layout next week\n[e279] 09:09 Standup notes from Dara:\n    - yesterday: tidied the build cache pages and answered 3 questions in chat\n    - yesterday: reviewed 5 small pull requests about the help center\n    - today: pairing with Oona on ci/cache.yml\n    - out early on Friday for a dentist visit\n    - updated the screenshots in docs/faq.md\n[e280] 09:12 An archived copy of the board from the time of entry e090 shows that the status of work item LDG-231 was `closed`. The copy is history only and is not a new statement.\n    pipeline 58169\n"
+        },
+        {
+          "name": "s5-board-2",
+          "content": "== board export, stage 5, part 3 ==\n[e281] 09:15 Ana proposed in chat that the status of the file src/ledger/posting.ts should become `merged`. Nobody decided it, so nothing changes.\n    card id 564\n    card updated by Lars\n[e282] 09:18 Calendar update from cache-bot:\n    - room booking for the docs site retro is confirmed\n    - Rosa is on leave from Wednesday for 6 days\n    - Lars hosts the next lunch talk about typography\n[e283] 09:21 Notes from the design tokens sync on Wednesday:\n    Sami showed the new layout of the build cache.\n    Eli asked for a darker header; Chen will try two variants.\n    The group will look at the release notes again in 3 weeks.\n[e284] 09:24 Notes from the help center sync on Thursday:\n    Lars showed the new layout of the onboarding wiki.\n    The group will look at the code owners file again in 6 weeks.\n    Hana said that the office printer works again.\n[e285] 09:27 In the planning thread, Eli asked whether the status of work item LDG-246 could be `closed`. The thread closed with no decision and no change.\n    card id 947\n[e286] 09:30 In the planning thread, Uma asked whether the status of work item LDG-246 could be `closed`. The thread closed with no decision and no change.\n    card updated by Dara\n    card id 305\n[e287] 09:33 Calendar update from metrics:\n    - the sprint board demo moves to 15:11 on Monday\n    - room booking for the onboarding wiki retro is confirmed\n    - Femi is on leave from Wednesday for 5 days\n    - Gus hosts the next lunch talk about typography\n[e288] 09:36 Chat excerpt from #team-chat:\n    Quinn: lunch at 12:38? the new place near the station\n    Femi: count me in\n    Yara: reminder that the error pages poll closes on Wednesday\n[e289] 09:39 chat-relay run 291 summary:\n      step lint ok, 70 files\n      step docs-build ok, 62 pages\n      cache restore hit rate 50%\n      total duration 4m 48s, no warnings\n[e290] 09:42 metrics opened a grouped update for the error pages tooling:\n      - markdown-lint 7.13.1 to 3.1.1\n      - link-checker 6.15.9 to 2.4.5\n      - image-optimizer 3.3.4 to 4.16.2\n      The checks passed. No reviewer is assigned yet.\n[e291] 09:45 Notes from the error pages sync on Monday:\n    Mei showed the new layout of the release notes.\n    Pita said that the office printer works again.\n    Nothing in this sync touches the project itself.\n[e292] 09:48 Ticket DOC-115: broken anchors on a help page\n    The page README.md has 7 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Thursday was closed as a duplicate.\n"
+        },
+        {
+          "name": "s5-log-3",
+          "content": "== log export, stage 5, part 4 ==\n[e293] 09:51 ci-bot weekly numbers for the brand assets:\n      page views 4288\n      median load 923 ms\n      uptime 99.94 percent\n      searches without a result: 68\n      the numbers are inside the usual band\n[e294] 09:54 Review thread on assets/logo.svg (6 comments):\n    Lars: please wrap this paragraph at 24 characters.\n    Rosa: nit: trailing spaces on line 83.\n    Hana: can we move the long examples to an appendix?\n    Zed: moved them; the page is 73 percent shorter now.\n    Hana: approved, merge when the checks are green.\n[e295] 09:57 Style guide excerpt, section 8.7:\n    Keep tables under 7 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e296] 10:00 chat-relay weekly numbers for the dependabot:\n      page views 3866\n      median load 814 ms\n      error rate 0.04 percent\n      searches without a result: 29\n      the numbers are inside the usual band\n[e297] 10:03 calendar weekly numbers for the sprint board:\n      median load 214 ms\n      error rate 0.08 percent\n      uptime 99.99 percent\n      the numbers are inside the usual band\n[e298] 10:06 Chat excerpt from #team-chat:\n    Wren: is anyone else seeing the slow CI runners page?\n    Pita: ok, thanks\n    Uma: lunch at 08:23? the new place near the station\n[e299] 10:09 Retro notes of the office wifi group:\n    Went well: Yara cleared the docs backlog.\n    Went well: the test fixtures pages load faster.\n    To improve: shorter standups on Tuesday.\n    Action: Hana books a room for the next retro.\n[e300] 10:12 Standup notes from Chen:\n    - yesterday: tidied the team calendar pages and answered 4 questions in chat\n    - yesterday: reviewed 7 small pull requests about the team calendar\n    - today: pairing with Quinn on docs/glossary.md\n    - blockers: none\n    - will demo the new build cache layout next week\n[e301] 10:15 Read-only export of the link-checker configuration for the error pages:\n      theme = \"slate-6\"\n      cache_hours = 7\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 56\n      report_format = \"text\"\n[e302] 10:18 An archived copy of the board from the time of entry e042 shows that the status of the file migrations/0042_split_journal.sql was `merged`. The copy is history only and is not a new statement.\n    request_id=r-71853\n    source=ci-bot level=info actor=Sami\n[e303] 10:21 docs-bot weekly numbers for the help center:\n      page views 6994\n      median load 799 ms\n      error rate 0.03 percent\n      searches without a result: 30\n      the numbers are inside the usual band\n[e304] 10:24 Standup notes from Zed:\n    - yesterday: tidied the changelog bot pages and answered 2 questions in chat\n    - yesterday: reviewed 4 small pull requests about the status page\n    - today: rewriting the intro paragraph of the help center guide\n    - blockers: none\n"
+        }
+      ],
+      "eventIds": [
+        "e257",
+        "e258",
+        "e259",
+        "e260",
+        "e261",
+        "e262",
+        "e263",
+        "e264",
+        "e265",
+        "e266",
+        "e267",
+        "e268",
+        "e269",
+        "e270",
+        "e271",
+        "e272",
+        "e273",
+        "e274",
+        "e275",
+        "e276",
+        "e277",
+        "e278",
+        "e279",
+        "e280",
+        "e281",
+        "e282",
+        "e283",
+        "e284",
+        "e285",
+        "e286",
+        "e287",
+        "e288",
+        "e289",
+        "e290",
+        "e291",
+        "e292",
+        "e293",
+        "e294",
+        "e295",
+        "e296",
+        "e297",
+        "e298",
+        "e299",
+        "e300",
+        "e301",
+        "e302",
+        "e303",
+        "e304"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s5-c1",
+          "kind": "file",
+          "name": "inbox/s5/review-01.md",
+          "bytes": 2310,
+          "events": [
+            "e257",
+            "e258",
+            "e259",
+            "e260",
+            "e261",
+            "e262",
+            "e263",
+            "e264",
+            "e265",
+            "e266",
+            "e267",
+            "e268"
+          ]
+        },
+        {
+          "chunkId": "s5-c2",
+          "kind": "feed",
+          "name": "s5-ci-1",
+          "bytes": 2462,
+          "events": [
+            "e269",
+            "e270",
+            "e271",
+            "e272",
+            "e273",
+            "e274",
+            "e275",
+            "e276",
+            "e277",
+            "e278",
+            "e279",
+            "e280"
+          ]
+        },
+        {
+          "chunkId": "s5-c3",
+          "kind": "feed",
+          "name": "s5-board-2",
+          "bytes": 2575,
+          "events": [
+            "e281",
+            "e282",
+            "e283",
+            "e284",
+            "e285",
+            "e286",
+            "e287",
+            "e288",
+            "e289",
+            "e290",
+            "e291",
+            "e292"
+          ]
+        },
+        {
+          "chunkId": "s5-c4",
+          "kind": "feed",
+          "name": "s5-log-3",
+          "bytes": 2918,
+          "events": [
+            "e293",
+            "e294",
+            "e295",
+            "e296",
+            "e297",
+            "e298",
+            "e299",
+            "e300",
+            "e301",
+            "e302",
+            "e303",
+            "e304"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 6,
+      "prompt": "Stage 6 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s6/ticket-01.md, inbox/s6/minutes-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s6-ci-1, s6-ci-2, s6-ops-log.\nThe feed s6-ops-log is long. The entries that matter for this task carry the tag CHG-6777; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s6/ticket-01.md",
+          "content": "# Ticket thread, stage 6, part 1\n\n- [e307] After the planning meeting, the owner of work item LDG-231 is `lindqvist`, as Rosa recorded in the ticket.\n  Watchers: Zed, Gus.\n  Comment by Uma on ticket OPS-931.\n- [e319] Femi proposed in chat that the owner of work item LDG-231 should become `varga`. Nobody decided it, so nothing changes.\n  Linked from the design tokens board by Bo.\n- [e320] Dara assigned the ticket again, and the owner of work item LDG-214 became `moreau`.\n  Watchers: Lars, Wren.\n- [e328] Rosa proposed in chat that the owner of work item LDG-214 should become `varga`. Nobody decided it, so nothing changes.\n  Linked from the lint config board by Rosa.\n- [e331] Hana changed the card again, so the status of work item LDG-258 is `reopened` now and the earlier status no longer holds.\n  Comment by Tove on ticket OPS-691.\n- [e340] Oona handed the work over in the stand-up, so the owner of work item LDG-214 is now `haddad`.\n  Linked from the help center board by Rosa.\n- [e341] The review bot reported for Zed that the status of the file migrations/0043_backfill_entries.sql changed to `reverted`.\n  Watchers: Zed, Eli.\n- [e348] Correction from Lars: the status of the file migrations/0043_backfill_entries.sql is `merged`, and the earlier review note was wrong.\n  Linked from the build cache board by Wren.\n  Comment by Zed on ticket OPS-721.\n- [e351] Zed linked the tickets, so the work item that blocks LDG-231 is now `LDG-258`.\n  Linked from the docs site board by Uma.\n- [e354] An archived copy of the board from the time of entry e135 shows that the status of work item LDG-231 was `closed`. The copy is history only and is not a new statement.\n  Watchers: Eli, Ivo.\n- [e358] Standup notes from Sami:\n  - yesterday: tidied the code owners file pages and answered 4 questions in chat\n  - yesterday: reviewed 5 small pull requests about the error pages\n  - will demo the new onboarding wiki layout next week\n- [e359] chat-relay run 518 summary:\n    step checkout ok (8.28s)\n    step upload ok, 643 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 57%\n- [e360] An archived copy of the board from the time of entry e024 shows that the status of the file migrations/0043_backfill_entries.sql was `draft`. The copy is history only and is not a new statement.\n  Watchers: Zed, Wren.\n"
+        },
+        {
+          "path": "inbox/s6/minutes-02.md",
+          "content": "# Meeting minutes, stage 6, part 3\n\n- [e373] Review thread on README.md (3 comments):\n  Gus: please wrap this paragraph at 50 characters.\n  Wren: done, and I fixed the heading levels too.\n  Rosa: the table in section 6 renders badly on small screens.\n  Mei: can we move the long examples to an appendix?\n  Ivo: moved them; the page is 57 percent shorter now.\n- [e374] Chen linked the board view that shows the owner of work item LDG-231 in the weekly notes. Nobody proposed a change.\n  Action owner for the follow-up: Uma.\n- [e375] Chat excerpt from #team-chat:\n  Yara: is anyone else seeing the slow sprint board page?\n  Hana: yes, it is the image cache, it clears itself after 9 minutes\n  Oona: count me in\n- [e376] Notes from the retro notes sync on Monday:\n  Ana asked for a darker header; Ana will try two variants.\n  The group will look at the team calendar again in 3 weeks.\n  Vik shared a short survey; 2 people answered so far.\n- [e377] Read-only export of the spellcheck configuration for the sprint board:\n    max_line_length = 413\n    cache_hours = 8\n    runner_pool = \"pool-6\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 30\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e378] Read-only export of the link-checker configuration for the build cache:\n    max_line_length = 898\n    cache_hours = 2\n    runner_pool = \"pool-3\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 81\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e379] cache-bot opened a grouped update for the changelog bot tooling:\n    - markdown-lint 4.0.0 to 1.18.8\n    - link-checker 8.7.2 to 7.13.1\n    - image-optimizer 4.15.2 to 9.15.6\n    The checks passed. No reviewer is assigned yet.\n- [e380] Notes from the docs site sync on Monday:\n  Ivo showed the new layout of the onboarding wiki.\n  Tove asked for a darker header; Kira will try two variants.\n  The group will look at the dependabot again in 4 weeks.\n  Nothing in this sync touches the project itself.\n  Lars shared a short survey; 5 people answered so far.\n- [e381] Gus asked who can answer questions about the status of the file src/ledger/reconcile.ts. The thread ended with no change.\n  Minuted by Chen.\n  Raised in the error pages sync; attendees: Jun, Eli and Kira.\n- [e382] cache-bot opened a grouped update for the changelog bot tooling:\n    - link-checker 2.13.3 to 2.1.7\n    - image-optimizer 2.14.8 to 4.14.9\n    - spellcheck dictionary 8.6.5 to 8.16.7\n    The checks passed. No reviewer is assigned yet.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s6-ci-1",
+          "content": "== ci export, stage 6, part 2 ==\n[e361] 10:51 Chat excerpt from #team-chat:\n    Jun: is anyone else seeing the slow office wifi page?\n    Kira: ok, thanks\n    Bo: count me in\n[e362] 10:54 Standup notes from Ivo:\n    - yesterday: reviewed 9 small pull requests about the build cache\n    - today: pairing with Dara on scripts/lint.sh\n    - blockers: none\n    - will demo the new lint config layout next week\n[e363] 10:57 Style guide excerpt, section 4.6:\n    Keep tables under 9 columns.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e364] 11:00 Standup notes from Mei:\n    - yesterday: tidied the onboarding wiki pages and answered 8 questions in chat\n    - yesterday: reviewed 8 small pull requests about the office wifi\n    - updated the screenshots in docs/faq.md\n[e365] 11:03 Wren linked the board view that shows the owner of work item LDG-289 in the weekly notes. Nobody proposed a change.\n    pipeline 84648\n[e366] 11:06 Lars wants a better description of the status of the file migrations/0042_split_journal.sql in the wiki. This is a docs task only and changes nothing.\n    pipeline note added by Zed\n[e367] 11:09 Retro notes of the docs site group:\n    Went well: Bo cleared the docs backlog.\n    Went well: the office wifi pages load faster.\n    Action: Quinn books a room for the next retro.\n    Action: Sami collects ideas for the team offsite.\n[e368] 11:12 Ana linked the board view that shows the status of work item LDG-289 in the weekly notes. Nobody proposed a change.\n    pipeline note added by Eli\n    pipeline 82828\n[e369] 11:15 Read-only export of the docs-builder configuration for the retro notes:\n      max_line_length = 843\n      cache_hours = 3\n      runner_pool = \"pool-9\"\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 44\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n      report_format = \"text\"\n[e370] 11:18 ci-bot weekly numbers for the brand assets:\n      median load 746 ms\n      searches without a result: 23\n      the numbers are inside the usual band\n[e371] 11:21 Style guide excerpt, section 7.6:\n    Keep tables under 2 columns.\n    Write numbers below ten as words in running text.\n    Name the button exactly as the screen shows it.\n[e372] 11:24 In the planning thread, Bo asked whether the status of work item LDG-231 could be `opened`. The thread closed with no decision and no change.\n    pipeline note added by Ana\n"
+        },
+        {
+          "name": "s6-ci-2",
+          "content": "== ci export, stage 6, part 4 ==\n[e383] 11:57 Notes from the onboarding wiki sync on Friday:\n    Dara showed the new layout of the error pages.\n    The group will look at the brand assets again in 2 weeks.\n    Nothing in this sync touches the project itself.\n    Sami shared a short survey; 9 people answered so far.\n[e384] 12:00 Review thread on docs/howto.md (3 comments):\n    Uma: please wrap this paragraph at 35 characters.\n    Femi: the table in section 3 renders badly on small screens.\n    Sami: nit: trailing spaces on line 98.\n    Oona: can we move the long examples to an appendix?\n    Dara: moved them; the page is 53 percent shorter now.\n[e385] 12:03 Tove pasted an old board export made at the time of entry e023, in which the status of the file src/ledger/accounts.ts is `draft`. The export is history only and changes nothing.\n    pipeline 24834\n    pipeline note added by Mei\n[e386] 12:06 cache-bot opened a grouped update for the build cache tooling:\n      - link-checker 2.15.0 to 6.0.5\n      - image-optimizer 5.4.1 to 2.18.8\n      The checks passed. No reviewer is assigned yet.\n[e387] 12:09 docs-bot weekly numbers for the lint config:\n      page views 4497\n      median load 213 ms\n      uptime 99.98 percent\n      searches without a result: 86\n[e388] 12:12 Ticket DOC-230: broken anchors on a help page\n    The page docs/faq.md has 8 broken anchors after the last rename.\n    Wren will fix it after the onboarding wiki work.\n    Related: a similar report from Monday was closed as a duplicate.\n[e389] 12:15 Ticket DOC-460: broken anchors on a help page\n    Reporter: Femi. Priority: low.\n    The page .editorconfig has 2 broken anchors after the last rename.\n    Related: a similar report from Friday was closed as a duplicate.\n[e391] 12:21 calendar weekly numbers for the office wifi:\n      page views 5632\n      median load 870 ms\n      searches without a result: 55\n      the numbers are inside the usual band\n[e393] 12:27 Standup notes from Mei:\n    - today: pairing with Uma on README.md\n    - out early on Thursday for a dentist visit\n    - will demo the new sprint board layout next week\n[e395] 12:33 Chat excerpt from #team-chat:\n    Sami: is anyone else seeing the slow brand assets page?\n    Quinn: ok, thanks\n    Sami: lunch at 13:32? the new place near the station\n    Rosa: count me in\n    Vik: reminder that the retro notes poll closes on Monday\n[e396] 12:36 Retro notes of the office wifi group:\n    Went well: Jun cleared the docs backlog.\n    Went well: the code owners file pages load faster.\n    Action: Bo books a room for the next retro.\n"
+        },
+        {
+          "name": "s6-ops-log",
+          "content": "== ops-log export, stage 6 ==\n[e305] 08:03 chat-relay: Ana opened a chat thread about the status page; replies=5; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=878ms\n    trace=t-63458 span_count=28 dropped=0\n    next_run=in 7h window=14:08\n[e306] 08:06 metrics: dependency audit of the docs site tooling found 34 minor updates; none are security related; the bot will open grouped updates later\n    next_run=in 7h window=09:39\n[e308] 08:12 calendar: dependency audit of the retro notes tooling found 20 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-3 attempt=1 result=ok\n    upstream=status-page latency=664ms\n[e309] 08:15 chat-relay: job #598 finished status=ok duration=6.21s cache=warm artifacts=92 warnings=0 runner=pool-7 note=routine nightly sweep of the design tokens, nothing to report\n    worker=pool-2 attempt=1 result=ok\n    trace=t-89162 span_count=94 dropped=0\n    owner=docs-team escalation=none\n[e310] 08:18 metrics: link checker visited 631 pages of the code owners file; broken=0; redirected=88; slowest page answered in 328ms\n    worker=pool-3 attempt=1 result=ok\n    owner=docs-team escalation=none\n    next_run=in 2h window=15:48\n[e311] 08:21 lint-bot: calendar sync imported 3 events for the test fixtures; conflicts=0; reminders_sent=20; the import window covered the next 92 days\n    note: routine, no operator action\n    trace=t-48036 span_count=35 dropped=0\n    next_run=in 5h window=13:36\n[e312] 08:24 cache-bot: Vik edited README.md (+9 -16 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=278ms\n    next_run=in 3h window=10:54\n[e313] 08:27 chat-relay: Zed edited ci/cache.yml (+4 -21 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    trace=t-32878 span_count=68 dropped=0\n[e314] 08:30 cache-bot: link checker visited 317 pages of the onboarding wiki; broken=0; redirected=62; slowest page answered in 638ms\n    note: routine, no operator action\n    next_run=in 6h window=16:50\n[e315] 08:33 lint-bot: Jun and Wren booked the small room for the dependabot chat at 17:35; duration 3 minutes; no agenda attached\n    owner=docs-team escalation=none\n[e316] 08:36 ci-bot: dependency audit of the code owners file tooling found 11 minor updates; none are security related; the bot will open grouped updates later\n    note: routine, no operator action\n[e317] 08:39 lint-bot: Ivo opened a chat thread about the code owners file; replies=4; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=370ms\n    retention applied to 81 items\n[e318] 08:42 ci-bot: cleanup removed 68 temp folders under docs/glossary.md freed 369 MB; next cleanup scheduled; disk usage at 87% of quota\n    next_run=in 6h window=13:15\n[e321] 08:51 lint-bot: link checker visited 664 pages of the test fixtures; broken=0; redirected=92; slowest page answered in 772ms\n    note: routine, no operator action\n[e322] 08:54 lint-bot: dependency audit of the build cache tooling found 60 minor updates; none are security related; the bot will open grouped updates later\n    upstream=status-page latency=474ms\n    trace=t-68633 span_count=10 dropped=0\n[e323] 08:57 metrics: Ivo edited docs/faq.md (+8 -24 lines, formatting only); review not required by policy; merged after the standard wait\n    retention applied to 92 items\n    owner=docs-team escalation=none\n[e324] 09:00 calendar: link checker visited 227 pages of the build cache; broken=0; redirected=37; slowest page answered in 924ms\n    upstream=status-page latency=510ms\n[e325] 09:03 ci-bot: Yara opened a chat thread about the onboarding wiki; replies=5; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    note: routine, no operator action\n    retention applied to 44 items\n    trace=t-36570 span_count=33 dropped=0\n[e326] 09:06 ci-bot: link checker visited 948 pages of the changelog bot; broken=0; redirected=86; slowest page answered in 778ms\n    worker=pool-6 attempt=1 result=ok\n    retention applied to 30 items\n[e327] 09:09 cache-bot: Rosa edited notes/retro.md (+9 -68 lines, formatting only); review not required by policy; merged after the standard wait\n    retention applied to 62 items\n    trace=t-50485 span_count=24 dropped=0\n    owner=docs-team escalation=none\n[e329] 09:15 cache-bot: scan of docs/howto.md complete files_checked=960 issues_new=0 issues_closed=42 duration=2s; trend flat compared with the previous 3 runs\n    retention applied to 16 items\n    owner=docs-team escalation=none\n    next_run=in 2h window=10:35\n[e330] 09:18 calendar: metrics rollup for the code owners file: p50=6ms p95=493ms errors=0 sample=399 requests; values inside the usual band for this hour\n    retention applied to 31 items\n    trace=t-49117 span_count=35 dropped=0\n[e332] 09:24 CHG-6777 Pita updated the dependency field, and the work item that blocks LDG-231 became `LDG-275`.\n    request_id=r-98878\n    source=cache-bot level=info actor=Gus\n[e333] 09:27 docs-bot: dependency audit of the release notes tooling found 70 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-8 attempt=1 result=ok\n[e334] 09:30 chat-relay: dependency audit of the release notes tooling found 77 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-4 attempt=1 result=ok\n    note: routine, no operator action\n[e335] 09:33 metrics: dependency audit of the test fixtures tooling found 61 minor updates; none are security related; the bot will open grouped updates later\n    note: routine, no operator action\n    retention applied to 53 items\n[e336] 09:36 lint-bot: calendar sync imported 8 events for the CI runners; conflicts=0; reminders_sent=48; the import window covered the next 41 days\n    upstream=status-page latency=852ms\n[e337] 09:39 metrics: heartbeat seq=430 queue_depth=24 oldest_item_age=5s workers=43 cpu=85% mem=79% area=\"error pages\" outcome=nominal, no operator action\n    worker=pool-8 attempt=1 result=ok\n[e338] 09:42 docs-bot: dependency audit of the CI runners tooling found 11 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-5 attempt=1 result=ok\n    next_run=in 9h window=08:38\n[e339] 09:45 lint-bot: scan of ci/cache.yml complete files_checked=666 issues_new=0 issues_closed=68 duration=8s; trend flat compared with the previous 9 runs\n    retention applied to 31 items\n[e342] 09:54 metrics: link checker visited 384 pages of the CI runners; broken=0; redirected=13; slowest page answered in 642ms\n    upstream=status-page latency=974ms\n    retention applied to 66 items\n    trace=t-58610 span_count=15 dropped=0\n[e343] 09:57 metrics: build 724 for the CI runners reused 42% of cached layers; image size unchanged; upload time 6s; retention policy applied to 18 old images\n    note: routine, no operator action\n    upstream=status-page latency=868ms\n[e344] 10:00 metrics: calendar sync imported 9 events for the docs site; conflicts=0; reminders_sent=85; the import window covered the next 91 days\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e345] 10:03 lint-bot: Mei opened a chat thread about the brand assets; replies=6; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    trace=t-27556 span_count=23 dropped=0\n[e346] 10:06 lint-bot: scan of .editorconfig complete files_checked=296 issues_new=0 issues_closed=73 duration=6s; trend flat compared with the previous 3 runs\n    worker=pool-4 attempt=1 result=ok\n    upstream=status-page latency=271ms\n    retention applied to 18 items\n[e347] 10:09 lint-bot: metrics rollup for the sprint board: p50=5ms p95=426ms errors=0 sample=575 requests; values inside the usual band for this hour\n    trace=t-45194 span_count=94 dropped=0\n    owner=docs-team escalation=none\n[e349] 10:15 chat-relay: calendar sync imported 6 events for the storybook; conflicts=0; reminders_sent=66; the import window covered the next 33 days\n    note: routine, no operator action\n    retention applied to 10 items\n[e350] 10:18 docs-bot: link checker visited 517 pages of the error pages; broken=0; redirected=20; slowest page answered in 646ms\n    worker=pool-3 attempt=1 result=ok\n    upstream=status-page latency=945ms\n[e352] 10:24 chat-relay: dependency audit of the status page tooling found 54 minor updates; none are security related; the bot will open grouped updates later\n    next_run=in 8h window=13:46\n[e353] 10:27 calendar: Oona edited tools/fmt.mjs (+3 -72 lines, formatting only); review not required by policy; merged after the standard wait\n    retention applied to 51 items\n    owner=docs-team escalation=none\n[e355] 10:33 cache-bot: build 940 for the error pages reused 61% of cached layers; image size unchanged; upload time 2s; retention policy applied to 13 old images\n    worker=pool-2 attempt=1 result=ok\n    trace=t-68757 span_count=47 dropped=0\n    owner=docs-team escalation=none\n[e356] 10:36 docs-bot: metrics rollup for the lint config: p50=4ms p95=774ms errors=0 sample=597 requests; values inside the usual band for this hour\n    worker=pool-2 attempt=1 result=ok\n    note: routine, no operator action\n    trace=t-39685 span_count=91 dropped=0\n[e357] 10:39 cache-bot: Wren opened a chat thread about the error pages; replies=4; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    trace=t-57340 span_count=32 dropped=0\n    next_run=in 9h window=14:57\n[e390] 12:18 CHG-6777 Agreed in the sync: the soak test cluster becomes `soak-hydra`.\n    source=ci-bot level=info actor=Eli\n[e392] 12:24 CHG-6777 Update from Uma: the soak test cluster is set to `soak-koala`, effective now.\n    request_id=r-61424\n[e394] 12:30 CHG-6777 Dara confirmed in writing that the soak test cluster changes to `soak-jackal`.\n    request_id=r-52882\n"
+        }
+      ],
+      "eventIds": [
+        "e305",
+        "e306",
+        "e307",
+        "e308",
+        "e309",
+        "e310",
+        "e311",
+        "e312",
+        "e313",
+        "e314",
+        "e315",
+        "e316",
+        "e317",
+        "e318",
+        "e319",
+        "e320",
+        "e321",
+        "e322",
+        "e323",
+        "e324",
+        "e325",
+        "e326",
+        "e327",
+        "e328",
+        "e329",
+        "e330",
+        "e331",
+        "e332",
+        "e333",
+        "e334",
+        "e335",
+        "e336",
+        "e337",
+        "e338",
+        "e339",
+        "e340",
+        "e341",
+        "e342",
+        "e343",
+        "e344",
+        "e345",
+        "e346",
+        "e347",
+        "e348",
+        "e349",
+        "e350",
+        "e351",
+        "e352",
+        "e353",
+        "e354",
+        "e355",
+        "e356",
+        "e357",
+        "e358",
+        "e359",
+        "e360",
+        "e361",
+        "e362",
+        "e363",
+        "e364",
+        "e365",
+        "e366",
+        "e367",
+        "e368",
+        "e369",
+        "e370",
+        "e371",
+        "e372",
+        "e373",
+        "e374",
+        "e375",
+        "e376",
+        "e377",
+        "e378",
+        "e379",
+        "e380",
+        "e381",
+        "e382",
+        "e383",
+        "e384",
+        "e385",
+        "e386",
+        "e387",
+        "e388",
+        "e389",
+        "e390",
+        "e391",
+        "e392",
+        "e393",
+        "e394",
+        "e395",
+        "e396"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s6-c1",
+          "kind": "file",
+          "name": "inbox/s6/ticket-01.md",
+          "bytes": 2321,
+          "events": [
+            "e307",
+            "e319",
+            "e320",
+            "e328",
+            "e331",
+            "e340",
+            "e341",
+            "e348",
+            "e351",
+            "e354",
+            "e358",
+            "e359",
+            "e360"
+          ]
+        },
+        {
+          "chunkId": "s6-c2",
+          "kind": "file",
+          "name": "inbox/s6/minutes-02.md",
+          "bytes": 2492,
+          "events": [
+            "e373",
+            "e374",
+            "e375",
+            "e376",
+            "e377",
+            "e378",
+            "e379",
+            "e380",
+            "e381",
+            "e382"
+          ]
+        },
+        {
+          "chunkId": "s6-c3",
+          "kind": "feed",
+          "name": "s6-ci-1",
+          "bytes": 2413,
+          "events": [
+            "e361",
+            "e362",
+            "e363",
+            "e364",
+            "e365",
+            "e366",
+            "e367",
+            "e368",
+            "e369",
+            "e370",
+            "e371",
+            "e372"
+          ]
+        },
+        {
+          "chunkId": "s6-c4",
+          "kind": "feed",
+          "name": "s6-ci-2",
+          "bytes": 2583,
+          "events": [
+            "e383",
+            "e384",
+            "e385",
+            "e386",
+            "e387",
+            "e388",
+            "e389",
+            "e391",
+            "e393",
+            "e395",
+            "e396"
+          ]
+        },
+        {
+          "chunkId": "s6-c5",
+          "kind": "feed",
+          "name": "s6-ops-log",
+          "bytes": 9972,
+          "events": [
+            "e305",
+            "e306",
+            "e308",
+            "e309",
+            "e310",
+            "e311",
+            "e312",
+            "e313",
+            "e314",
+            "e315",
+            "e316",
+            "e317",
+            "e318",
+            "e321",
+            "e322",
+            "e323",
+            "e324",
+            "e325",
+            "e326",
+            "e327",
+            "e329",
+            "e330",
+            "e332",
+            "e333",
+            "e334",
+            "e335",
+            "e336",
+            "e337",
+            "e338",
+            "e339",
+            "e342",
+            "e343",
+            "e344",
+            "e345",
+            "e346",
+            "e347",
+            "e349",
+            "e350",
+            "e352",
+            "e353",
+            "e355",
+            "e356",
+            "e357",
+            "e390",
+            "e392",
+            "e394"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "prompt": "Stage 7 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s7/notes-01.md, inbox/s7/design-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s7-chat-1, s7-ci-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s7/notes-01.md",
+          "content": "# Team notes, stage 7, part 1\n\n- [e397] metrics weekly numbers for the onboarding wiki:\n    page views 8664\n    median load 499 ms\n    uptime 99.95 percent\n    searches without a result: 86\n    the numbers are inside the usual band\n- [e398] metrics weekly numbers for the dependabot:\n    page views 4243\n    median load 532 ms\n    uptime 99.93 percent\n    searches without a result: 14\n    the numbers are inside the usual band\n- [e399] Ana updated the dependency field, and the work item that blocks LDG-289 became `LDG-258`.\n  Shared in the changelog bot channel at 09:52.\n- [e400] chat-relay run 626 summary:\n    step checkout ok (6.70s)\n    step lint ok, 62 files\n    step upload ok, 516 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 44%\n- [e401] Standup notes from Jun:\n  - yesterday: tidied the office wifi pages and answered 2 questions in chat\n  - yesterday: reviewed 9 small pull requests about the release notes\n  - blockers: none\n  - out early on Tuesday for a dentist visit\n  - updated the screenshots in docs/style.md\n- [e402] metrics opened a grouped update for the dependabot tooling:\n    - markdown-lint 6.0.6 to 3.2.2\n    - image-optimizer 5.10.7 to 4.18.7\n    - spellcheck dictionary 4.15.6 to 7.14.6\n    The checks passed. No reviewer is assigned yet.\n- [e403] cache-bot opened a grouped update for the code owners file tooling:\n    - link-checker 8.4.6 to 8.6.2\n    - image-optimizer 2.5.1 to 6.16.3\n    - spellcheck dictionary 9.10.9 to 7.17.7\n    The checks passed. No reviewer is assigned yet.\n- [e404] Chat excerpt from #team-chat:\n  Hana: ok, thanks\n  Ivo: lunch at 17:14? the new place near the station\n  Ana: count me in\n  Tove: reminder that the help center poll closes on Monday\n- [e405] chat-relay run 312 summary:\n    step lint ok, 47 files\n    step docs-build ok, 44 pages\n    step upload ok, 854 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 90%\n- [e406] Ticket DOC-175: broken anchors on a help page\n  Reporter: Uma. Priority: low.\n  The page ci/cache.yml has 9 broken anchors after the last rename.\n  Quinn will fix it after the code owners file work.\n  Related: a similar report from Thursday was closed as a duplicate.\n- [e407] Standup notes from Vik:\n  - yesterday: tidied the test fixtures pages and answered 8 questions in chat\n  - today: rewriting the intro paragraph of the docs site guide\n  - blockers: none\n  - updated the screenshots in README.md\n"
+        },
+        {
+          "path": "inbox/s7/design-02.md",
+          "content": "# Design discussion, stage 7, part 3\n\n- [e419] Retro notes of the docs site group:\n  Went well: the docs site pages load faster.\n  To improve: shorter standups on Thursday.\n  Action: Chen books a room for the next retro.\n- [e420] Chen linked the board view that shows the owner of work item LDG-289 in the weekly notes. Nobody proposed a change.\n  Kira and Ana were in the discussion.\n  From the design discussion led by Uma.\n- [e421] lint-bot weekly numbers for the lint config:\n    page views 5757\n    median load 958 ms\n    uptime 99.92 percent\n    searches without a result: 55\n- [e422] Retro notes of the help center group:\n  Went well: the team calendar pages load faster.\n  To improve: shorter standups on Friday.\n  Action: Oona collects ideas for the team offsite.\n- [e423] Ticket DOC-780: broken anchors on a help page\n  Reporter: Eli. Priority: low.\n  The page docs/style.md has 2 broken anchors after the last rename.\n  Femi will fix it after the status page work.\n  Status: open, no due date.\n- [e424] Ticket DOC-669: broken anchors on a help page\n  The page .editorconfig has 5 broken anchors after the last rename.\n  Wren will fix it after the release notes work.\n  Status: open, no due date.\n- [e425] Mei linked the board view that shows the status of the file src/ledger/reconcile.ts in the weekly notes. Nobody proposed a change.\n  Jun and Ana were in the discussion.\n  From the design discussion led by Zed.\n- [e426] Read-only export of the docs-builder configuration for the lint config:\n    max_line_length = 796\n    cache_hours = 8\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 54\n    preview_pages = true\n    report_format = \"text\"\n- [e427] Style guide excerpt, section 3.9:\n  Use sentence case for headings.\n  Keep tables under 9 columns.\n  Put one idea in each paragraph.\n- [e428] Read-only export of the docs-builder configuration for the changelog bot:\n    max_line_length = 243\n    theme = \"slate-7\"\n    keep_reports_days = 17\n    preview_pages = true\n- [e429] Calendar update from lint-bot:\n  - room booking for the error pages retro is confirmed\n  - Femi hosts the next lunch talk about typography\n- [e430] Read-only export of the chat-relay configuration for the onboarding wiki:\n    max_line_length = 865\n    cache_hours = 7\n    runner_pool = \"pool-2\"\n    notify_channel = \"#team-chat\"\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s7-chat-1",
+          "content": "== chat export, stage 7, part 2 ==\n[e408] 08:36 Chen undid the earlier step, so the status of the file src/ledger/accounts.ts is `reviewed` from now on.\n    Vik reacted with a thumbs-up\n    thread replies: 7\n[e409] 08:39 Standup notes from Eli:\n    - yesterday: tidied the sprint board pages and answered 3 questions in chat\n    - today: pairing with Uma on docs/style.md\n    - today: rewriting the intro paragraph of the help center guide\n    - blockers: none\n    - will demo the new build cache layout next week\n[e410] 08:42 lint-bot opened a grouped update for the changelog bot tooling:\n      - markdown-lint 9.6.7 to 6.18.3\n      - image-optimizer 1.2.8 to 7.8.9\n      - spellcheck dictionary 3.10.9 to 8.7.9\n      The checks passed. No reviewer is assigned yet.\n[e411] 08:45 Review thread on assets/logo.svg (7 comments):\n    Lars: please wrap this paragraph at 68 characters.\n    Tove: moved them; the page is 74 percent shorter now.\n    Dara: approved, merge when the checks are green.\n[e412] 08:48 Retro notes of the team calendar group:\n    Went well: the docs site pages load faster.\n    To improve: shorter standups on Thursday.\n    Action: Chen books a room for the next retro.\n[e413] 08:51 Standup notes from Ana:\n    - yesterday: tidied the build cache pages and answered 5 questions in chat\n    - yesterday: reviewed 7 small pull requests about the test fixtures\n    - blockers: none\n    - updated the screenshots in notes/retro.md\n    - will demo the new CI runners layout next week\n[e414] 08:54 Notes from the storybook sync on Thursday:\n    Kira asked for a darker header; Yara will try two variants.\n    The group will look at the office wifi again in 7 weeks.\n    Rosa said that the office printer works again.\n    Nothing in this sync touches the project itself.\n[e415] 08:57 Standup notes from Jun:\n    - yesterday: reviewed 8 small pull requests about the team calendar\n    - blockers: none\n    - will demo the new sprint board layout next week\n[e416] 09:00 metrics run 318 summary:\n      step checkout ok (5.99s)\n      step notify ok, channel team-chat\n      cache restore hit rate 47%\n      total duration 3m 12s, no warnings\n[e417] 09:03 After the planning meeting, the owner of work item LDG-231 is `varga`, as Hana recorded in the ticket.\n    Gus reacted with a thumbs-up\n[e418] 09:06 In the dependency review, Sami recorded that the work item that blocks LDG-275 is `no-blocker` from now on.\n    thread replies: 4\n"
+        },
+        {
+          "name": "s7-ci-2",
+          "content": "== ci export, stage 7, part 4 ==\n[e431] 09:45 In the planning thread, Sami asked whether the work item that blocks LDG-214 could be `LDG-289`. The thread closed with no decision and no change.\n    pipeline 18788\n    pipeline note added by Ana\n[e432] 09:48 Notes from the onboarding wiki sync on Thursday:\n    Mei asked for a darker header; Hana will try two variants.\n    The group will look at the code owners file again in 5 weeks.\n    Uma said that the office printer works again.\n    Dara shared a short survey; 8 people answered so far.\n[e433] 09:51 Review thread on assets/logo.svg (9 comments):\n    Nils: please wrap this paragraph at 29 characters.\n    Mei: done, and I fixed the heading levels too.\n    Mei: the table in section 6 renders badly on small screens.\n    Kira: approved, merge when the checks are green.\n[e434] 09:54 Retro notes of the team calendar group:\n    Went well: Kira cleared the docs backlog.\n    Went well: the dependabot pages load faster.\n    To improve: shorter standups on Friday.\n[e435] 09:57 Read-only export of the link-checker configuration for the sprint board:\n      max_line_length = 603\n      runner_pool = \"pool-5\"\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n      report_format = \"text\"\n[e436] 10:00 Read-only export of the link-checker configuration for the help center:\n      max_line_length = 285\n      runner_pool = \"pool-3\"\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 18\n      preview_pages = true\n      report_format = \"text\"\n[e437] 10:03 Style guide excerpt, section 2.7:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n[e438] 10:06 Notes from the storybook sync on Tuesday:\n    Sami showed the new layout of the storybook.\n    The group will look at the help center again in 3 weeks.\n    Nothing in this sync touches the project itself.\n[e439] 10:09 Review thread on scripts/lint.sh (2 comments):\n    Mei: please wrap this paragraph at 87 characters.\n    Ana: can we move the long examples to an appendix?\n    Dara: approved, merge when the checks are green.\n[e440] 10:12 An archived copy of the board from the time of entry e019 shows that the work item that blocks LDG-246 was `no-blocker`. The copy is history only and is not a new statement.\n    pipeline note added by Sami\n    pipeline 73858\n[e441] 10:15 lint-bot opened a grouped update for the team calendar tooling:\n      - markdown-lint 7.11.7 to 4.15.2\n      - link-checker 3.6.4 to 3.11.1\n      - image-optimizer 1.3.1 to 5.1.4\n      - spellcheck dictionary 5.16.5 to 7.6.3\n      The checks passed. No reviewer is assigned yet.\n[e442] 10:18 Standup notes from Oona:\n    - yesterday: tidied the team calendar pages and answered 6 questions in chat\n    - yesterday: reviewed 2 small pull requests about the office wifi\n    - today: pairing with Ana on .editorconfig\n    - blockers: none\n    - will demo the new test fixtures layout next week\n"
+        }
+      ],
+      "eventIds": [
+        "e397",
+        "e398",
+        "e399",
+        "e400",
+        "e401",
+        "e402",
+        "e403",
+        "e404",
+        "e405",
+        "e406",
+        "e407",
+        "e408",
+        "e409",
+        "e410",
+        "e411",
+        "e412",
+        "e413",
+        "e414",
+        "e415",
+        "e416",
+        "e417",
+        "e418",
+        "e419",
+        "e420",
+        "e421",
+        "e422",
+        "e423",
+        "e424",
+        "e425",
+        "e426",
+        "e427",
+        "e428",
+        "e429",
+        "e430",
+        "e431",
+        "e432",
+        "e433",
+        "e434",
+        "e435",
+        "e436",
+        "e437",
+        "e438",
+        "e439",
+        "e440",
+        "e441",
+        "e442"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s7-c1",
+          "kind": "file",
+          "name": "inbox/s7/notes-01.md",
+          "bytes": 2436,
+          "events": [
+            "e397",
+            "e398",
+            "e399",
+            "e400",
+            "e401",
+            "e402",
+            "e403",
+            "e404",
+            "e405",
+            "e406",
+            "e407"
+          ]
+        },
+        {
+          "chunkId": "s7-c2",
+          "kind": "file",
+          "name": "inbox/s7/design-02.md",
+          "bytes": 2393,
+          "events": [
+            "e419",
+            "e420",
+            "e421",
+            "e422",
+            "e423",
+            "e424",
+            "e425",
+            "e426",
+            "e427",
+            "e428",
+            "e429",
+            "e430"
+          ]
+        },
+        {
+          "chunkId": "s7-c3",
+          "kind": "feed",
+          "name": "s7-chat-1",
+          "bytes": 2444,
+          "events": [
+            "e408",
+            "e409",
+            "e410",
+            "e411",
+            "e412",
+            "e413",
+            "e414",
+            "e415",
+            "e416",
+            "e417",
+            "e418"
+          ]
+        },
+        {
+          "chunkId": "s7-c4",
+          "kind": "feed",
+          "name": "s7-ci-2",
+          "bytes": 2965,
+          "events": [
+            "e431",
+            "e432",
+            "e433",
+            "e434",
+            "e435",
+            "e436",
+            "e437",
+            "e438",
+            "e439",
+            "e440",
+            "e441",
+            "e442"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 8,
+      "prompt": "Stage 8 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s8/design-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s8-ci-1, s8-board-2, s8-chat-3.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s8/design-01.md",
+          "content": "# Design discussion, stage 8, part 1\n\n- [e443] Chat excerpt from #team-chat:\n  Zed: is anyone else seeing the slow sprint board page?\n  Tove: yes, it is the image cache, it clears itself after 5 minutes\n  Pita: lunch at 13:28? the new place near the station\n  Ana: count me in\n- [e444] Review thread on docs/howto.md (2 comments):\n  Wren: the table in section 3 renders badly on small screens.\n  Ana: can we move the long examples to an appendix?\n  Eli: moved them; the page is 61 percent shorter now.\n- [e445] Lars wrote in the review thread that the status of the file config/ledger-flags.yaml is now `reviewed`.\n  Dara and Pita were in the discussion.\n  From the design discussion led by Eli.\n- [e446] Wren undid the earlier step, so the status of the file config/ledger-flags.yaml is `reverted` from now on.\n  Oona and Uma were in the discussion.\n  From the design discussion led by Oona.\n- [e447] Tove updated the dependency field, and the work item that blocks LDG-231 became `LDG-275`.\n  Oona and Chen were in the discussion.\n  From the design discussion led by Rosa.\n- [e448] Review thread on docs/glossary.md (2 comments):\n  Ivo: the table in section 9 renders badly on small screens.\n  Zed: can we move the long examples to an appendix?\n  Hana: moved them; the page is 73 percent shorter now.\n- [e449] Retro notes of the sprint board group:\n  Went well: Rosa cleared the docs backlog.\n  Went well: the storybook pages load faster.\n  Action: Sami books a room for the next retro.\n  Action: Femi collects ideas for the team offsite.\n- [e450] After the code review by Chen, the status of the file migrations/0042_split_journal.sql became `reverted`.\n  From the design discussion led by Rosa.\n  Tove and Quinn were in the discussion.\n- [e451] Ticket DOC-880: broken anchors on a help page\n  The page docs/glossary.md has 3 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e452] Vik removed the old link, so the work item that blocks LDG-292 is `LDG-275` now.\n  Vik and Chen were in the discussion.\n  From the design discussion led by Zed.\n- [e453] cache-bot run 717 summary:\n    step docs-build ok, 67 pages\n    step upload ok, 873 KB\n    total duration 4m 95s, no warnings\n- [e454] docs-bot opened a grouped update for the sprint board tooling:\n    - markdown-lint 8.4.4 to 5.5.1\n    - link-checker 4.2.9 to 6.13.1\n    - image-optimizer 8.14.2 to 7.4.9\n    - spellcheck dictionary 8.16.3 to 9.9.7\n    The checks passed. No reviewer is assigned yet.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s8-ci-1",
+          "content": "== ci export, stage 8, part 2 ==\n[e455] 08:39 Standup notes from Tove:\n    - yesterday: tidied the retro notes pages and answered 7 questions in chat\n    - yesterday: reviewed 5 small pull requests about the help center\n    - today: rewriting the intro paragraph of the brand assets guide\n    - updated the screenshots in notes/retro.md\n[e456] 08:42 Ivo updated the ticket, and with that update the status of work item LDG-231 became `reopened`.\n    pipeline 74993\n[e457] 08:45 The board sync by Ana moved the card, so the status of work item LDG-258 is `closed` from now on.\n    pipeline note added by Hana\n[e458] 08:48 Style guide excerpt, section 7.9:\n    Use sentence case for headings.\n    Keep tables under 2 columns.\n    Name the button exactly as the screen shows it.\n[e459] 08:51 In the dependency review, Vik recorded that the work item that blocks LDG-289 is `no-blocker` from now on.\n    pipeline 11561\n[e460] 08:54 Sami shared a draft ticket in which the status of work item LDG-258 was `opened`. The draft was withdrawn before review and changes nothing.\n    pipeline note added by Hana\n[e461] 08:57 calendar run 537 summary:\n      step docs-build ok, 20 pages\n      step upload ok, 678 KB\n      step notify ok, channel team-chat\n      cache restore hit rate 97%\n[e462] 09:00 Femi took the earlier assignment back, so the owner of work item LDG-258 is `takeda` from now on.\n    pipeline 86185\n[e463] 09:03 Read-only export of the image-optimizer configuration for the changelog bot:\n      theme = \"slate-7\"\n      runner_pool = \"pool-6\"\n      notify_channel = \"#team-chat\"\n      preview_pages = true\n      report_format = \"text\"\n[e464] 09:06 Dara removed the old link, so the work item that blocks LDG-231 is `LDG-246` now.\n    pipeline 27110\n    pipeline note added by Gus\n[e465] 09:09 Ticket DOC-703: broken anchors on a help page\n    The page .editorconfig has 5 broken anchors after the last rename.\n    Vik will fix it after the changelog bot work.\n    Status: open, no due date.\n[e466] 09:12 Review thread on docs/faq.md (2 comments):\n    Gus: nit: trailing spaces on line 25.\n    Uma: can we move the long examples to an appendix?\n    Vik: approved, merge when the checks are green.\n"
+        },
+        {
+          "name": "s8-board-2",
+          "content": "== board export, stage 8, part 3 ==\n[e467] 09:15 Review thread on .editorconfig (6 comments):\n    Wren: done, and I fixed the heading levels too.\n    Zed: the table in section 5 renders badly on small screens.\n    Sami: can we move the long examples to an appendix?\n[e468] 09:18 After the code review by Quinn, the status of the file migrations/0043_backfill_entries.sql became `reverted`.\n    card updated by Femi\n[e469] 09:21 Ivo wrote in the review thread that the status of the file src/ledger/accounts.ts is now `merged`.\n    card updated by Quinn\n    card id 268\n[e470] 09:24 In the planning thread, Chen asked whether the work item that blocks LDG-246 could be `LDG-258`. The thread closed with no decision and no change.\n    card id 841\n[e471] 09:27 Yara proposed in chat that the status of work item LDG-214 should become `reopened`. Nobody decided it, so nothing changes.\n    card updated by Mei\n    card id 533\n[e472] 09:30 Chat excerpt from #team-chat:\n    Ivo: is anyone else seeing the slow team calendar page?\n    Nils: yes, it is the image cache, it clears itself after 5 minutes\n    Zed: lunch at 11:33? the new place near the station\n    Oona: count me in\n    Pita: reminder that the docs site poll closes on Wednesday\n[e473] 09:33 In the planning thread, Oona asked whether the work item that blocks LDG-289 could be `LDG-275`. The thread closed with no decision and no change.\n    card id 333\n[e474] 09:36 An archived copy of the board from the time of entry e320 shows that the owner of work item LDG-214 was `moreau`. The copy is history only and is not a new statement.\n    card id 617\n    card updated by Zed\n[e475] 09:39 chat-relay weekly numbers for the design tokens:\n      uptime 99.97 percent\n      searches without a result: 19\n      the numbers are inside the usual band\n[e476] 09:42 An archived copy of the board from the time of entry e023 shows that the status of the file src/ledger/accounts.ts was `draft`. The copy is history only and is not a new statement.\n    card updated by Lars\n[e477] 09:45 Dara pasted an old board export made at the time of entry e023, in which the status of the file src/ledger/accounts.ts is `draft`. The export is history only and changes nothing.\n    card id 563\n"
+        },
+        {
+          "name": "s8-chat-3",
+          "content": "== chat export, stage 8, part 4 ==\n[e478] 09:48 ci-bot opened a grouped update for the dependabot tooling:\n      - link-checker 5.19.2 to 5.9.7\n      - spellcheck dictionary 6.7.8 to 8.15.5\n      The checks passed. No reviewer is assigned yet.\n[e479] 09:51 An archived copy of the board from the time of entry e104 shows that the status of work item LDG-231 was `reopened`. The copy is history only and is not a new statement.\n    Nils reacted with a thumbs-up\n[e480] 09:54 An archived copy of the board from the time of entry e135 shows that the status of work item LDG-231 was `closed`. The copy is history only and is not a new statement.\n    Gus reacted with a thumbs-up\n[e481] 09:57 Style guide excerpt, section 8.5:\n    Use sentence case for headings.\n    Keep tables under 3 columns.\n    Write numbers below ten as words in running text.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e482] 10:00 calendar weekly numbers for the error pages:\n      median load 283 ms\n      error rate 0.02 percent\n      uptime 99.94 percent\n      searches without a result: 39\n[e483] 10:03 Wren linked the board view that shows the status of work item LDG-289 in the weekly notes. Nobody proposed a change.\n    thread replies: 8\n[e484] 10:06 Kira pasted an old board export made at the time of entry e277, in which the work item that blocks LDG-275 is `LDG-246`. The export is history only and changes nothing.\n    Quinn reacted with a thumbs-up\n    thread replies: 8\n[e485] 10:09 Chat excerpt from #team-chat:\n    Sami: yes, it is the image cache, it clears itself after 9 minutes\n    Femi: ok, thanks\n    Rosa: reminder that the code owners file poll closes on Friday\n[e486] 10:12 Read-only export of the image-optimizer configuration for the retro notes:\n      max_line_length = 163\n      cache_hours = 5\n      notify_channel = \"#team-chat\"\n      report_format = \"text\"\n[e487] 10:15 An archived copy of the board from the time of entry e018 shows that the work item that blocks LDG-275 was `LDG-214`. The copy is history only and is not a new statement.\n    thread replies: 4\n    Dara reacted with a thumbs-up\n[e488] 10:18 Eli linked the board view that shows the owner of work item LDG-214 in the weekly notes. Nobody proposed a change.\n    Bo reacted with a thumbs-up\n    thread replies: 4\n[e489] 10:21 cache-bot run 836 summary:\n      step checkout ok (2.71s)\n      step lint ok, 66 files\n      step upload ok, 787 KB\n      step notify ok, channel team-chat\n      cache restore hit rate 92%\n"
+        }
+      ],
+      "eventIds": [
+        "e443",
+        "e444",
+        "e445",
+        "e446",
+        "e447",
+        "e448",
+        "e449",
+        "e450",
+        "e451",
+        "e452",
+        "e453",
+        "e454",
+        "e455",
+        "e456",
+        "e457",
+        "e458",
+        "e459",
+        "e460",
+        "e461",
+        "e462",
+        "e463",
+        "e464",
+        "e465",
+        "e466",
+        "e467",
+        "e468",
+        "e469",
+        "e470",
+        "e471",
+        "e472",
+        "e473",
+        "e474",
+        "e475",
+        "e476",
+        "e477",
+        "e478",
+        "e479",
+        "e480",
+        "e481",
+        "e482",
+        "e483",
+        "e484",
+        "e485",
+        "e486",
+        "e487",
+        "e488",
+        "e489"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s8-c1",
+          "kind": "file",
+          "name": "inbox/s8/design-01.md",
+          "bytes": 2544,
+          "events": [
+            "e443",
+            "e444",
+            "e445",
+            "e446",
+            "e447",
+            "e448",
+            "e449",
+            "e450",
+            "e451",
+            "e452",
+            "e453",
+            "e454"
+          ]
+        },
+        {
+          "chunkId": "s8-c2",
+          "kind": "feed",
+          "name": "s8-ci-1",
+          "bytes": 2203,
+          "events": [
+            "e455",
+            "e456",
+            "e457",
+            "e458",
+            "e459",
+            "e460",
+            "e461",
+            "e462",
+            "e463",
+            "e464",
+            "e465",
+            "e466"
+          ]
+        },
+        {
+          "chunkId": "s8-c3",
+          "kind": "feed",
+          "name": "s8-board-2",
+          "bytes": 2229,
+          "events": [
+            "e467",
+            "e468",
+            "e469",
+            "e470",
+            "e471",
+            "e472",
+            "e473",
+            "e474",
+            "e475",
+            "e476",
+            "e477"
+          ]
+        },
+        {
+          "chunkId": "s8-c4",
+          "kind": "feed",
+          "name": "s8-chat-3",
+          "bytes": 2529,
+          "events": [
+            "e478",
+            "e479",
+            "e480",
+            "e481",
+            "e482",
+            "e483",
+            "e484",
+            "e485",
+            "e486",
+            "e487",
+            "e488",
+            "e489"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoint": {
+    "afterStage": 3,
+    "timing": "after_compaction",
+    "questions": [
+      {
+        "id": "c1",
+        "text": "At this point, what is the status of work item LDG-231?",
+        "type": "choice",
+        "options": [
+          "closed",
+          "opened",
+          "reopened"
+        ]
+      },
+      {
+        "id": "c2",
+        "text": "At this point, which work item blocks LDG-231? Answer with the item id, or no-blocker if no item blocks it.",
+        "type": "choice",
+        "options": [
+          "LDG-214",
+          "LDG-246",
+          "LDG-258",
+          "LDG-275",
+          "LDG-289",
+          "LDG-292",
+          "no-blocker"
+        ]
+      },
+      {
+        "id": "c3",
+        "text": "At this point, how many work items are closed? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c4",
+        "text": "At this point, which statuses did the file src/ledger/accounts.ts have at some point that are not its status? List every one.",
+        "type": "set",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      },
+      {
+        "id": "c5",
+        "text": "At this point, which files are merged? List every path.",
+        "type": "set",
+        "options": [
+          "config/ledger-flags.yaml",
+          "migrations/0042_split_journal.sql",
+          "migrations/0043_backfill_entries.sql",
+          "src/ledger/accounts.ts",
+          "src/ledger/posting.ts",
+          "src/ledger/reconcile.ts"
+        ]
+      },
+      {
+        "id": "c6",
+        "text": "At this point, who owns work item LDG-214? Answer with the owner handle.",
+        "type": "choice",
+        "options": [
+          "ferreira",
+          "haddad",
+          "lindqvist",
+          "moreau",
+          "nakamura",
+          "okafor",
+          "takeda",
+          "varga"
+        ]
+      },
+      {
+        "id": "c7",
+        "text": "At this point, what is the work item that blocks LDG-275?",
+        "type": "choice",
+        "options": [
+          "LDG-214",
+          "LDG-231",
+          "LDG-246",
+          "LDG-258",
+          "LDG-289",
+          "LDG-292",
+          "no-blocker"
+        ]
+      },
+      {
+        "id": "c8",
+        "text": "At this point, how many work items are closed? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c9",
+        "text": "At this point, which statuses did the file src/ledger/accounts.ts have at some point that are not its status? List every one.",
+        "type": "set",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      },
+      {
+        "id": "c10",
+        "text": "At this point, what is the status of the file src/ledger/accounts.ts?",
+        "type": "choice",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      },
+      {
+        "id": "c11",
+        "text": "At this point, what is the owner of work item LDG-258?",
+        "type": "choice",
+        "options": [
+          "ferreira",
+          "haddad",
+          "lindqvist",
+          "moreau",
+          "nakamura",
+          "okafor",
+          "takeda",
+          "varga"
+        ]
+      },
+      {
+        "id": "c12",
+        "text": "At this point, which statuses did the file src/ledger/accounts.ts have at some point that are not its status? List every one.",
+        "type": "set",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      },
+      {
+        "id": "c13",
+        "text": "At this point, which files are merged? List every path.",
+        "type": "set",
+        "options": [
+          "config/ledger-flags.yaml",
+          "migrations/0042_split_journal.sql",
+          "migrations/0043_backfill_entries.sql",
+          "src/ledger/accounts.ts",
+          "src/ledger/posting.ts",
+          "src/ledger/reconcile.ts"
+        ]
+      },
+      {
+        "id": "c14",
+        "text": "At this point, which work item blocks LDG-231? Answer with the item id, or no-blocker if no item blocks it.",
+        "type": "choice",
+        "options": [
+          "LDG-214",
+          "LDG-246",
+          "LDG-258",
+          "LDG-275",
+          "LDG-289",
+          "LDG-292",
+          "no-blocker"
+        ]
+      },
+      {
+        "id": "c15",
+        "text": "At this point, what is the status of the file migrations/0043_backfill_entries.sql?",
+        "type": "choice",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      }
+    ],
+    "probes": [
+      {
+        "afterStage": 3,
+        "questionIds": [
+          "c1",
+          "c2",
+          "c3",
+          "c4"
+        ]
+      },
+      {
+        "afterStage": 5,
+        "questionIds": [
+          "c5",
+          "c6",
+          "c7",
+          "c8",
+          "c9",
+          "c10"
+        ]
+      },
+      {
+        "afterStage": 7,
+        "questionIds": [
+          "c11",
+          "c12",
+          "c13",
+          "c14",
+          "c15"
+        ]
+      }
+    ]
+  },
+  "final": {
+    "questions": [
+      {
+        "id": "q1",
+        "text": "What is the status of work item LDG-231 now?",
+        "type": "choice",
+        "options": [
+          "closed",
+          "opened",
+          "reopened"
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "Who owns work item LDG-214 now? Answer with the owner handle.",
+        "type": "choice",
+        "options": [
+          "ferreira",
+          "haddad",
+          "lindqvist",
+          "moreau",
+          "nakamura",
+          "okafor",
+          "takeda",
+          "varga"
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "Which work item blocks LDG-231 now? Answer with the item id, or no-blocker if no item blocks it.",
+        "type": "choice",
+        "options": [
+          "LDG-214",
+          "LDG-246",
+          "LDG-258",
+          "LDG-275",
+          "LDG-289",
+          "LDG-292",
+          "no-blocker"
+        ]
+      },
+      {
+        "id": "q4",
+        "text": "Which work items does LDG-275 block now? List every item id.",
+        "type": "set",
+        "options": [
+          "LDG-214",
+          "LDG-231",
+          "LDG-246",
+          "LDG-258",
+          "LDG-275",
+          "LDG-289",
+          "LDG-292"
+        ]
+      },
+      {
+        "id": "q5",
+        "text": "Who owned work item LDG-292 directly before its current owner? Answer with the owner handle.",
+        "type": "choice",
+        "options": [
+          "ferreira",
+          "haddad",
+          "lindqvist",
+          "moreau",
+          "nakamura",
+          "okafor",
+          "takeda",
+          "varga"
+        ]
+      },
+      {
+        "id": "q6",
+        "text": "Which statuses did the file src/ledger/accounts.ts have at some point that are not its status now? List every one.",
+        "type": "set",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      },
+      {
+        "id": "q7",
+        "text": "Which files are merged now? List every path.",
+        "type": "set",
+        "options": [
+          "config/ledger-flags.yaml",
+          "migrations/0042_split_journal.sql",
+          "migrations/0043_backfill_entries.sql",
+          "src/ledger/accounts.ts",
+          "src/ledger/posting.ts",
+          "src/ledger/reconcile.ts"
+        ]
+      },
+      {
+        "id": "q8",
+        "text": "How many work items are closed now? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "q9",
+        "text": "In the initial specification, who owned work item LDG-289? Answer with the owner handle.",
+        "type": "choice",
+        "options": [
+          "ferreira",
+          "haddad",
+          "lindqvist",
+          "moreau",
+          "nakamura",
+          "okafor",
+          "takeda",
+          "varga"
+        ]
+      },
+      {
+        "id": "q10",
+        "text": "What was the status of the file src/ledger/posting.ts directly before its current status?",
+        "type": "choice",
+        "options": [
+          "draft",
+          "merged",
+          "reverted",
+          "reviewed"
+        ]
+      }
+    ]
+  }
+}

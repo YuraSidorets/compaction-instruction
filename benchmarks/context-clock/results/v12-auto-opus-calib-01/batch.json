@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "batch": "v12-auto-opus-calib-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v12-auto",
+  "model": "opus",
+  "seed": 1215,
+  "modes": [
+    "O"
+  ],
+  "reps": 2,
+  "tasksDir": "benchmarks/context-clock/tasks/v09/generated",
+  "taskSeeds": {
+    "A13-long-mobile-platform": 2050000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": null,
+  "limits": {
+    "run": {
+      "wallTimeMs": 5400000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 400,
+      "totalTokens": 20000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 60000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "A13-long-mobile-platform",
+      "rep": 1,
+      "modes": [
+        "O"
+      ]
+    },
+    {
+      "block": 2,
+      "taskId": "A13-long-mobile-platform",
+      "rep": 2,
+      "modes": [
+        "O"
+      ]
+    }
+  ],
+  "comparisons": [
+    "Z-O"
+  ],
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": null,
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "O": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ]
+      }
+    }
+  },
+  "precompactPlainInstruction": null,
+  "precompactProductInstruction": null,
+  "autoCompact": true,
+  "autoCompactWindow": 100000,
+  "promptVersion": 1,
+  "benchmarkCommit": "33837815522814a74a5b9825cfe4a24e2738d9a7",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__A13-long-mobile-platform__O__r1",
+    "claude__A13-long-mobile-platform__O__r2"
+  ]
+}

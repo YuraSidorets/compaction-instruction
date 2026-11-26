@@ -1,0 +1,1699 @@
+{
+  "schema": 1,
+  "taskId": "D10-network-policy",
+  "category": "D",
+  "seed": 1600000,
+  "profile": "compaction",
+  "params": {
+    "events": 471,
+    "entities": 16,
+    "updates": 187,
+    "dependencyDepth": 3,
+    "noiseRatio": 0.57,
+    "approxBytes": 95537,
+    "sizeGroup": "v07"
+  },
+  "intro": "You settle a network policy from security policies, architecture reviews, runbooks, chat threads and ticket comments.\n\nInitial specification:\n- [e001] Precedence rule: when sources disagree, the order of authority is netsec-policy > arch-review > ops-runbook > team-chat-log > ticket-comment. Inside one source, the higher version wins.\n- [e002] The arch-review document ARV-1 (version 1) states that the VPN protocol is `ipsec-ikev2`.\n- [e003] The arch-review document ARV-1 (version 1) states that the BGP community tag is `bgp-65001`.\n- [e004] According to arch-review ARV-1 version 1, the connection idle timeout in seconds is `360`.\n- [e005] The arch-review document ARV-1 (version 1) states that the load balancer mode is `lb-least-conn`.\n- [e006] The arch-review document ARV-1 (version 1) states that the strict SNI mode is `OFF`.\n- [e007] According to arch-review ARV-1 version 1, the MTU size in bytes is `9001`.\n- [e008] The arch-review document ARV-1 (version 1) states that the DNS resolver is `coredns-res`.\n- [e009] According to arch-review ARV-1 version 1, the proxy protocol version is `proxy-off`.\n- [e010] The arch-review document ARV-1 (version 1) states that the egress gateway is `egress-squid`.\n- [e011] The arch-review document ARV-1 (version 1) states that the rate limit per client per second is `75`.\n- [e012] According to arch-review ARV-1 version 1, the firewall default action is `fw-deny`.\n- [e013] The arch-review document ARV-1 (version 1) states that the port range start is `20000`.\n- [e014] According to arch-review ARV-1 version 1, the certificate authority is `ejbca-pki`.\n- [e015] The arch-review document ARV-1 (version 1) states that the packet capture mode is `ON`.\n- [e016] According to arch-review ARV-1 version 1, the IPv6 dual stack mode is `ON`.\n- [e017] According to ops-runbook RUN-138 version 2, the health check interval in seconds is `24`.\n\nSources, from highest to lowest authority: netsec-policy, arch-review, ops-runbook, team-chat-log, ticket-comment. When two sources disagree, the higher one decides.\nInside one source, a higher version number overrides a lower one. A withdrawn document no longer counts at all.\nRules for this task:\n- A value changes only by a document that states it or by the withdrawal of a document. A proposal, a question, a link or a quote of an old page changes nothing.\n- The value of a parameter comes from the valid documents that state it. The highest source decides. Inside that source, the document with the higher version decides.\n- A new document of a lower source does not replace the value of a higher source.\n- A withdrawn document is not valid. The value then comes from the other valid documents by the same rule.\n- The initial specification gives the first value of each item.\n- A question about the values of an item \"at some point\" counts every value from the initial specification on, up to the time of the question.\nEvery event has a label of the form [eNNN] with a three-digit number. A higher number is later in time. A later event can change or cancel an earlier one.\nSome material quotes old pages or copies for history. A quote of that kind is not a new statement.",
+  "stages": [
+    {
+      "stage": 1,
+      "prompt": "Stage 1 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s1/notes-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s1-log-1, s1-log-2, s1-ci-3.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s1/notes-01.md",
+          "content": "# Team notes, stage 1, part 1\n\n- [e018] ci-bot opened a grouped update for the docs site tooling:\n    - markdown-lint 2.1.4 to 7.12.7\n    - link-checker 4.19.0 to 7.19.1\n    - image-optimizer 5.17.6 to 8.13.3\n    - spellcheck dictionary 9.7.2 to 5.5.5\n    The checks passed. No reviewer is assigned yet.\n- [e019] The team-chat-log document CHAT-172 (version 1) states that the VPN protocol is `openvpn-udp`.\n  Shared in the code owners file channel at 09:30.\n  Written down by Ana after a call with Gus.\n- [e020] According to team-chat-log CHAT-172 version 1, the strict SNI mode is `ON`.\n  Written down by Mei after a call with Sami.\n  Shared in the CI runners channel at 18:24.\n- [e021] The arch-review document ARV-2 (version 2) states that the VPN protocol is `tailnet-vpn`.\n  Written down by Pita after a call with Lars.\n  Shared in the onboarding wiki channel at 08:39.\n- [e022] The arch-review document ARV-2 (version 2) states that the BGP community tag is `bgp-65010`.\n  Shared in the brand assets channel at 14:16.\n- [e023] According to ticket-comment TKT-180 version 2, the load balancer mode is `lb-maglev`.\n  Written down by Gus after a call with Mei.\n  Shared in the onboarding wiki channel at 14:04.\n- [e024] According to team-chat-log CHAT-216 version 2, the certificate authority is `step-ca`.\n  Written down by Ana after a call with Bo.\n  Shared in the onboarding wiki channel at 11:07.\n- [e025] According to ticket-comment TKT-241 version 4, the IPv6 dual stack mode is `OFF`.\n  Shared in the design tokens channel at 13:09.\n- [e026] According to team-chat-log CHAT-270 version 3, the IPv6 dual stack mode is `ON`.\n  Shared in the design tokens channel at 11:25.\n- [e027] cache-bot run 676 summary:\n    step checkout ok (2.59s)\n    step lint ok, 99 files\n    step docs-build ok, 21 pages\n    step upload ok, 423 KB\n    total duration 5m 57s, no warnings\n- [e028] The ops-runbook document RUN-302 (version 4) states that the DNS resolver is `dnsmasq-res`.\n  Shared in the code owners file channel at 09:09.\n  Written down by Dara after a call with Mei.\n- [e029] The team-chat-log document CHAT-339 (version 4) states that the load balancer mode is `lb-least-conn`.\n  Written down by Zed after a call with Bo.\n  Shared in the storybook channel at 08:57.\n- [e030] Notes from the test fixtures sync on Thursday:\n  Oona asked for a darker header; Quinn will try two variants.\n  Eli said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Eli shared a short survey; 6 people answered so far.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s1-log-1",
+          "content": "== log export, stage 1, part 2 ==\n[e031] 08:42 The team-chat-log document CHAT-373 (version 6) states that the egress gateway is `egress-nat-b`.\n    request_id=r-97962\n[e032] 08:45 The team-chat-log document CHAT-412 (version 7) states that the DNS resolver is `knot-res`.\n    source=cache-bot level=info actor=Pita\n[e033] 08:48 According to ticket-comment TKT-428 version 6, the MTU size in bytes is `1420`.\n    request_id=r-75663\n    source=lint-bot level=info actor=Bo\n[e034] 08:51 The netsec-policy document NSP-826 (version 5) states that the DNS resolver is `knot-res`.\n    request_id=r-49347\n[e035] 08:54 The netsec-policy document NSP-854 (version 6) states that the proxy protocol version is `proxy-v1`.\n    request_id=r-41449\n[e036] 08:57 ci-bot run 989 summary:\n      step lint ok, 60 files\n      cache restore hit rate 94%\n      total duration 3m 66s, no warnings\n[e037] 09:00 According to netsec-policy NSP-890 version 8, the port range start is `40000`.\n    source=ci-bot level=info actor=Bo\n[e038] 09:03 Notes from the retro notes sync on Monday:\n    Kira showed the new layout of the error pages.\n    Sami asked for a darker header; Mei will try two variants.\n    The group will look at the dependabot again in 9 weeks.\n    Nothing in this sync touches the project itself.\n    Jun shared a short survey; 2 people answered so far.\n[e039] 09:06 The netsec-policy document NSP-893 (version 10) states that the strict SNI mode is `ON`.\n    source=ci-bot level=info actor=Eli\n[e040] 09:09 Nils linked the dashboard page about the port range start in the weekly notes. Nobody proposed a change.\n    source=lint-bot level=info actor=Eli\n[e041] 09:12 In chat, Sami asked whether the egress gateway could be `egress-nat-b`. The question was closed without a change.\n    request_id=r-83543\n    source=ci-bot level=info actor=Tove\n[e042] 09:15 Old printout of arch-review ARV-1 version 1, made at the time of entry e004: it says the connection idle timeout in seconds is `360`. This is a historical copy, not a new statement.\n    request_id=r-27867\n"
+        },
+        {
+          "name": "s1-log-2",
+          "content": "== log export, stage 1, part 3 ==\n[e043] 09:18 Calendar update from docs-bot:\n    - the retro notes demo moves to 13:59 on Friday\n    - room booking for the help center retro is confirmed\n    - the all-hands slides are due on Wednesday\n    - Quinn hosts the next lunch talk about typography\n[e044] 09:21 Femi asked for a load test plan that covers the certificate authority. The thread ended without a change.\n    request_id=r-74759\n    source=docs-bot level=info actor=Vik\n[e045] 09:24 Chat excerpt from #team-chat:\n    Sami: is anyone else seeing the slow onboarding wiki page?\n    Hana: yes, it is the image cache, it clears itself after 6 minutes\n    Ivo: lunch at 16:35? the new place near the station\n    Kira: count me in\n[e046] 09:27 Oona proposed `ON` for the packet capture mode again. No decision was made; nothing changes.\n    request_id=r-77997\n    source=docs-bot level=info actor=Uma\n[e047] 09:30 Pita found a saved copy of arch-review ARV-1 version 1 from the time of entry e012. It says the firewall default action is `fw-deny`. The copy is history only and changes nothing.\n    request_id=r-40627\n    source=metrics level=info actor=Yara\n[e048] 09:33 Chen found a saved copy of ops-runbook RUN-138 version 2 from the time of entry e017. It says the health check interval in seconds is `24`. The copy is history only and changes nothing.\n    source=lint-bot level=info actor=Sami\n[e049] 09:36 Nils found a saved copy of arch-review ARV-1 version 1 from the time of entry e007. It says the MTU size in bytes is `9001`. The copy is history only and changes nothing.\n    request_id=r-75320\n[e050] 09:39 cache-bot run 284 summary:\n      step docs-build ok, 20 pages\n      cache restore hit rate 64%\n      total duration 7m 89s, no warnings\n[e051] 09:42 Eli linked the dashboard page about the strict SNI mode in the weekly notes. Nobody proposed a change.\n    request_id=r-66824\n    source=cache-bot level=info actor=Chen\n[e052] 09:45 Retro notes of the dependabot group:\n    Went well: Bo cleared the docs backlog.\n    Went well: the office wifi pages load faster.\n    To improve: shorter standups on Monday.\n[e053] 09:48 Notes from the CI runners sync on Friday:\n    Rosa showed the new layout of the test fixtures.\n    The group will look at the brand assets again in 8 weeks.\n    Zed said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Bo shared a short survey; 3 people answered so far.\n"
+        },
+        {
+          "name": "s1-ci-3",
+          "content": "== ci export, stage 1, part 4 ==\n[e054] 09:51 In chat, Jun asked whether the firewall default action could be `fw-allow-log`. The question was closed without a change.\n    pipeline 18697\n[e055] 09:54 Notes from the dependabot sync on Tuesday:\n    Uma asked for a darker header; Nils will try two variants.\n    The group will look at the onboarding wiki again in 6 weeks.\n    Ivo said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Dara shared a short survey; 5 people answered so far.\n[e056] 09:57 docs-bot weekly numbers for the build cache:\n      page views 9179\n      error rate 0.04 percent\n      uptime 99.95 percent\n      searches without a result: 67\n      the numbers are inside the usual band\n[e057] 10:00 Dara found a saved copy of arch-review ARV-1 version 1 from the time of entry e013. It says the port range start is `20000`. The copy is history only and changes nothing.\n    pipeline note added by Vik\n    pipeline 73174\n[e058] 10:03 Kira found a saved copy of arch-review ARV-1 version 1 from the time of entry e002. It says the VPN protocol is `ipsec-ikev2`. The copy is history only and changes nothing.\n    pipeline 82259\n    pipeline note added by Sami\n[e059] 10:06 Jun found a saved copy of arch-review ARV-1 version 1 from the time of entry e006. It says the strict SNI mode is `OFF`. The copy is history only and changes nothing.\n    pipeline note added by Ana\n    pipeline 77544\n[e060] 10:09 Chat excerpt from #team-chat:\n    Pita: yes, it is the image cache, it clears itself after 2 minutes\n    Mei: ok, thanks\n    Eli: lunch at 09:55? the new place near the station\n    Yara: reminder that the status page poll closes on Wednesday\n[e061] 10:12 Tove found a saved copy of arch-review ARV-1 version 1 from the time of entry e011. It says the rate limit per client per second is `75`. The copy is history only and changes nothing.\n    pipeline note added by Tove\n[e062] 10:15 chat-relay opened a grouped update for the lint config tooling:\n      - markdown-lint 1.5.4 to 8.16.5\n      - link-checker 6.15.5 to 1.6.9\n      - image-optimizer 4.18.0 to 2.18.9\n      - spellcheck dictionary 8.14.2 to 1.16.4\n      The checks passed. No reviewer is assigned yet.\n[e063] 10:18 Old printout of ops-runbook RUN-138 version 2, made at the time of entry e017: it says the health check interval in seconds is `24`. This is a historical copy, not a new statement.\n    pipeline 68355\n    pipeline note added by Ivo\n"
+        }
+      ],
+      "eventIds": [
+        "e018",
+        "e019",
+        "e020",
+        "e021",
+        "e022",
+        "e023",
+        "e024",
+        "e025",
+        "e026",
+        "e027",
+        "e028",
+        "e029",
+        "e030",
+        "e031",
+        "e032",
+        "e033",
+        "e034",
+        "e035",
+        "e036",
+        "e037",
+        "e038",
+        "e039",
+        "e040",
+        "e041",
+        "e042",
+        "e043",
+        "e044",
+        "e045",
+        "e046",
+        "e047",
+        "e048",
+        "e049",
+        "e050",
+        "e051",
+        "e052",
+        "e053",
+        "e054",
+        "e055",
+        "e056",
+        "e057",
+        "e058",
+        "e059",
+        "e060",
+        "e061",
+        "e062",
+        "e063"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s1-c1",
+          "kind": "file",
+          "name": "inbox/s1/notes-01.md",
+          "bytes": 2544,
+          "events": [
+            "e018",
+            "e019",
+            "e020",
+            "e021",
+            "e022",
+            "e023",
+            "e024",
+            "e025",
+            "e026",
+            "e027",
+            "e028",
+            "e029",
+            "e030"
+          ]
+        },
+        {
+          "chunkId": "s1-c2",
+          "kind": "feed",
+          "name": "s1-log-1",
+          "bytes": 2054,
+          "events": [
+            "e031",
+            "e032",
+            "e033",
+            "e034",
+            "e035",
+            "e036",
+            "e037",
+            "e038",
+            "e039",
+            "e040",
+            "e041",
+            "e042"
+          ]
+        },
+        {
+          "chunkId": "s1-c3",
+          "kind": "feed",
+          "name": "s1-log-2",
+          "bytes": 2452,
+          "events": [
+            "e043",
+            "e044",
+            "e045",
+            "e046",
+            "e047",
+            "e048",
+            "e049",
+            "e050",
+            "e051",
+            "e052",
+            "e053"
+          ]
+        },
+        {
+          "chunkId": "s1-c4",
+          "kind": "feed",
+          "name": "s1-ci-3",
+          "bytes": 2472,
+          "events": [
+            "e054",
+            "e055",
+            "e056",
+            "e057",
+            "e058",
+            "e059",
+            "e060",
+            "e061",
+            "e062",
+            "e063"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "prompt": "Stage 2 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s2/journal-01.md, inbox/s2/review-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s2-chat-1, s2-board-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s2/journal-01.md",
+          "content": "# Change journal, stage 2, part 1\n\n- [e064] According to ticket-comment TKT-436 version 7, the BGP community tag is `bgp-65100`.\n  Entry added to the change journal by Wren.\n  Countersigned by Pita.\n- [e065] Chat excerpt from #team-chat:\n  Mei: is anyone else seeing the slow storybook page?\n  Ivo: yes, it is the image cache, it clears itself after 4 minutes\n  Quinn: lunch at 14:04? the new place near the station\n  Ana: reminder that the lint config poll closes on Tuesday\n- [e066] The ops-runbook document RUN-465 (version 5) states that the DNS resolver is `coredns-res`.\n  Entry added to the change journal by Kira.\n- [e067] According to team-chat-log CHAT-488 version 8, the firewall default action is `fw-drop`.\n  Countersigned by Wren.\n  Entry added to the change journal by Sami.\n- [e068] chat-relay opened a grouped update for the CI runners tooling:\n    - markdown-lint 7.6.4 to 9.10.5\n    - link-checker 6.2.6 to 8.7.6\n    - spellcheck dictionary 1.1.4 to 5.8.1\n- [e069] Chat excerpt from #team-chat:\n  Ana: yes, it is the image cache, it clears itself after 8 minutes\n  Rosa: ok, thanks\n  Vik: reminder that the changelog bot poll closes on Monday\n- [e070] Standup notes from Oona:\n  - yesterday: reviewed 9 small pull requests about the lint config\n  - today: rewriting the intro paragraph of the sprint board guide\n  - out early on Thursday for a dentist visit\n  - updated the screenshots in docs/glossary.md\n- [e071] Chat excerpt from #team-chat:\n  Vik: is anyone else seeing the slow brand assets page?\n  Quinn: ok, thanks\n  Dara: count me in\n  Bo: reminder that the design tokens poll closes on Wednesday\n- [e072] According to ticket-comment TKT-506 version 9, the certificate authority is `acme-ca`.\n  Entry added to the change journal by Zed.\n  Countersigned by Rosa.\n- [e073] Chat excerpt from #team-chat:\n  Oona: is anyone else seeing the slow storybook page?\n  Mei: ok, thanks\n  Hana: lunch at 15:11? the new place near the station\n  Yara: reminder that the office wifi poll closes on Thursday\n- [e074] According to ticket-comment TKT-515 version 10, the VPN protocol is `wireguard-vpn`.\n  Countersigned by Zed.\n  Entry added to the change journal by Pita.\n- [e075] Standup notes from Kira:\n  - yesterday: tidied the team calendar pages and answered 2 questions in chat\n  - yesterday: reviewed 9 small pull requests about the dependabot\n  - today: rewriting the intro paragraph of the code owners file guide\n  - out early on Monday for a dentist visit\n  - updated the screenshots in notes/retro.md\n"
+        },
+        {
+          "path": "inbox/s2/review-02.md",
+          "content": "# Review comments, stage 2, part 3\n\n- [e089] Wren found a saved copy of ops-runbook RUN-302 version 4 from the time of entry e028. It says the DNS resolver is `dnsmasq-res`. The copy is history only and changes nothing.\n  Thread started by Gus; Eli replied with a thumbs-up.\n- [e090] Ticket DOC-534: broken anchors on a help page\n  Reporter: Wren. Priority: low.\n  The page README.md has 6 broken anchors after the last rename.\n  Bo will fix it after the retro notes work.\n- [e091] Old printout of arch-review ARV-2 version 2, made at the time of entry e021: it says the VPN protocol is `tailnet-vpn`. This is a historical copy, not a new statement.\n  Review round 2, reviewer Tove.\n  Thread started by Pita; Yara replied with a thumbs-up.\n- [e092] cache-bot opened a grouped update for the docs site tooling:\n    - markdown-lint 9.5.1 to 5.10.9\n    - image-optimizer 4.12.1 to 6.10.9\n    - spellcheck dictionary 5.18.5 to 1.11.6\n- [e093] ci-bot opened a grouped update for the changelog bot tooling:\n    - link-checker 6.10.6 to 1.17.2\n    - image-optimizer 5.3.9 to 2.8.8\n    - spellcheck dictionary 8.13.7 to 9.11.4\n    The checks passed. No reviewer is assigned yet.\n- [e094] Standup notes from Chen:\n  - today: pairing with Gus on docs/faq.md\n  - today: rewriting the intro paragraph of the retro notes guide\n  - blockers: none\n- [e095] Notes from the brand assets sync on Monday:\n  Femi showed the new layout of the CI runners.\n  Nils asked for a darker header; Quinn will try two variants.\n  The group will look at the lint config again in 3 weeks.\n  Nothing in this sync touches the project itself.\n  Wren shared a short survey; 7 people answered so far.\n- [e096] calendar opened a grouped update for the error pages tooling:\n    - markdown-lint 8.11.4 to 1.18.5\n    - image-optimizer 9.16.3 to 1.18.2\n    - spellcheck dictionary 6.3.2 to 3.18.3\n    The checks passed. No reviewer is assigned yet.\n- [e097] Review thread on web/favicon.ico (5 comments):\n  Hana: the table in section 5 renders badly on small screens.\n  Ana: nit: trailing spaces on line 50.\n  Kira: approved, merge when the checks are green.\n- [e098] Standup notes from Uma:\n  - yesterday: tidied the build cache pages and answered 2 questions in chat\n  - today: pairing with Vik on README.md\n  - today: rewriting the intro paragraph of the docs site guide\n  - blockers: none\n  - updated the screenshots in docs/howto.md\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s2-chat-1",
+          "content": "== chat export, stage 2, part 2 ==\n[e076] 08:39 metrics weekly numbers for the office wifi:\n      page views 2882\n      median load 258 ms\n      searches without a result: 95\n      the numbers are inside the usual band\n[e077] 08:42 chat-relay opened a grouped update for the release notes tooling:\n      - markdown-lint 4.13.0 to 8.1.0\n      - image-optimizer 6.18.8 to 3.17.5\n      - spellcheck dictionary 3.7.4 to 7.9.2\n[e078] 08:45 lint-bot weekly numbers for the brand assets:\n      page views 7844\n      error rate 0.07 percent\n      uptime 99.94 percent\n      the numbers are inside the usual band\n[e079] 08:48 According to ticket-comment TKT-543 version 11, the proxy protocol version is `proxy-h2`.\n    thread replies: 7\n[e080] 08:51 The ticket-comment document TKT-562 (version 13) states that the BGP community tag is `bgp-65001`.\n    Wren reacted with a thumbs-up\n    thread replies: 4\n[e081] 08:54 The ops-runbook document RUN-588 (version 7) states that the VPN protocol is `openvpn-udp`.\n    Quinn reacted with a thumbs-up\n[e082] 08:57 According to team-chat-log CHAT-614 version 10, the MTU size in bytes is `1280`.\n    Uma reacted with a thumbs-up\n[e083] 09:00 According to team-chat-log CHAT-642 version 12, the connection idle timeout in seconds is `900`.\n    thread replies: 6\n[e084] 09:03 The netsec-policy document NSP-929 (version 12) states that the firewall default action is `fw-allow-log`.\n    thread replies: 4\n[e085] 09:06 Ana proposed `180` for the connection idle timeout in seconds again. No decision was made; nothing changes.\n    thread replies: 3\n    Lars reacted with a thumbs-up\n[e086] 09:09 Wren wants better documentation about the certificate authority. This is a docs task only and changes nothing.\n    thread replies: 5\n    Jun reacted with a thumbs-up\n[e087] 09:12 Calendar update from ci-bot:\n    - the release notes demo moves to 18:44 on Monday\n    - room booking for the office wifi retro is confirmed\n    - Ivo is on leave from Tuesday for 3 days\n    - Wren hosts the next lunch talk about typography\n[e088] 09:15 Old printout of arch-review ARV-1 version 1, made at the time of entry e010: it says the egress gateway is `egress-squid`. This is a historical copy, not a new statement.\n    thread replies: 4\n    Zed reacted with a thumbs-up\n"
+        },
+        {
+          "name": "s2-board-2",
+          "content": "== board export, stage 2, part 4 ==\n[e099] 09:48 Gus found a saved copy of netsec-policy NSP-826 version 5 from the time of entry e034. It says the DNS resolver is `knot-res`. The copy is history only and changes nothing.\n    card id 994\n[e100] 09:51 Dara proposed `1500` for the MTU size in bytes again. No decision was made; nothing changes.\n    card id 697\n    card updated by Lars\n[e101] 09:54 Calendar update from metrics:\n    - the sprint board demo moves to 13:53 on Wednesday\n    - room booking for the team calendar retro is confirmed\n    - Pita hosts the next lunch talk about typography\n[e102] 09:57 Femi found a saved copy of arch-review ARV-1 version 1 from the time of entry e004. It says the connection idle timeout in seconds is `360`. The copy is history only and changes nothing.\n    card updated by Gus\n    card id 856\n[e103] 10:00 Chat excerpt from #team-chat:\n    Tove: is anyone else seeing the slow team calendar page?\n    Gus: ok, thanks\n    Chen: lunch at 08:11? the new place near the station\n    Eli: count me in\n    Gus: reminder that the brand assets poll closes on Monday\n[e104] 10:03 Femi found a saved copy of arch-review ARV-1 version 1 from the time of entry e012. It says the firewall default action is `fw-deny`. The copy is history only and changes nothing.\n    card id 160\n    card updated by Hana\n[e105] 10:06 Calendar update from calendar:\n    - Pita is on leave from Thursday for 4 days\n    - Dara hosts the next lunch talk about typography\n[e106] 10:09 Ticket DOC-989: broken anchors on a help page\n    Reporter: Quinn. Priority: low.\n    The page tools/fmt.mjs has 3 broken anchors after the last rename.\n    Wren will fix it after the status page work.\n[e107] 10:12 Standup notes from Wren:\n    - yesterday: tidied the release notes pages and answered 6 questions in chat\n    - yesterday: reviewed 5 small pull requests about the CI runners\n    - blockers: none\n    - out early on Friday for a dentist visit\n    - will demo the new team calendar layout next week\n[e108] 10:15 Chat excerpt from #team-chat:\n    Ivo: is anyone else seeing the slow brand assets page?\n    Rosa: yes, it is the image cache, it clears itself after 4 minutes\n    Yara: ok, thanks\n    Tove: lunch at 12:38? the new place near the station\n    Ana: count me in\n[e109] 10:18 In chat, Wren asked whether the certificate authority could be `ejbca-pki`. The question was closed without a change.\n    card id 551\n"
+        }
+      ],
+      "eventIds": [
+        "e064",
+        "e065",
+        "e066",
+        "e067",
+        "e068",
+        "e069",
+        "e070",
+        "e071",
+        "e072",
+        "e073",
+        "e074",
+        "e075",
+        "e076",
+        "e077",
+        "e078",
+        "e079",
+        "e080",
+        "e081",
+        "e082",
+        "e083",
+        "e084",
+        "e085",
+        "e086",
+        "e087",
+        "e088",
+        "e089",
+        "e090",
+        "e091",
+        "e092",
+        "e093",
+        "e094",
+        "e095",
+        "e096",
+        "e097",
+        "e098",
+        "e099",
+        "e100",
+        "e101",
+        "e102",
+        "e103",
+        "e104",
+        "e105",
+        "e106",
+        "e107",
+        "e108",
+        "e109"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s2-c1",
+          "kind": "file",
+          "name": "inbox/s2/journal-01.md",
+          "bytes": 2522,
+          "events": [
+            "e064",
+            "e065",
+            "e066",
+            "e067",
+            "e068",
+            "e069",
+            "e070",
+            "e071",
+            "e072",
+            "e073",
+            "e074",
+            "e075"
+          ]
+        },
+        {
+          "chunkId": "s2-c2",
+          "kind": "file",
+          "name": "inbox/s2/review-02.md",
+          "bytes": 2395,
+          "events": [
+            "e089",
+            "e090",
+            "e091",
+            "e092",
+            "e093",
+            "e094",
+            "e095",
+            "e096",
+            "e097",
+            "e098"
+          ]
+        },
+        {
+          "chunkId": "s2-c3",
+          "kind": "feed",
+          "name": "s2-chat-1",
+          "bytes": 2287,
+          "events": [
+            "e076",
+            "e077",
+            "e078",
+            "e079",
+            "e080",
+            "e081",
+            "e082",
+            "e083",
+            "e084",
+            "e085",
+            "e086",
+            "e087",
+            "e088"
+          ]
+        },
+        {
+          "chunkId": "s2-c4",
+          "kind": "feed",
+          "name": "s2-board-2",
+          "bytes": 2426,
+          "events": [
+            "e099",
+            "e100",
+            "e101",
+            "e102",
+            "e103",
+            "e104",
+            "e105",
+            "e106",
+            "e107",
+            "e108",
+            "e109"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "prompt": "Stage 3 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s3/design-01.md, inbox/s3/design-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s3-chat-1, s3-chat-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s3/design-01.md",
+          "content": "# Design discussion, stage 3, part 1\n\n- [e110] The netsec-policy document NSP-670 (version 1) states that the connection idle timeout in seconds is `900`.\n  Wren and Bo were in the discussion.\n- [e111] lint-bot weekly numbers for the build cache:\n    page views 6563\n    median load 464 ms\n    error rate 0.09 percent\n    uptime 99.97 percent\n    the numbers are inside the usual band\n- [e112] Read-only export of the chat-relay configuration for the brand assets:\n    max_line_length = 173\n    theme = \"slate-7\"\n    cache_hours = 8\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 85\n    preview_pages = true\n    report_format = \"text\"\n- [e113] According to team-chat-log CHAT-693 version 13, the proxy protocol version is `proxy-off`.\n  Uma and Sami were in the discussion.\n  From the design discussion led by Dara.\n- [e114] calendar opened a grouped update for the team calendar tooling:\n    - markdown-lint 1.18.8 to 8.17.2\n    - link-checker 2.13.9 to 7.9.2\n    The checks passed. No reviewer is assigned yet.\n- [e115] Chat excerpt from #team-chat:\n  Kira: yes, it is the image cache, it clears itself after 8 minutes\n  Chen: lunch at 16:45? the new place near the station\n  Wren: count me in\n  Sami: reminder that the sprint board poll closes on Friday\n- [e116] Chat excerpt from #team-chat:\n  Chen: ok, thanks\n  Tove: lunch at 18:48? the new place near the station\n  Oona: count me in\n  Lars: reminder that the CI runners poll closes on Monday\n- [e117] The ops-runbook document RUN-698 (version 9) states that the connection idle timeout in seconds is `180`.\n  From the design discussion led by Bo.\n- [e118] According to team-chat-log CHAT-713 version 14, the VPN protocol is `tailnet-vpn`.\n  From the design discussion led by Mei.\n  Bo and Lars were in the discussion.\n- [e119] The team-chat-log document CHAT-742 (version 16) states that the rate limit per client per second is `150`.\n  Jun and Femi were in the discussion.\n  From the design discussion led by Oona.\n- [e120] Style guide excerpt, section 9.8:\n  Use sentence case for headings.\n  Keep tables under 9 columns.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e121] According to ops-runbook RUN-750 version 11, the strict SNI mode is `OFF`.\n  From the design discussion led by Eli.\n"
+        },
+        {
+          "path": "inbox/s3/design-02.md",
+          "content": "# Design discussion, stage 3, part 3\n\n- [e133] lint-bot run 458 summary:\n    step lint ok, 49 files\n    step upload ok, 375 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 52%\n    total duration 5m 12s, no warnings\n- [e134] cache-bot opened a grouped update for the office wifi tooling:\n    - link-checker 9.19.7 to 9.11.2\n    - image-optimizer 8.5.0 to 2.10.8\n    The checks passed. No reviewer is assigned yet.\n- [e135] Review thread on docs/howto.md (4 comments):\n  Wren: done, and I fixed the heading levels too.\n  Lars: the table in section 9 renders badly on small screens.\n  Yara: nit: trailing spaces on line 16.\n- [e136] Standup notes from Chen:\n  - yesterday: tidied the test fixtures pages and answered 7 questions in chat\n  - yesterday: reviewed 2 small pull requests about the docs site\n  - blockers: none\n  - out early on Wednesday for a dentist visit\n  - updated the screenshots in docs/glossary.md\n- [e137] Ticket DOC-864: broken anchors on a help page\n  The page assets/logo.svg has 9 broken anchors after the last rename.\n  Ivo will fix it after the team calendar work.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e138] Old printout of team-chat-log CHAT-373 version 6, made at the time of entry e031: it says the egress gateway is `egress-nat-b`. This is a historical copy, not a new statement.\n  From the design discussion led by Oona.\n- [e139] Standup notes from Chen:\n  - yesterday: reviewed 4 small pull requests about the design tokens\n  - today: rewriting the intro paragraph of the onboarding wiki guide\n  - out early on Thursday for a dentist visit\n  - updated the screenshots in docs/style.md\n  - will demo the new onboarding wiki layout next week\n- [e140] Kira found a saved copy of arch-review ARV-1 version 1 from the time of entry e013. It says the port range start is `20000`. The copy is history only and changes nothing.\n  Zed and Quinn were in the discussion.\n- [e141] cache-bot weekly numbers for the design tokens:\n    page views 9368\n    error rate 0.08 percent\n    uptime 99.96 percent\n    searches without a result: 29\n    the numbers are inside the usual band\n- [e142] Chat excerpt from #team-chat:\n  Chen: is anyone else seeing the slow test fixtures page?\n  Mei: yes, it is the image cache, it clears itself after 6 minutes\n  Wren: count me in\n  Nils: reminder that the error pages poll closes on Friday\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s3-chat-1",
+          "content": "== chat export, stage 3, part 2 ==\n[e122] 08:39 calendar run 444 summary:\n      step checkout ok (3.53s)\n      step lint ok, 43 files\n      step docs-build ok, 60 pages\n      step upload ok, 370 KB\n[e123] 08:42 According to netsec-policy NSP-946 version 14, the DNS resolver is `unbound-res`.\n    thread replies: 7\n    Bo reacted with a thumbs-up\n[e124] 08:45 Review thread on scripts/lint.sh (7 comments):\n    Chen: please wrap this paragraph at 32 characters.\n    Rosa: nit: trailing spaces on line 66.\n    Rosa: moved them; the page is 77 percent shorter now.\n    Gus: approved, merge when the checks are green.\n[e125] 08:48 According to netsec-policy NSP-981 version 15, the proxy protocol version is `proxy-h2`.\n    Femi reacted with a thumbs-up\n    thread replies: 2\n[e126] 08:51 metrics run 899 summary:\n      step checkout ok (9.58s)\n      step lint ok, 92 files\n      step docs-build ok, 11 pages\n      step upload ok, 458 KB\n      cache restore hit rate 45%\n      total duration 8m 11s, no warnings\n[e127] 08:54 The netsec-policy document NSP-1011 (version 16) states that the firewall default action is `fw-reject`.\n    Sami reacted with a thumbs-up\n    thread replies: 3\n[e128] 08:57 Review thread on assets/logo.svg (6 comments):\n    Rosa: the table in section 5 renders badly on small screens.\n    Rosa: can we move the long examples to an appendix?\n    Gus: moved them; the page is 40 percent shorter now.\n[e129] 09:00 Old printout of arch-review ARV-2 version 2, made at the time of entry e022: it says the BGP community tag is `bgp-65010`. This is a historical copy, not a new statement.\n    Gus reacted with a thumbs-up\n[e130] 09:03 Question from Nils: who reviews changes to the health check interval in seconds? Answer: the usual reviewers. Nothing changes.\n    thread replies: 5\n    Hana reacted with a thumbs-up\n[e131] 09:06 Review thread on notes/retro.md (8 comments):\n    Ivo: done, and I fixed the heading levels too.\n    Tove: nit: trailing spaces on line 87.\n    Zed: can we move the long examples to an appendix?\n    Pita: moved them; the page is 96 percent shorter now.\n    Mei: approved, merge when the checks are green.\n[e132] 09:09 Tove found a saved copy of team-chat-log CHAT-216 version 2 from the time of entry e024. It says the certificate authority is `step-ca`. The copy is history only and changes nothing.\n    Uma reacted with a thumbs-up\n"
+        },
+        {
+          "name": "s3-chat-2",
+          "content": "== chat export, stage 3, part 4 ==\n[e143] 09:42 Retro notes of the office wifi group:\n    Went well: Vik cleared the docs backlog.\n    Went well: the storybook pages load faster.\n    Action: Vik books a room for the next retro.\n    Action: Femi collects ideas for the team offsite.\n[e144] 09:45 Retro notes of the sprint board group:\n    Went well: the team calendar pages load faster.\n    To improve: shorter standups on Monday.\n    Action: Quinn collects ideas for the team offsite.\n[e145] 09:48 Pita found a saved copy of netsec-policy NSP-890 version 8 from the time of entry e037. It says the port range start is `40000`. The copy is history only and changes nothing.\n    Pita reacted with a thumbs-up\n[e146] 09:51 Standup notes from Tove:\n    - yesterday: tidied the docs site pages and answered 4 questions in chat\n    - yesterday: reviewed 8 small pull requests about the build cache\n    - today: pairing with Femi on ci/cache.yml\n    - out early on Thursday for a dentist visit\n    - will demo the new test fixtures layout next week\n[e147] 09:54 Style guide excerpt, section 4.6:\n    Use sentence case for headings.\n    Keep tables under 2 columns.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e148] 09:57 Dara proposed `ON` for the IPv6 dual stack mode again. No decision was made; nothing changes.\n    Sami reacted with a thumbs-up\n    thread replies: 8\n[e149] 10:00 Standup notes from Wren:\n    - yesterday: tidied the storybook pages and answered 7 questions in chat\n    - today: pairing with Chen on .editorconfig\n    - blockers: none\n[e150] 10:03 Old printout of ticket-comment TKT-180 version 2, made at the time of entry e023: it says the load balancer mode is `lb-maglev`. This is a historical copy, not a new statement.\n    Oona reacted with a thumbs-up\n    thread replies: 9\n[e151] 10:06 Standup notes from Eli:\n    - yesterday: reviewed 7 small pull requests about the lint config\n    - today: rewriting the intro paragraph of the lint config guide\n    - blockers: none\n    - out early on Friday for a dentist visit\n[e152] 10:09 Ticket DOC-514: broken anchors on a help page\n    Reporter: Nils. Priority: low.\n    The page docs/style.md has 5 broken anchors after the last rename.\n    Uma will fix it after the code owners file work.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e153] 10:12 metrics weekly numbers for the dependabot:\n      median load 234 ms\n      error rate 0.02 percent\n      uptime 99.92 percent\n      searches without a result: 64\n      the numbers are inside the usual band\n[e154] 10:15 docs-bot weekly numbers for the brand assets:\n      error rate 0.08 percent\n      uptime 99.92 percent\n      searches without a result: 90\n"
+        }
+      ],
+      "eventIds": [
+        "e110",
+        "e111",
+        "e112",
+        "e113",
+        "e114",
+        "e115",
+        "e116",
+        "e117",
+        "e118",
+        "e119",
+        "e120",
+        "e121",
+        "e122",
+        "e123",
+        "e124",
+        "e125",
+        "e126",
+        "e127",
+        "e128",
+        "e129",
+        "e130",
+        "e131",
+        "e132",
+        "e133",
+        "e134",
+        "e135",
+        "e136",
+        "e137",
+        "e138",
+        "e139",
+        "e140",
+        "e141",
+        "e142",
+        "e143",
+        "e144",
+        "e145",
+        "e146",
+        "e147",
+        "e148",
+        "e149",
+        "e150",
+        "e151",
+        "e152",
+        "e153",
+        "e154"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s3-c1",
+          "kind": "file",
+          "name": "inbox/s3/design-01.md",
+          "bytes": 2352,
+          "events": [
+            "e110",
+            "e111",
+            "e112",
+            "e113",
+            "e114",
+            "e115",
+            "e116",
+            "e117",
+            "e118",
+            "e119",
+            "e120",
+            "e121"
+          ]
+        },
+        {
+          "chunkId": "s3-c2",
+          "kind": "file",
+          "name": "inbox/s3/design-02.md",
+          "bytes": 2423,
+          "events": [
+            "e133",
+            "e134",
+            "e135",
+            "e136",
+            "e137",
+            "e138",
+            "e139",
+            "e140",
+            "e141",
+            "e142"
+          ]
+        },
+        {
+          "chunkId": "s3-c3",
+          "kind": "feed",
+          "name": "s3-chat-1",
+          "bytes": 2381,
+          "events": [
+            "e122",
+            "e123",
+            "e124",
+            "e125",
+            "e126",
+            "e127",
+            "e128",
+            "e129",
+            "e130",
+            "e131",
+            "e132"
+          ]
+        },
+        {
+          "chunkId": "s3-c4",
+          "kind": "feed",
+          "name": "s3-chat-2",
+          "bytes": 2793,
+          "events": [
+            "e143",
+            "e144",
+            "e145",
+            "e146",
+            "e147",
+            "e148",
+            "e149",
+            "e150",
+            "e151",
+            "e152",
+            "e153",
+            "e154"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "prompt": "Stage 4 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s4/review-01.md, inbox/s4/minutes-02.md, inbox/s4/notes-03.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s4-log-1, s4-activity.\nThe feed s4-activity is long. The entries that matter for this task carry the tag CR-8000; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s4/review-01.md",
+          "content": "# Review comments, stage 4, part 1\n\n- [e157] The arch-review document ARV-3 (version 3) states that the connection idle timeout in seconds is `360`.\n  Review round 8, reviewer Dara.\n- [e165] The ops-runbook document RUN-771 (version 12) states that the strict SNI mode is `ON`.\n  Review round 3, reviewer Nils.\n  Thread started by Rosa; Sami replied with a thumbs-up.\n- [e167] According to ops-runbook RUN-781 version 14, the VPN protocol is `wireguard-vpn`.\n  Thread started by Quinn; Eli replied with a thumbs-up.\n- [e169] According to ops-runbook RUN-798 version 15, the port range start is `55000`.\n  Thread started by Lars; Tove replied with a thumbs-up.\n- [e176] The team-chat-log document CHAT-830 (version 18) states that the health check interval in seconds is `3`.\n  Thread started by Vik; Mei replied with a thumbs-up.\n  Review round 7, reviewer Dara.\n- [e177] The ticket-comment document TKT-841 (version 14) states that the health check interval in seconds is `24`.\n  Review round 6, reviewer Femi.\n- [e178] According to team-chat-log CHAT-874 version 20, the BGP community tag is `bgp-65500`.\n  Review round 7, reviewer Dara.\n  Thread started by Femi; Uma replied with a thumbs-up.\n- [e182] The ticket-comment document TKT-900 (version 16) states that the BGP community tag is `bgp-65100`.\n  Thread started by Sami; Jun replied with a thumbs-up.\n  Review round 3, reviewer Chen.\n- [e186] The team-chat-log document CHAT-925 (version 21) states that the rate limit per client per second is `400`.\n  Review round 3, reviewer Eli.\n  Thread started by Wren; Chen replied with a thumbs-up.\n- [e188] The ops-runbook document RUN-941 (version 16) states that the proxy protocol version is `proxy-v1`.\n  Review round 9, reviewer Jun.\n- [e189] According to ops-runbook RUN-956 version 17, the DNS resolver is `dnsmasq-res`.\n  Review round 5, reviewer Ivo.\n- [e196] According to ops-runbook RUN-983 version 19, the port range start is `49152`.\n  Thread started by Uma; Yara replied with a thumbs-up.\n  Review round 7, reviewer Uma.\n- [e199] Old printout of netsec-policy NSP-1011 version 16, made at the time of entry e127: it says the firewall default action is `fw-reject`. This is a historical copy, not a new statement.\n  Thread started by Ivo; Sami replied with a thumbs-up.\n  Review round 6, reviewer Eli.\n"
+        },
+        {
+          "path": "inbox/s4/minutes-02.md",
+          "content": "# Meeting minutes, stage 4, part 3\n\n- [e218] Review thread on tools/fmt.mjs (3 comments):\n  Wren: please wrap this paragraph at 79 characters.\n  Uma: the table in section 8 renders badly on small screens.\n  Pita: moved them; the page is 45 percent shorter now.\n  Wren: approved, merge when the checks are green.\n- [e219] Old printout of netsec-policy NSP-893 version 10, made at the time of entry e039: it says the strict SNI mode is `ON`. This is a historical copy, not a new statement.\n  Raised in the code owners file sync; attendees: Nils, Mei and Yara.\n- [e220] Read-only export of the markdown-lint configuration for the storybook:\n    max_line_length = 502\n    theme = \"slate-4\"\n    runner_pool = \"pool-7\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 34\n- [e221] Jun proposed `ipsec-ikev2` for the VPN protocol again. No decision was made; nothing changes.\n  Minuted by Tove.\n  Raised in the CI runners sync; attendees: Hana, Oona and Tove.\n- [e222] Calendar update from metrics:\n  - the test fixtures demo moves to 12:25 on Friday\n  - room booking for the office wifi retro is confirmed\n  - Eli hosts the next lunch talk about typography\n- [e223] Standup notes from Rosa:\n  - today: pairing with Hana on tools/fmt.mjs\n  - out early on Tuesday for a dentist visit\n  - updated the screenshots in docs/howto.md\n  - will demo the new storybook layout next week\n- [e224] Notes from the status page sync on Wednesday:\n  Jun showed the new layout of the dependabot.\n  The group will look at the office wifi again in 3 weeks.\n  Dara shared a short survey; 5 people answered so far.\n- [e225] Calendar update from lint-bot:\n  - the dependabot demo moves to 12:23 on Friday\n  - Chen is on leave from Thursday for 7 days\n  - Eli hosts the next lunch talk about typography\n- [e226] docs-bot run 924 summary:\n    step lint ok, 41 files\n    step docs-build ok, 98 pages\n    step upload ok, 999 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 96%\n    total duration 8m 20s, no warnings\n- [e227] Dara found a saved copy of team-chat-log CHAT-412 version 7 from the time of entry e032. It says the DNS resolver is `knot-res`. The copy is history only and changes nothing.\n  Raised in the help center sync; attendees: Dara, Zed and Uma.\n  Action owner for the follow-up: Wren.\n"
+        },
+        {
+          "path": "inbox/s4/notes-03.md",
+          "content": "# Team notes, stage 4, part 4\n\n- [e228] Retro notes of the team calendar group:\n  Went well: the retro notes pages load faster.\n  To improve: shorter standups on Monday.\n  Action: Tove books a room for the next retro.\n  Action: Uma collects ideas for the team offsite.\n- [e229] Ivo wants better documentation about the rate limit per client per second. This is a docs task only and changes nothing.\n  Shared in the office wifi channel at 12:31.\n  Written down by Femi after a call with Mei.\n- [e231] Read-only export of the chat-relay configuration for the release notes:\n    max_line_length = 889\n    runner_pool = \"pool-5\"\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n    report_format = \"text\"\n- [e232] Standup notes from Vik:\n  - yesterday: reviewed 3 small pull requests about the docs site\n  - today: pairing with Tove on scripts/lint.sh\n  - out early on Tuesday for a dentist visit\n  - updated the screenshots in docs/howto.md\n  - will demo the new help center layout next week\n- [e233] Style guide excerpt, section 9.9:\n  Use sentence case for headings.\n  Keep tables under 2 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Name the button exactly as the screen shows it.\n- [e235] Chat excerpt from #team-chat:\n  Ana: is anyone else seeing the slow office wifi page?\n  Wren: yes, it is the image cache, it clears itself after 3 minutes\n  Hana: ok, thanks\n  Jun: reminder that the onboarding wiki poll closes on Tuesday\n- [e236] Chat excerpt from #team-chat:\n  Sami: yes, it is the image cache, it clears itself after 8 minutes\n  Femi: ok, thanks\n  Gus: lunch at 13:33? the new place near the station\n  Ivo: count me in\n- [e238] Ticket DOC-246: broken anchors on a help page\n  Reporter: Uma. Priority: low.\n  The page README.md has 6 broken anchors after the last rename.\n  Status: open, no due date.\n- [e239] Read-only export of the link-checker configuration for the release notes:\n    cache_hours = 2\n    keep_reports_days = 37\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e240] Read-only export of the chat-relay configuration for the onboarding wiki:\n    max_line_length = 699\n    theme = \"slate-2\"\n    cache_hours = 4\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e241] Standup notes from Gus:\n  - yesterday: reviewed 6 small pull requests about the error pages\n  - today: rewriting the intro paragraph of the design tokens guide\n  - will demo the new docs site layout next week\n- [e242] Chat excerpt from #team-chat:\n  Lars: yes, it is the image cache, it clears itself after 2 minutes\n  Femi: count me in\n  Hana: reminder that the retro notes poll closes on Friday\n- [e243] Style guide excerpt, section 4.6:\n  Keep tables under 3 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s4-log-1",
+          "content": "== log export, stage 4, part 2 ==\n[e200] 10:18 Old printout of netsec-policy NSP-946 version 14, made at the time of entry e123: it says the DNS resolver is `unbound-res`. This is a historical copy, not a new statement.\n    source=calendar level=info actor=Ivo\n    request_id=r-45068\n[e201] 10:21 In chat, Tove asked whether the MTU size in bytes could be `1420`. The question was closed without a change.\n    request_id=r-29772\n[e204] 10:30 Hana asked for a load test plan that covers the VPN protocol. The thread ended without a change.\n    request_id=r-37691\n[e205] 10:33 Ivo found a saved copy of arch-review ARV-1 version 1 from the time of entry e011. It says the rate limit per client per second is `75`. The copy is history only and changes nothing.\n    source=metrics level=info actor=Sami\n    request_id=r-65535\n[e207] 10:39 In chat, Tove asked whether the VPN protocol could be `ipsec-ikev2`. The question was closed without a change.\n    request_id=r-66960\n    source=cache-bot level=info actor=Wren\n[e212] 10:54 Notes from the test fixtures sync on Thursday:\n    Bo asked for a darker header; Vik will try two variants.\n    The group will look at the brand assets again in 7 weeks.\n    Nothing in this sync touches the project itself.\n    Eli shared a short survey; 9 people answered so far.\n[e213] 10:57 Quinn proposed `180` for the connection idle timeout in seconds again. No decision was made; nothing changes.\n    source=lint-bot level=info actor=Nils\n[e214] 11:00 ci-bot run 973 summary:\n      step checkout ok (4.12s)\n      step docs-build ok, 34 pages\n      step notify ok, channel team-chat\n[e215] 11:03 Ticket DOC-127: broken anchors on a help page\n    The page docs/howto.md has 2 broken anchors after the last rename.\n    Nils will fix it after the design tokens work.\n    Status: open, no due date.\n    Related: a similar report from Monday was closed as a duplicate.\n[e216] 11:06 Retro notes of the changelog bot group:\n    Went well: Femi cleared the docs backlog.\n    To improve: shorter standups on Thursday.\n    Action: Vik books a room for the next retro.\n[e217] 11:09 Question from Chen: who reviews changes to the certificate authority? Answer: the usual reviewers. Nothing changes.\n    source=chat-relay level=info actor=Oona\n"
+        },
+        {
+          "name": "s4-activity",
+          "content": "== activity export, stage 4 ==\n[e155] 08:03 metrics: build 210 for the code owners file reused 71% of cached layers; image size unchanged; upload time 2s; retention policy applied to 58 old images\n    retention applied to 46 items\n    next_run=in 5h window=13:15\n[e156] 08:06 docs-bot: dependency audit of the code owners file tooling found 32 minor updates; none are security related; the bot will open grouped updates later\n    trace=t-74386 span_count=88 dropped=0\n    owner=docs-team escalation=none\n[e158] 08:12 CR-8000 The arch-review document ARV-3 (version 3) states that the load balancer mode is `lb-ip-hash`.\n    request_id=r-80753\n[e159] 08:15 metrics: link checker visited 220 pages of the sprint board; broken=0; redirected=46; slowest page answered in 434ms\n    upstream=status-page latency=293ms\n[e160] 08:18 chat-relay: heartbeat seq=449 queue_depth=88 oldest_item_age=6s workers=88 cpu=69% mem=51% area=\"test fixtures\" outcome=nominal, no operator action\n    trace=t-92973 span_count=48 dropped=0\n[e161] 08:21 chat-relay: metrics rollup for the help center: p50=8ms p95=884ms errors=0 sample=359 requests; values inside the usual band for this hour\n    upstream=status-page latency=936ms\n    owner=docs-team escalation=none\n    next_run=in 4h window=13:41\n[e162] 08:24 docs-bot: dependency audit of the status page tooling found 70 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-8 attempt=1 result=ok\n    note: routine, no operator action\n    next_run=in 5h window=09:03\n[e163] 08:27 metrics: build 535 for the storybook reused 73% of cached layers; image size unchanged; upload time 6s; retention policy applied to 50 old images\n    trace=t-55810 span_count=25 dropped=0\n    next_run=in 7h window=15:20\n[e164] 08:30 ci-bot: link checker visited 617 pages of the sprint board; broken=0; redirected=22; slowest page answered in 966ms\n    retention applied to 27 items\n    next_run=in 5h window=10:41\n[e166] 08:36 cache-bot: scan of tools/fmt.mjs complete files_checked=271 issues_new=0 issues_closed=37 duration=3s; trend flat compared with the previous 6 runs\n    note: routine, no operator action\n    upstream=status-page latency=268ms\n    retention applied to 30 items\n[e168] 08:42 ci-bot: link checker visited 991 pages of the code owners file; broken=0; redirected=57; slowest page answered in 550ms\n    upstream=status-page latency=683ms\n[e170] 08:48 lint-bot: metrics rollup for the team calendar: p50=8ms p95=395ms errors=0 sample=774 requests; values inside the usual band for this hour\n    owner=docs-team escalation=none\n[e171] 08:51 docs-bot: calendar sync imported 6 events for the brand assets; conflicts=0; reminders_sent=54; the import window covered the next 85 days\n    owner=docs-team escalation=none\n[e172] 08:54 docs-bot: dependency audit of the storybook tooling found 21 minor updates; none are security related; the bot will open grouped updates later\n    worker=pool-5 attempt=1 result=ok\n[e173] 08:57 chat-relay: calendar sync imported 4 events for the office wifi; conflicts=0; reminders_sent=88; the import window covered the next 35 days\n    upstream=status-page latency=951ms\n    retention applied to 40 items\n[e174] 09:00 calendar: Uma opened a chat thread about the dependabot; replies=6; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    next_run=in 2h window=15:06\n[e175] 09:03 chat-relay: cleanup removed 39 temp folders under docs/faq.md freed 730 MB; next cleanup scheduled; disk usage at 53% of quota\n    note: routine, no operator action\n    upstream=status-page latency=528ms\n[e179] 09:15 ci-bot: Zed opened a chat thread about the code owners file; replies=9; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-9 attempt=1 result=ok\n    note: routine, no operator action\n    upstream=status-page latency=877ms\n[e180] 09:18 lint-bot: scan of docs/style.md complete files_checked=694 issues_new=0 issues_closed=89 duration=3s; trend flat compared with the previous 5 runs\n    upstream=status-page latency=661ms\n    owner=docs-team escalation=none\n[e181] 09:21 ci-bot: heartbeat seq=236 queue_depth=58 oldest_item_age=2s workers=77 cpu=77% mem=83% area=\"onboarding wiki\" outcome=nominal, no operator action\n    worker=pool-9 attempt=1 result=ok\n    trace=t-45991 span_count=40 dropped=0\n    owner=docs-team escalation=none\n[e183] 09:27 docs-bot: scan of .editorconfig complete files_checked=683 issues_new=0 issues_closed=66 duration=5s; trend flat compared with the previous 4 runs\n    note: routine, no operator action\n    upstream=status-page latency=475ms\n    retention applied to 69 items\n[e184] 09:30 chat-relay: job #913 finished status=ok duration=8.94s cache=warm artifacts=19 warnings=0 runner=pool-2 note=routine nightly sweep of the code owners file, nothing to report\n    trace=t-45816 span_count=53 dropped=0\n[e185] 09:33 metrics: metrics rollup for the error pages: p50=2ms p95=606ms errors=0 sample=569 requests; values inside the usual band for this hour\n    upstream=status-page latency=524ms\n    trace=t-43917 span_count=71 dropped=0\n[e187] 09:39 cache-bot: scan of docs/faq.md complete files_checked=956 issues_new=0 issues_closed=76 duration=8s; trend flat compared with the previous 9 runs\n    note: routine, no operator action\n[e190] 09:48 metrics: Chen edited ci/cache.yml (+6 -19 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=279ms\n    owner=docs-team escalation=none\n[e191] 09:51 chat-relay: cleanup removed 75 temp folders under .editorconfig freed 675 MB; next cleanup scheduled; disk usage at 80% of quota\n    next_run=in 6h window=09:27\n[e192] 09:54 metrics: Jun opened a chat thread about the help center; replies=5; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    owner=docs-team escalation=none\n[e193] 09:57 calendar: job #289 finished status=ok duration=3.84s cache=warm artifacts=65 warnings=0 runner=pool-6 note=routine nightly sweep of the changelog bot, nothing to report\n    note: routine, no operator action\n    retention applied to 97 items\n    trace=t-46532 span_count=50 dropped=0\n[e194] 10:00 lint-bot: heartbeat seq=523 queue_depth=97 oldest_item_age=3s workers=16 cpu=44% mem=66% area=\"team calendar\" outcome=nominal, no operator action\n    note: routine, no operator action\n[e195] 10:03 metrics: build 874 for the dependabot reused 81% of cached layers; image size unchanged; upload time 3s; retention policy applied to 51 old images\n    note: routine, no operator action\n[e197] 10:09 ci-bot: Quinn edited notes/retro.md (+6 -88 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    retention applied to 15 items\n[e198] 10:12 ci-bot: heartbeat seq=425 queue_depth=80 oldest_item_age=7s workers=17 cpu=69% mem=79% area=\"onboarding wiki\" outcome=nominal, no operator action\n    upstream=status-page latency=458ms\n    retention applied to 28 items\n    next_run=in 5h window=08:51\n[e202] 10:24 docs-bot: Yara edited docs/faq.md (+7 -41 lines, formatting only); review not required by policy; merged after the standard wait\n    retention applied to 35 items\n    owner=docs-team escalation=none\n[e203] 10:27 docs-bot: calendar sync imported 5 events for the build cache; conflicts=0; reminders_sent=81; the import window covered the next 17 days\n    note: routine, no operator action\n    upstream=status-page latency=390ms\n    owner=docs-team escalation=none\n[e206] 10:36 chat-relay: cleanup removed 11 temp folders under docs/faq.md freed 476 MB; next cleanup scheduled; disk usage at 59% of quota\n    worker=pool-5 attempt=1 result=ok\n[e208] 10:42 calendar: heartbeat seq=477 queue_depth=41 oldest_item_age=9s workers=10 cpu=63% mem=70% area=\"status page\" outcome=nominal, no operator action\n    note: routine, no operator action\n    upstream=status-page latency=679ms\n    trace=t-91163 span_count=38 dropped=0\n[e209] 10:45 lint-bot: Kira opened a chat thread about the team calendar; replies=5; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-8 attempt=1 result=ok\n    upstream=status-page latency=866ms\n    trace=t-39652 span_count=32 dropped=0\n[e210] 10:48 calendar: cleanup removed 72 temp folders under ci/cache.yml freed 484 MB; next cleanup scheduled; disk usage at 73% of quota\n    upstream=status-page latency=929ms\n    next_run=in 8h window=09:53\n[e211] 10:51 docs-bot: dependency audit of the brand assets tooling found 35 minor updates; none are security related; the bot will open grouped updates later\n    next_run=in 2h window=11:38\n[e230] 11:48 CR-8000 Agreed in the sync: the perf cluster name becomes `perf-heron`.\n    source=docs-bot level=info actor=Nils\n    request_id=r-34528\n[e234] 12:00 CR-8000 Ana confirmed in writing that the perf cluster name changes to `perf-kudu`.\n    source=metrics level=info actor=Tove\n    request_id=r-68410\n[e237] 12:09 CR-8000 After the review, the team settled on `perf-jackal` for the perf cluster name.\n    request_id=r-11320\n    source=calendar level=info actor=Wren\n"
+        }
+      ],
+      "eventIds": [
+        "e155",
+        "e156",
+        "e157",
+        "e158",
+        "e159",
+        "e160",
+        "e161",
+        "e162",
+        "e163",
+        "e164",
+        "e165",
+        "e166",
+        "e167",
+        "e168",
+        "e169",
+        "e170",
+        "e171",
+        "e172",
+        "e173",
+        "e174",
+        "e175",
+        "e176",
+        "e177",
+        "e178",
+        "e179",
+        "e180",
+        "e181",
+        "e182",
+        "e183",
+        "e184",
+        "e185",
+        "e186",
+        "e187",
+        "e188",
+        "e189",
+        "e190",
+        "e191",
+        "e192",
+        "e193",
+        "e194",
+        "e195",
+        "e196",
+        "e197",
+        "e198",
+        "e199",
+        "e200",
+        "e201",
+        "e202",
+        "e203",
+        "e204",
+        "e205",
+        "e206",
+        "e207",
+        "e208",
+        "e209",
+        "e210",
+        "e211",
+        "e212",
+        "e213",
+        "e214",
+        "e215",
+        "e216",
+        "e217",
+        "e218",
+        "e219",
+        "e220",
+        "e221",
+        "e222",
+        "e223",
+        "e224",
+        "e225",
+        "e226",
+        "e227",
+        "e228",
+        "e229",
+        "e230",
+        "e231",
+        "e232",
+        "e233",
+        "e234",
+        "e235",
+        "e236",
+        "e237",
+        "e238",
+        "e239",
+        "e240",
+        "e241",
+        "e242",
+        "e243"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s4-c1",
+          "kind": "file",
+          "name": "inbox/s4/review-01.md",
+          "bytes": 2316,
+          "events": [
+            "e157",
+            "e165",
+            "e167",
+            "e169",
+            "e176",
+            "e177",
+            "e178",
+            "e182",
+            "e186",
+            "e188",
+            "e189",
+            "e196",
+            "e199"
+          ]
+        },
+        {
+          "chunkId": "s4-c2",
+          "kind": "file",
+          "name": "inbox/s4/minutes-02.md",
+          "bytes": 2299,
+          "events": [
+            "e218",
+            "e219",
+            "e220",
+            "e221",
+            "e222",
+            "e223",
+            "e224",
+            "e225",
+            "e226",
+            "e227"
+          ]
+        },
+        {
+          "chunkId": "s4-c3",
+          "kind": "file",
+          "name": "inbox/s4/notes-03.md",
+          "bytes": 2885,
+          "events": [
+            "e228",
+            "e229",
+            "e231",
+            "e232",
+            "e233",
+            "e235",
+            "e236",
+            "e238",
+            "e239",
+            "e240",
+            "e241",
+            "e242",
+            "e243"
+          ]
+        },
+        {
+          "chunkId": "s4-c4",
+          "kind": "feed",
+          "name": "s4-log-1",
+          "bytes": 2261,
+          "events": [
+            "e200",
+            "e201",
+            "e204",
+            "e205",
+            "e207",
+            "e212",
+            "e213",
+            "e214",
+            "e215",
+            "e216",
+            "e217"
+          ]
+        },
+        {
+          "chunkId": "s4-c5",
+          "kind": "feed",
+          "name": "s4-activity",
+          "bytes": 9145,
+          "events": [
+            "e155",
+            "e156",
+            "e158",
+            "e159",
+            "e160",
+            "e161",
+            "e162",
+            "e163",
+            "e164",
+            "e166",
+            "e168",
+            "e170",
+            "e171",
+            "e172",
+            "e173",
+            "e174",
+            "e175",
+            "e179",
+            "e180",
+            "e181",
+            "e183",
+            "e184",
+            "e185",
+            "e187",
+            "e190",
+            "e191",
+            "e192",
+            "e193",
+            "e194",
+            "e195",
+            "e197",
+            "e198",
+            "e202",
+            "e203",
+            "e206",
+            "e208",
+            "e209",
+            "e210",
+            "e211",
+            "e230",
+            "e234",
+            "e237"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "prompt": "Stage 5 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s5/design-01.md, inbox/s5/notes-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s5-chat-1, s5-board-2, s5-ops-log.\nThe feed s5-ops-log is long. The entries that matter for this task carry the tag CHG-9777; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s5/design-01.md",
+          "content": "# Design discussion, stage 5, part 1\n\n- [e258] According to arch-review ARV-5 version 5, the load balancer mode is `lb-maglev`.\n  From the design discussion led by Zed.\n  Sami and Wren were in the discussion.\n- [e259] Document ARV-2 is outdated and withdrawn. Ignore everything it states.\n  Chen and Zed were in the discussion.\n  From the design discussion led by Quinn.\n- [e272] According to ticket-comment TKT-998 version 17, the VPN protocol is `wireguard-vpn`.\n  Vik and Zed were in the discussion.\n- [e273] The team-chat-log document CHAT-1023 (version 23) states that the load balancer mode is `lb-round-robin`.\n  Mei and Dara were in the discussion.\n- [e275] According to team-chat-log CHAT-1063 version 25, the egress gateway is `egress-nat-a`.\n  Rosa and Wren were in the discussion.\n- [e280] The team-chat-log document CHAT-1102 (version 27) states that the rate limit per client per second is `150`.\n  From the design discussion led by Jun.\n  Yara and Uma were in the discussion.\n- [e289] metrics opened a grouped update for the onboarding wiki tooling:\n    - markdown-lint 6.16.3 to 6.6.2\n    - image-optimizer 1.10.3 to 4.6.0\n    - spellcheck dictionary 4.6.3 to 1.13.7\n- [e290] Review thread on tools/fmt.mjs (6 comments):\n  Dara: done, and I fixed the heading levels too.\n  Tove: the table in section 7 renders badly on small screens.\n  Uma: can we move the long examples to an appendix?\n  Vik: moved them; the page is 67 percent shorter now.\n- [e291] According to netsec-policy NSP-1042 version 17, the rate limit per client per second is `20`.\n  From the design discussion led by Uma.\n- [e292] In chat, Chen asked whether the connection idle timeout in seconds could be `45`. The question was closed without a change.\n  Uma and Pita were in the discussion.\n  From the design discussion led by Vik.\n- [e293] Chat excerpt from #team-chat:\n  Mei: ok, thanks\n  Gus: lunch at 14:05? the new place near the station\n  Uma: reminder that the lint config poll closes on Thursday\n- [e294] Ticket DOC-854: broken anchors on a help page\n  Reporter: Yara. Priority: low.\n  The page .editorconfig has 4 broken anchors after the last rename.\n  Quinn will fix it after the build cache work.\n  Status: open, no due date.\n- [e295] Ticket DOC-674: broken anchors on a help page\n  Reporter: Pita. Priority: low.\n  The page docs/glossary.md has 8 broken anchors after the last rename.\n  Hana will fix it after the help center work.\n  Related: a similar report from Wednesday was closed as a duplicate.\n"
+        },
+        {
+          "path": "inbox/s5/notes-02.md",
+          "content": "# Team notes, stage 5, part 4\n\n- [e318] Review thread on web/favicon.ico (8 comments):\n  Dara: done, and I fixed the heading levels too.\n  Femi: the table in section 3 renders badly on small screens.\n  Ana: nit: trailing spaces on line 29.\n- [e319] Calendar update from calendar:\n  - room booking for the release notes retro is confirmed\n  - Nils is on leave from Wednesday for 6 days\n- [e321] Calendar update from chat-relay:\n  - the status page demo moves to 14:22 on Friday\n  - room booking for the test fixtures retro is confirmed\n  - Oona is on leave from Thursday for 4 days\n- [e322] Calendar update from ci-bot:\n  - room booking for the test fixtures retro is confirmed\n  - Oona hosts the next lunch talk about typography\n- [e323] chat-relay weekly numbers for the lint config:\n    page views 5783\n    median load 369 ms\n    error rate 0.05 percent\n    the numbers are inside the usual band\n- [e324] Calendar update from metrics:\n  - the onboarding wiki demo moves to 12:44 on Tuesday\n  - room booking for the office wifi retro is confirmed\n  - Tove is on leave from Tuesday for 9 days\n  - the all-hands slides are due on Thursday\n- [e326] Review thread on ci/cache.yml (4 comments):\n  Oona: done, and I fixed the heading levels too.\n  Nils: nit: trailing spaces on line 69.\n  Femi: can we move the long examples to an appendix?\n  Hana: approved, merge when the checks are green.\n- [e327] Style guide excerpt, section 9.9:\n  Use sentence case for headings.\n  Keep tables under 6 columns.\n  Write numbers below ten as words in running text.\n  Name the button exactly as the screen shows it.\n- [e328] Read-only export of the spellcheck configuration for the docs site:\n    max_line_length = 752\n    theme = \"slate-7\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 64\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e329] Calendar update from cache-bot:\n  - the dependabot demo moves to 14:55 on Wednesday\n  - Eli hosts the next lunch talk about typography\n- [e330] ci-bot weekly numbers for the onboarding wiki:\n    page views 4154\n    median load 956 ms\n    the numbers are inside the usual band\n- [e331] Notes from the sprint board sync on Wednesday:\n  Yara showed the new layout of the release notes.\n  Zed asked for a darker header; Zed will try two variants.\n  The group will look at the team calendar again in 6 weeks.\n  Femi said that the office printer works again.\n  Nothing in this sync touches the project itself.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s5-chat-1",
+          "content": "== chat export, stage 5, part 2 ==\n[e296] 10:39 Notes from the status page sync on Monday:\n    Sami showed the new layout of the build cache.\n    Oona asked for a darker header; Yara will try two variants.\n    The group will look at the team calendar again in 3 weeks.\n    Lars said that the office printer works again.\n    Nothing in this sync touches the project itself.\n[e297] 10:42 Style guide excerpt, section 9.6:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e298] 10:45 Read-only export of the link-checker configuration for the lint config:\n      cache_hours = 9\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 59\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n      report_format = \"text\"\n[e299] 10:48 Old printout of team-chat-log CHAT-614 version 10, made at the time of entry e082: it says the MTU size in bytes is `1280`. This is a historical copy, not a new statement.\n    Tove reacted with a thumbs-up\n[e300] 10:51 Calendar update from metrics:\n    - the code owners file demo moves to 13:08 on Wednesday\n    - room booking for the release notes retro is confirmed\n    - Bo is on leave from Wednesday for 6 days\n    - Rosa hosts the next lunch talk about typography\n[e301] 10:54 Review thread on .editorconfig (3 comments):\n    Yara: please wrap this paragraph at 66 characters.\n    Quinn: done, and I fixed the heading levels too.\n    Femi: nit: trailing spaces on line 35.\n    Femi: moved them; the page is 61 percent shorter now.\n[e302] 10:57 lint-bot weekly numbers for the sprint board:\n      page views 6214\n      error rate 0.04 percent\n      uptime 99.94 percent\n      the numbers are inside the usual band\n[e303] 11:00 In chat, Femi asked whether the connection idle timeout in seconds could be `90`. The question was closed without a change.\n    thread replies: 4\n[e304] 11:03 Calendar update from calendar:\n    - room booking for the CI runners retro is confirmed\n    - the all-hands slides are due on Friday\n[e305] 11:06 Jun proposed `ejbca-pki` for the certificate authority again. No decision was made; nothing changes.\n    thread replies: 7\n    Pita reacted with a thumbs-up\n[e306] 11:09 Review thread on ci/cache.yml (3 comments):\n    Hana: please wrap this paragraph at 86 characters.\n    Uma: the table in section 6 renders badly on small screens.\n    Ana: can we move the long examples to an appendix?\n"
+        },
+        {
+          "name": "s5-board-2",
+          "content": "== board export, stage 5, part 3 ==\n[e307] 11:12 Uma linked the dashboard page about the MTU size in bytes in the weekly notes. Nobody proposed a change.\n    card id 637\n    card updated by Quinn\n[e308] 11:15 Notes from the docs site sync on Friday:\n    Kira showed the new layout of the help center.\n    Yara asked for a darker header; Eli will try two variants.\n    The group will look at the dependabot again in 2 weeks.\n    Chen said that the office printer works again.\n    Nothing in this sync touches the project itself.\n[e309] 11:18 Read-only export of the docs-builder configuration for the team calendar:\n      max_line_length = 236\n      runner_pool = \"pool-7\"\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 22\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n      report_format = \"text\"\n[e310] 11:21 Read-only export of the link-checker configuration for the team calendar:\n      max_line_length = 862\n      runner_pool = \"pool-8\"\n      notify_channel = \"#team-chat\"\n      report_format = \"text\"\n[e311] 11:24 Notes from the code owners file sync on Friday:\n    Bo showed the new layout of the office wifi.\n    Tove asked for a darker header; Wren will try two variants.\n    Nils said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Rosa shared a short survey; 4 people answered so far.\n[e312] 11:27 docs-bot run 755 summary:\n      step lint ok, 73 files\n      step docs-build ok, 43 pages\n      step upload ok, 647 KB\n      step notify ok, channel team-chat\n      cache restore hit rate 55%\n      total duration 2m 20s, no warnings\n[e313] 11:30 Chat excerpt from #team-chat:\n    Yara: is anyone else seeing the slow CI runners page?\n    Oona: yes, it is the image cache, it clears itself after 3 minutes\n    Wren: reminder that the error pages poll closes on Tuesday\n[e314] 11:33 Ticket DOC-937: broken anchors on a help page\n    Reporter: Nils. Priority: low.\n    The page web/favicon.ico has 4 broken anchors after the last rename.\n    Lars will fix it after the team calendar work.\n    Related: a similar report from Monday was closed as a duplicate.\n[e315] 11:36 Read-only export of the image-optimizer configuration for the team calendar:\n      theme = \"slate-5\"\n      cache_hours = 8\n      preview_pages = true\n      report_format = \"text\"\n[e316] 11:39 Old printout of ops-runbook RUN-771 version 12, made at the time of entry e165: it says the strict SNI mode is `ON`. This is a historical copy, not a new statement.\n    card id 437\n    card updated by Chen\n"
+        },
+        {
+          "name": "s5-ops-log",
+          "content": "== ops-log export, stage 5 ==\n[e244] 08:03 lint-bot: job #319 finished status=ok duration=5.60s cache=warm artifacts=62 warnings=0 runner=pool-9 note=routine nightly sweep of the retro notes, nothing to report\n    next_run=in 7h window=13:30\n[e245] 08:06 chat-relay: build 224 for the CI runners reused 78% of cached layers; image size unchanged; upload time 4s; retention policy applied to 87 old images\n    worker=pool-9 attempt=1 result=ok\n[e246] 08:09 cache-bot: Rosa edited docs/faq.md (+3 -50 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-2 attempt=1 result=ok\n    upstream=status-page latency=790ms\n[e247] 08:12 docs-bot: metrics rollup for the team calendar: p50=7ms p95=119ms errors=0 sample=893 requests; values inside the usual band for this hour\n    retention applied to 42 items\n    owner=docs-team escalation=none\n[e248] 08:15 calendar: job #996 finished status=ok duration=8.21s cache=warm artifacts=29 warnings=0 runner=pool-3 note=routine nightly sweep of the sprint board, nothing to report\n    worker=pool-5 attempt=1 result=ok\n    upstream=status-page latency=566ms\n[e249] 08:18 cache-bot: Oona edited notes/retro.md (+7 -79 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-6 attempt=1 result=ok\n    trace=t-26546 span_count=19 dropped=0\n    owner=docs-team escalation=none\n[e250] 08:21 cache-bot: dependency audit of the lint config tooling found 35 minor updates; none are security related; the bot will open grouped updates later\n    upstream=status-page latency=611ms\n[e251] 08:24 docs-bot: Femi edited docs/glossary.md (+2 -93 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=322ms\n    retention applied to 48 items\n    trace=t-79382 span_count=66 dropped=0\n[e252] 08:27 lint-bot: metrics rollup for the CI runners: p50=3ms p95=707ms errors=0 sample=996 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    retention applied to 64 items\n    owner=docs-team escalation=none\n[e253] 08:30 metrics: metrics rollup for the team calendar: p50=2ms p95=218ms errors=0 sample=584 requests; values inside the usual band for this hour\n    worker=pool-2 attempt=1 result=ok\n[e254] 08:33 lint-bot: job #531 finished status=ok duration=5.66s cache=warm artifacts=69 warnings=0 runner=pool-3 note=routine nightly sweep of the storybook, nothing to report\n    worker=pool-4 attempt=1 result=ok\n    note: routine, no operator action\n    next_run=in 4h window=13:31\n[e255] 08:36 docs-bot: Nils and Ana booked the small room for the changelog bot chat at 11:41; duration 6 minutes; no agenda attached\n    upstream=status-page latency=236ms\n[e256] 08:39 cache-bot: heartbeat seq=787 queue_depth=80 oldest_item_age=5s workers=45 cpu=49% mem=88% area=\"dependabot\" outcome=nominal, no operator action\n    worker=pool-4 attempt=1 result=ok\n    upstream=status-page latency=252ms\n    owner=docs-team escalation=none\n[e257] 08:42 docs-bot: cleanup removed 51 temp folders under docs/faq.md freed 753 MB; next cleanup scheduled; disk usage at 69% of quota\n    trace=t-99011 span_count=23 dropped=0\n[e260] 08:51 lint-bot: heartbeat seq=888 queue_depth=27 oldest_item_age=6s workers=62 cpu=41% mem=87% area=\"CI runners\" outcome=nominal, no operator action\n    worker=pool-2 attempt=1 result=ok\n[e261] 08:54 lint-bot: Rosa and Nils booked the small room for the build cache chat at 12:18; duration 5 minutes; no agenda attached\n    retention applied to 72 items\n    owner=docs-team escalation=none\n[e262] 08:57 metrics: link checker visited 545 pages of the retro notes; broken=0; redirected=24; slowest page answered in 434ms\n    note: routine, no operator action\n    upstream=status-page latency=369ms\n    owner=docs-team escalation=none\n[e263] 09:00 calendar: heartbeat seq=997 queue_depth=80 oldest_item_age=2s workers=32 cpu=85% mem=71% area=\"build cache\" outcome=nominal, no operator action\n    retention applied to 94 items\n    next_run=in 7h window=10:27\n[e264] 09:03 calendar: metrics rollup for the test fixtures: p50=4ms p95=834ms errors=0 sample=694 requests; values inside the usual band for this hour\n    retention applied to 97 items\n[e265] 09:06 cache-bot: scan of web/favicon.ico complete files_checked=657 issues_new=0 issues_closed=94 duration=2s; trend flat compared with the previous 8 runs\n    worker=pool-9 attempt=1 result=ok\n    upstream=status-page latency=524ms\n    retention applied to 77 items\n[e266] 09:09 ci-bot: cleanup removed 83 temp folders under scripts/lint.sh freed 712 MB; next cleanup scheduled; disk usage at 44% of quota\n    note: routine, no operator action\n    retention applied to 30 items\n[e267] 09:12 docs-bot: Zed opened a chat thread about the build cache; replies=4; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    retention applied to 10 items\n    owner=docs-team escalation=none\n    next_run=in 6h window=18:15\n[e268] 09:15 docs-bot: Femi and Uma booked the small room for the status page chat at 18:46; duration 5 minutes; no agenda attached\n    trace=t-63393 span_count=87 dropped=0\n[e269] 09:18 ci-bot: link checker visited 377 pages of the sprint board; broken=0; redirected=62; slowest page answered in 632ms\n    upstream=status-page latency=558ms\n    owner=docs-team escalation=none\n[e270] 09:21 chat-relay: calendar sync imported 3 events for the status page; conflicts=0; reminders_sent=64; the import window covered the next 99 days\n    retention applied to 44 items\n    owner=docs-team escalation=none\n    next_run=in 4h window=15:54\n[e271] 09:24 docs-bot: Vik and Nils booked the small room for the CI runners chat at 09:35; duration 6 minutes; no agenda attached\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e274] 09:33 calendar: heartbeat seq=454 queue_depth=62 oldest_item_age=7s workers=99 cpu=78% mem=79% area=\"changelog bot\" outcome=nominal, no operator action\n    trace=t-61011 span_count=55 dropped=0\n    owner=docs-team escalation=none\n    next_run=in 4h window=11:39\n[e276] 09:39 chat-relay: heartbeat seq=384 queue_depth=23 oldest_item_age=8s workers=33 cpu=64% mem=56% area=\"office wifi\" outcome=nominal, no operator action\n    worker=pool-5 attempt=1 result=ok\n[e277] 09:42 metrics: cleanup removed 10 temp folders under tools/fmt.mjs freed 855 MB; next cleanup scheduled; disk usage at 55% of quota\n    next_run=in 9h window=09:32\n[e278] 09:45 metrics: scan of scripts/lint.sh complete files_checked=343 issues_new=0 issues_closed=14 duration=8s; trend flat compared with the previous 3 runs\n    worker=pool-2 attempt=1 result=ok\n    trace=t-85363 span_count=31 dropped=0\n[e279] 09:48 docs-bot: cleanup removed 95 temp folders under .editorconfig freed 329 MB; next cleanup scheduled; disk usage at 68% of quota\n    note: routine, no operator action\n    next_run=in 6h window=13:13\n[e281] 09:54 calendar: Yara opened a chat thread about the office wifi; replies=9; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    owner=docs-team escalation=none\n[e282] 09:57 cache-bot: metrics rollup for the team calendar: p50=8ms p95=275ms errors=0 sample=665 requests; values inside the usual band for this hour\n    worker=pool-7 attempt=1 result=ok\n    upstream=status-page latency=210ms\n    owner=docs-team escalation=none\n[e283] 10:00 ci-bot: link checker visited 393 pages of the code owners file; broken=0; redirected=93; slowest page answered in 713ms\n    owner=docs-team escalation=none\n[e284] 10:03 docs-bot: dependency audit of the lint config tooling found 57 minor updates; none are security related; the bot will open grouped updates later\n    trace=t-80439 span_count=48 dropped=0\n[e285] 10:06 metrics: job #641 finished status=ok duration=3.97s cache=warm artifacts=84 warnings=0 runner=pool-3 note=routine nightly sweep of the office wifi, nothing to report\n    retention applied to 64 items\n[e286] 10:09 metrics: dependency audit of the storybook tooling found 18 minor updates; none are security related; the bot will open grouped updates later\n    owner=docs-team escalation=none\n[e287] 10:12 lint-bot: link checker visited 971 pages of the release notes; broken=0; redirected=21; slowest page answered in 739ms\n    worker=pool-5 attempt=1 result=ok\n[e288] 10:15 ci-bot: calendar sync imported 6 events for the error pages; conflicts=0; reminders_sent=72; the import window covered the next 78 days\n    worker=pool-3 attempt=1 result=ok\n    trace=t-56066 span_count=18 dropped=0\n    owner=docs-team escalation=none\n[e317] 11:42 CHG-9777 Decision: the base container image is now `baseimg-d42`.\n    source=calendar level=info actor=Tove\n    request_id=r-29633\n[e320] 11:51 CHG-9777 Decision: the base container image is now `baseimg-d45`.\n    request_id=r-67425\n    source=calendar level=info actor=Sami\n[e325] 12:06 CHG-9777 After the review, the team settled on `baseimg-d44` for the base container image.\n    source=chat-relay level=info actor=Ivo\n    request_id=r-16343\n"
+        }
+      ],
+      "eventIds": [
+        "e244",
+        "e245",
+        "e246",
+        "e247",
+        "e248",
+        "e249",
+        "e250",
+        "e251",
+        "e252",
+        "e253",
+        "e254",
+        "e255",
+        "e256",
+        "e257",
+        "e258",
+        "e259",
+        "e260",
+        "e261",
+        "e262",
+        "e263",
+        "e264",
+        "e265",
+        "e266",
+        "e267",
+        "e268",
+        "e269",
+        "e270",
+        "e271",
+        "e272",
+        "e273",
+        "e274",
+        "e275",
+        "e276",
+        "e277",
+        "e278",
+        "e279",
+        "e280",
+        "e281",
+        "e282",
+        "e283",
+        "e284",
+        "e285",
+        "e286",
+        "e287",
+        "e288",
+        "e289",
+        "e290",
+        "e291",
+        "e292",
+        "e293",
+        "e294",
+        "e295",
+        "e296",
+        "e297",
+        "e298",
+        "e299",
+        "e300",
+        "e301",
+        "e302",
+        "e303",
+        "e304",
+        "e305",
+        "e306",
+        "e307",
+        "e308",
+        "e309",
+        "e310",
+        "e311",
+        "e312",
+        "e313",
+        "e314",
+        "e315",
+        "e316",
+        "e317",
+        "e318",
+        "e319",
+        "e320",
+        "e321",
+        "e322",
+        "e323",
+        "e324",
+        "e325",
+        "e326",
+        "e327",
+        "e328",
+        "e329",
+        "e330",
+        "e331"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s5-c1",
+          "kind": "file",
+          "name": "inbox/s5/design-01.md",
+          "bytes": 2498,
+          "events": [
+            "e258",
+            "e259",
+            "e272",
+            "e273",
+            "e275",
+            "e280",
+            "e289",
+            "e290",
+            "e291",
+            "e292",
+            "e293",
+            "e294",
+            "e295"
+          ]
+        },
+        {
+          "chunkId": "s5-c2",
+          "kind": "file",
+          "name": "inbox/s5/notes-02.md",
+          "bytes": 2460,
+          "events": [
+            "e318",
+            "e319",
+            "e321",
+            "e322",
+            "e323",
+            "e324",
+            "e326",
+            "e327",
+            "e328",
+            "e329",
+            "e330",
+            "e331"
+          ]
+        },
+        {
+          "chunkId": "s5-c3",
+          "kind": "feed",
+          "name": "s5-chat-1",
+          "bytes": 2531,
+          "events": [
+            "e296",
+            "e297",
+            "e298",
+            "e299",
+            "e300",
+            "e301",
+            "e302",
+            "e303",
+            "e304",
+            "e305",
+            "e306"
+          ]
+        },
+        {
+          "chunkId": "s5-c4",
+          "kind": "feed",
+          "name": "s5-board-2",
+          "bytes": 2558,
+          "events": [
+            "e307",
+            "e308",
+            "e309",
+            "e310",
+            "e311",
+            "e312",
+            "e313",
+            "e314",
+            "e315",
+            "e316"
+          ]
+        },
+        {
+          "chunkId": "s5-c5",
+          "kind": "feed",
+          "name": "s5-ops-log",
+          "bytes": 9055,
+          "events": [
+            "e244",
+            "e245",
+            "e246",
+            "e247",
+            "e248",
+            "e249",
+            "e250",
+            "e251",
+            "e252",
+            "e253",
+            "e254",
+            "e255",
+            "e256",
+            "e257",
+            "e260",
+            "e261",
+            "e262",
+            "e263",
+            "e264",
+            "e265",
+            "e266",
+            "e267",
+            "e268",
+            "e269",
+            "e270",
+            "e271",
+            "e274",
+            "e276",
+            "e277",
+            "e278",
+            "e279",
+            "e281",
+            "e282",
+            "e283",
+            "e284",
+            "e285",
+            "e286",
+            "e287",
+            "e288",
+            "e317",
+            "e320",
+            "e325"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 6,
+      "prompt": "Stage 6 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s6/review-01.md, inbox/s6/minutes-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s6-log-1, s6-chat-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s6/review-01.md",
+          "content": "# Review comments, stage 6, part 1\n\n- [e332] Style guide excerpt, section 6.2:\n  Use sentence case for headings.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n- [e333] Ticket DOC-868: broken anchors on a help page\n  Reporter: Femi. Priority: low.\n  Dara will fix it after the lint config work.\n  Status: open, no due date.\n- [e334] Kira marked CHAT-172 as obsolete; none of its values apply any more.\n  Review round 7, reviewer Lars.\n  Thread started by Ana; Quinn replied with a thumbs-up.\n- [e335] lint-bot run 914 summary:\n    step checkout ok (9.28s)\n    step lint ok, 99 files\n    step upload ok, 774 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 86%\n    total duration 8m 72s, no warnings\n- [e336] Review thread on docs/glossary.md (6 comments):\n  Bo: please wrap this paragraph at 71 characters.\n  Jun: done, and I fixed the heading levels too.\n  Dara: the table in section 9 renders badly on small screens.\n  Ana: nit: trailing spaces on line 50.\n  Femi: approved, merge when the checks are green.\n- [e337] lint-bot run 231 summary:\n    step checkout ok (9.12s)\n    step lint ok, 22 files\n    step notify ok, channel team-chat\n- [e338] Review thread on docs/faq.md (3 comments):\n  Nils: please wrap this paragraph at 36 characters.\n  Ivo: done, and I fixed the heading levels too.\n  Dara: the table in section 7 renders badly on small screens.\n  Yara: moved them; the page is 84 percent shorter now.\n- [e339] Read-only export of the image-optimizer configuration for the build cache:\n    max_line_length = 717\n    theme = \"slate-2\"\n    cache_hours = 9\n    runner_pool = \"pool-3\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 76\n    preview_pages = true\n- [e340] Notes from the CI runners sync on Thursday:\n  Yara showed the new layout of the storybook.\n  Kira asked for a darker header; Pita will try two variants.\n  The group will look at the help center again in 6 weeks.\n  Nothing in this sync touches the project itself.\n- [e341] According to arch-review ARV-4 version 4, the health check interval in seconds is `48`.\n  Thread started by Gus; Quinn replied with a thumbs-up.\n- [e342] The ops-runbook document RUN-1107 (version 21) states that the strict SNI mode is `ON`.\n  Review round 9, reviewer Ivo.\n"
+        },
+        {
+          "path": "inbox/s6/minutes-02.md",
+          "content": "# Meeting minutes, stage 6, part 3\n\n- [e354] According to team-chat-log CHAT-1204 version 31, the connection idle timeout in seconds is `90`.\n  Minuted by Eli.\n- [e355] According to netsec-policy NSP-1059 version 19, the strict SNI mode is `OFF`.\n  Raised in the sprint board sync; attendees: Oona, Ivo and Uma.\n- [e356] Ticket DOC-520: broken anchors on a help page\n  Reporter: Zed. Priority: low.\n  The page README.md has 3 broken anchors after the last rename.\n  Eli will fix it after the storybook work.\n  Status: open, no due date.\n- [e357] The netsec-policy document NSP-1097 (version 21) states that the firewall default action is `fw-deny`.\n  Minuted by Femi.\n- [e358] Nils asked for a load test plan that covers the BGP community tag. The thread ended without a change.\n  Minuted by Jun.\n- [e359] Yara found a saved copy of ticket-comment TKT-515 version 10 from the time of entry e074. It says the VPN protocol is `wireguard-vpn`. The copy is history only and changes nothing.\n  Raised in the team calendar sync; attendees: Vik, Ana and Femi.\n  Action owner for the follow-up: Nils.\n- [e360] Calendar update from calendar:\n  - the onboarding wiki demo moves to 14:00 on Wednesday\n  - Eli hosts the next lunch talk about typography\n- [e361] cache-bot opened a grouped update for the design tokens tooling:\n    - markdown-lint 2.9.6 to 2.9.1\n    - spellcheck dictionary 2.16.8 to 7.12.9\n    The checks passed. No reviewer is assigned yet.\n- [e362] Retro notes of the status page group:\n  Went well: Wren cleared the docs backlog.\n  Went well: the docs site pages load faster.\n  Action: Dara books a room for the next retro.\n- [e363] Bo found a saved copy of ticket-comment TKT-506 version 9 from the time of entry e072. It says the certificate authority is `acme-ca`. The copy is history only and changes nothing.\n  Action owner for the follow-up: Chen.\n- [e364] Sami asked for a load test plan that covers the egress gateway. The thread ended without a change.\n  Minuted by Bo.\n  Action owner for the follow-up: Tove.\n- [e365] calendar weekly numbers for the lint config:\n    page views 2786\n    median load 871 ms\n    error rate 0.09 percent\n    searches without a result: 59\n    the numbers are inside the usual band\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s6-log-1",
+          "content": "== log export, stage 6, part 2 ==\n[e343] 08:36 lint-bot opened a grouped update for the CI runners tooling:\n      - markdown-lint 2.5.6 to 4.5.5\n      - link-checker 4.19.8 to 3.5.4\n      - image-optimizer 9.0.6 to 4.11.9\n      The checks passed. No reviewer is assigned yet.\n[e344] 08:39 Chat excerpt from #team-chat:\n    Lars: is anyone else seeing the slow retro notes page?\n    Quinn: yes, it is the image cache, it clears itself after 9 minutes\n    Jun: ok, thanks\n    Hana: lunch at 13:01? the new place near the station\n    Eli: count me in\n[e345] 08:42 According to ops-runbook RUN-1111 version 22, the DNS resolver is `unbound-res`.\n    source=lint-bot level=info actor=Ivo\n[e346] 08:45 The ticket-comment document TKT-1129 (version 19) states that the rate limit per client per second is `1000`.\n    source=metrics level=info actor=Ivo\n    request_id=r-46882\n[e347] 08:48 The ticket-comment document TKT-1163 (version 21) states that the load balancer mode is `lb-maglev`.\n    source=cache-bot level=info actor=Nils\n    request_id=r-71247\n[e348] 08:51 Style guide excerpt, section 5.6:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e349] 08:54 calendar weekly numbers for the CI runners:\n      median load 911 ms\n      error rate 0.04 percent\n      uptime 99.94 percent\n      searches without a result: 63\n      the numbers are inside the usual band\n[e350] 08:57 Notes from the lint config sync on Friday:\n    Yara asked for a darker header; Tove will try two variants.\n    The group will look at the changelog bot again in 4 weeks.\n    Kira said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Hana shared a short survey; 5 people answered so far.\n[e351] 09:00 Style guide excerpt, section 3.2:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n[e352] 09:03 Read-only export of the image-optimizer configuration for the storybook:\n      theme = \"slate-8\"\n      cache_hours = 5\n      keep_reports_days = 36\n      report_format = \"text\"\n[e353] 09:06 The team-chat-log document CHAT-1193 (version 29) states that the strict SNI mode is `OFF`.\n    request_id=r-55057\n"
+        },
+        {
+          "name": "s6-chat-2",
+          "content": "== chat export, stage 6, part 4 ==\n[e366] 09:45 Chen found a saved copy of team-chat-log CHAT-925 version 21 from the time of entry e186. It says the rate limit per client per second is `400`. The copy is history only and changes nothing.\n    Sami reacted with a thumbs-up\n[e367] 09:48 lint-bot opened a grouped update for the storybook tooling:\n      - markdown-lint 9.3.0 to 7.11.6\n      - image-optimizer 6.10.3 to 6.0.4\n      - spellcheck dictionary 2.2.5 to 9.4.4\n      The checks passed. No reviewer is assigned yet.\n[e368] 09:51 Notes from the build cache sync on Monday:\n    Gus asked for a darker header; Oona will try two variants.\n    Nils said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Nils shared a short survey; 5 people answered so far.\n[e369] 09:54 Read-only export of the docs-builder configuration for the status page:\n      max_line_length = 388\n      theme = \"slate-2\"\n      runner_pool = \"pool-3\"\n      keep_reports_days = 94\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e370] 09:57 Ana proposed `ON` for the packet capture mode again. No decision was made; nothing changes.\n    thread replies: 7\n[e371] 10:00 Notes from the code owners file sync on Thursday:\n    Ana showed the new layout of the status page.\n    Chen asked for a darker header; Oona will try two variants.\n    The group will look at the lint config again in 4 weeks.\n    Nothing in this sync touches the project itself.\n[e372] 10:03 Yara wants better documentation about the connection idle timeout in seconds. This is a docs task only and changes nothing.\n    Eli reacted with a thumbs-up\n    thread replies: 4\n[e373] 10:06 Ticket DOC-244: broken anchors on a help page\n    Reporter: Hana. Priority: low.\n    The page docs/faq.md has 5 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Monday was closed as a duplicate.\n[e374] 10:09 lint-bot weekly numbers for the docs site:\n      error rate 0.02 percent\n      uptime 99.99 percent\n      searches without a result: 27\n      the numbers are inside the usual band\n[e375] 10:12 Retro notes of the onboarding wiki group:\n    To improve: shorter standups on Tuesday.\n    Action: Vik books a room for the next retro.\n    Action: Dara collects ideas for the team offsite.\n[e376] 10:15 Old printout of netsec-policy NSP-1042 version 17, made at the time of entry e291: it says the rate limit per client per second is `20`. This is a historical copy, not a new statement.\n    thread replies: 6\n[e377] 10:18 Old printout of arch-review ARV-1 version 1, made at the time of entry e012: it says the firewall default action is `fw-deny`. This is a historical copy, not a new statement.\n    Quinn reacted with a thumbs-up\n    thread replies: 9\n"
+        }
+      ],
+      "eventIds": [
+        "e332",
+        "e333",
+        "e334",
+        "e335",
+        "e336",
+        "e337",
+        "e338",
+        "e339",
+        "e340",
+        "e341",
+        "e342",
+        "e343",
+        "e344",
+        "e345",
+        "e346",
+        "e347",
+        "e348",
+        "e349",
+        "e350",
+        "e351",
+        "e352",
+        "e353",
+        "e354",
+        "e355",
+        "e356",
+        "e357",
+        "e358",
+        "e359",
+        "e360",
+        "e361",
+        "e362",
+        "e363",
+        "e364",
+        "e365",
+        "e366",
+        "e367",
+        "e368",
+        "e369",
+        "e370",
+        "e371",
+        "e372",
+        "e373",
+        "e374",
+        "e375",
+        "e376",
+        "e377"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s6-c1",
+          "kind": "file",
+          "name": "inbox/s6/review-01.md",
+          "bytes": 2289,
+          "events": [
+            "e332",
+            "e333",
+            "e334",
+            "e335",
+            "e336",
+            "e337",
+            "e338",
+            "e339",
+            "e340",
+            "e341",
+            "e342"
+          ]
+        },
+        {
+          "chunkId": "s6-c2",
+          "kind": "file",
+          "name": "inbox/s6/minutes-02.md",
+          "bytes": 2228,
+          "events": [
+            "e354",
+            "e355",
+            "e356",
+            "e357",
+            "e358",
+            "e359",
+            "e360",
+            "e361",
+            "e362",
+            "e363",
+            "e364",
+            "e365"
+          ]
+        },
+        {
+          "chunkId": "s6-c3",
+          "kind": "feed",
+          "name": "s6-log-1",
+          "bytes": 2363,
+          "events": [
+            "e343",
+            "e344",
+            "e345",
+            "e346",
+            "e347",
+            "e348",
+            "e349",
+            "e350",
+            "e351",
+            "e352",
+            "e353"
+          ]
+        },
+        {
+          "chunkId": "s6-c4",
+          "kind": "feed",
+          "name": "s6-chat-2",
+          "bytes": 2801,
+          "events": [
+            "e366",
+            "e367",
+            "e368",
+            "e369",
+            "e370",
+            "e371",
+            "e372",
+            "e373",
+            "e374",
+            "e375",
+            "e376",
+            "e377"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "prompt": "Stage 7 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s7/review-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s7-log-1, s7-log-2, s7-board-3.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s7/review-01.md",
+          "content": "# Review comments, stage 7, part 1\n\n- [e378] Retro notes of the sprint board group:\n  Went well: Wren cleared the docs backlog.\n  Went well: the status page pages load faster.\n  To improve: shorter standups on Thursday.\n  Action: Wren books a room for the next retro.\n- [e379] The netsec-policy document NSP-1227 (version 3) states that the BGP community tag is `bgp-65500`.\n  Thread started by Rosa; Sami replied with a thumbs-up.\n  Review round 5, reviewer Mei.\n- [e380] The team-chat-log document CHAT-1252 (version 32) states that the load balancer mode is `lb-maglev`.\n  Review round 5, reviewer Hana.\n  Thread started by Eli; Jun replied with a thumbs-up.\n- [e381] Retro notes of the help center group:\n  Went well: Mei cleared the docs backlog.\n  To improve: shorter standups on Tuesday.\n  Action: Uma books a room for the next retro.\n- [e382] The ticket-comment document TKT-1285 (version 22) states that the MTU size in bytes is `9001`.\n  Review round 4, reviewer Uma.\n  Thread started by Rosa; Bo replied with a thumbs-up.\n- [e383] According to ticket-comment TKT-1323 version 24, the load balancer mode is `lb-round-robin`.\n  Thread started by Chen; Gus replied with a thumbs-up.\n  Review round 6, reviewer Nils.\n- [e384] Style guide excerpt, section 4.3:\n  Write numbers below ten as words in running text.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e385] Ticket DOC-301: broken anchors on a help page\n  Reporter: Tove. Priority: low.\n  The page web/favicon.ico has 9 broken anchors after the last rename.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e386] Read-only export of the chat-relay configuration for the office wifi:\n    max_line_length = 883\n    theme = \"slate-4\"\n    runner_pool = \"pool-8\"\n    keep_reports_days = 92\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e387] According to ticket-comment TKT-1341 version 25, the firewall default action is `fw-reject`.\n  Thread started by Eli; Mei replied with a thumbs-up.\n  Review round 5, reviewer Bo.\n- [e388] The ops-runbook document RUN-1351 (version 23) states that the connection idle timeout in seconds is `360`.\n  Thread started by Yara; Sami replied with a thumbs-up.\n- [e389] The ticket-comment document TKT-1375 (version 27) states that the proxy protocol version is `proxy-v2`.\n  Review round 7, reviewer Oona.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s7-log-1",
+          "content": "== log export, stage 7, part 2 ==\n[e390] 08:39 The team-chat-log document CHAT-1389 (version 33) states that the packet capture mode is `OFF`.\n    request_id=r-10223\n[e391] 08:42 Read-only export of the chat-relay configuration for the CI runners:\n      theme = \"slate-7\"\n      runner_pool = \"pool-4\"\n      keep_reports_days = 84\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e392] 08:45 According to ops-runbook RUN-1405 version 25, the strict SNI mode is `ON`.\n    request_id=r-20950\n[e393] 08:48 The ops-runbook document RUN-1437 (version 26) states that the health check interval in seconds is `3`.\n    request_id=r-74940\n[e394] 08:51 Retro notes of the lint config group:\n    Went well: the release notes pages load faster.\n    To improve: shorter standups on Wednesday.\n    Action: Lars books a room for the next retro.\n[e395] 08:54 The netsec-policy document NSP-1123 (version 22) states that the DNS resolver is `coredns-res`.\n    request_id=r-89598\n[e396] 08:57 Style guide excerpt, section 5.8:\n    Use sentence case for headings.\n    Keep tables under 2 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e397] 09:00 According to netsec-policy NSP-1138 version 23, the proxy protocol version is `proxy-off`.\n    source=docs-bot level=info actor=Oona\n[e398] 09:03 Calendar update from lint-bot:\n    - the team calendar demo moves to 14:13 on Wednesday\n    - the all-hands slides are due on Friday\n    - Rosa hosts the next lunch talk about typography\n[e399] 09:06 Standup notes from Eli:\n    - yesterday: tidied the release notes pages and answered 2 questions in chat\n    - yesterday: reviewed 8 small pull requests about the dependabot\n    - blockers: none\n    - will demo the new error pages layout next week\n[e400] 09:09 The netsec-policy document NSP-1152 (version 25) states that the port range start is `55000`.\n    request_id=r-89299\n[e401] 09:12 chat-relay run 533 summary:\n      step checkout ok (6.83s)\n      step docs-build ok, 19 pages\n      step upload ok, 483 KB\n      cache restore hit rate 73%\n[e402] 09:15 The netsec-policy document NSP-1166 (version 27) states that the port range start is `49152`.\n    request_id=r-97971\n"
+        },
+        {
+          "name": "s7-log-2",
+          "content": "== log export, stage 7, part 3 ==\n[e403] 09:18 Standup notes from Chen:\n    - yesterday: tidied the office wifi pages and answered 2 questions in chat\n    - yesterday: reviewed 7 small pull requests about the dependabot\n    - today: pairing with Ana on docs/faq.md\n    - blockers: none\n    - will demo the new help center layout next week\n[e404] 09:21 Old printout of arch-review ARV-1 version 1, made at the time of entry e009: it says the proxy protocol version is `proxy-off`. This is a historical copy, not a new statement.\n    request_id=r-96391\n[e405] 09:24 lint-bot weekly numbers for the changelog bot:\n      page views 8975\n      median load 477 ms\n      uptime 99.99 percent\n      searches without a result: 44\n[e406] 09:27 Chen found a saved copy of ops-runbook RUN-1107 version 21 from the time of entry e342. It says the strict SNI mode is `ON`. The copy is history only and changes nothing.\n    source=chat-relay level=info actor=Vik\n    request_id=r-67133\n[e407] 09:30 ci-bot weekly numbers for the help center:\n      page views 9386\n      median load 962 ms\n      error rate 0.04 percent\n      searches without a result: 91\n      the numbers are inside the usual band\n[e408] 09:33 Vik asked for a load test plan that covers the DNS resolver. The thread ended without a change.\n    source=metrics level=info actor=Lars\n    request_id=r-56454\n[e409] 09:36 Review thread on docs/style.md (7 comments):\n    Femi: please wrap this paragraph at 42 characters.\n    Jun: done, and I fixed the heading levels too.\n    Femi: the table in section 2 renders badly on small screens.\n    Oona: nit: trailing spaces on line 31.\n    Nils: can we move the long examples to an appendix?\n[e410] 09:39 Ticket DOC-350: broken anchors on a help page\n    Reporter: Yara. Priority: low.\n    Uma will fix it after the code owners file work.\n    Status: open, no due date.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e411] 09:42 Pita found a saved copy of ticket-comment TKT-1163 version 21 from the time of entry e347. It says the load balancer mode is `lb-maglev`. The copy is history only and changes nothing.\n    source=metrics level=info actor=Bo\n[e412] 09:45 Oona wants better documentation about the IPv6 dual stack mode. This is a docs task only and changes nothing.\n    request_id=r-30840\n    source=docs-bot level=info actor=Gus\n"
+        },
+        {
+          "name": "s7-board-3",
+          "content": "== board export, stage 7, part 4 ==\n[e413] 09:48 docs-bot run 541 summary:\n      step checkout ok (5.68s)\n      step lint ok, 51 files\n      step upload ok, 930 KB\n      step notify ok, channel team-chat\n      total duration 7m 29s, no warnings\n[e414] 09:51 In chat, Gus asked whether the firewall default action could be `fw-allow-log`. The question was closed without a change.\n    card updated by Vik\n    card id 454\n[e415] 09:54 Old printout of team-chat-log CHAT-172 version 1, made at the time of entry e019: it says the VPN protocol is `openvpn-udp`. This is a historical copy, not a new statement.\n    card id 863\n    card updated by Hana\n[e416] 09:57 Sami wants better documentation about the VPN protocol. This is a docs task only and changes nothing.\n    card updated by Lars\n[e417] 10:00 Retro notes of the retro notes group:\n    Went well: the status page pages load faster.\n    To improve: shorter standups on Tuesday.\n    Action: Femi books a room for the next retro.\n[e418] 10:03 Old printout of arch-review ARV-2 version 2, made at the time of entry e022: it says the BGP community tag is `bgp-65010`. This is a historical copy, not a new statement.\n    card id 383\n    card updated by Eli\n[e419] 10:06 Uma linked the dashboard page about the IPv6 dual stack mode in the weekly notes. Nobody proposed a change.\n    card id 475\n[e420] 10:09 Standup notes from Lars:\n    - today: rewriting the intro paragraph of the retro notes guide\n    - blockers: none\n    - will demo the new test fixtures layout next week\n[e421] 10:12 Question from Hana: who reviews changes to the load balancer mode? Answer: the usual reviewers. Nothing changes.\n    card updated by Tove\n    card id 273\n[e422] 10:15 Old printout of ops-runbook RUN-771 version 12, made at the time of entry e165: it says the strict SNI mode is `ON`. This is a historical copy, not a new statement.\n    card id 774\n    card updated by Quinn\n[e423] 10:18 Jun found a saved copy of ops-runbook RUN-302 version 4 from the time of entry e028. It says the DNS resolver is `dnsmasq-res`. The copy is history only and changes nothing.\n    card updated by Eli\n    card id 531\n[e424] 10:21 Chat excerpt from #team-chat:\n    Lars: is anyone else seeing the slow code owners file page?\n    Lars: yes, it is the image cache, it clears itself after 2 minutes\n    Uma: ok, thanks\n    Dara: count me in\n[e425] 10:24 lint-bot weekly numbers for the help center:\n      page views 2932\n      error rate 0.03 percent\n      uptime 99.95 percent\n      searches without a result: 32\n      the numbers are inside the usual band\n"
+        }
+      ],
+      "eventIds": [
+        "e378",
+        "e379",
+        "e380",
+        "e381",
+        "e382",
+        "e383",
+        "e384",
+        "e385",
+        "e386",
+        "e387",
+        "e388",
+        "e389",
+        "e390",
+        "e391",
+        "e392",
+        "e393",
+        "e394",
+        "e395",
+        "e396",
+        "e397",
+        "e398",
+        "e399",
+        "e400",
+        "e401",
+        "e402",
+        "e403",
+        "e404",
+        "e405",
+        "e406",
+        "e407",
+        "e408",
+        "e409",
+        "e410",
+        "e411",
+        "e412",
+        "e413",
+        "e414",
+        "e415",
+        "e416",
+        "e417",
+        "e418",
+        "e419",
+        "e420",
+        "e421",
+        "e422",
+        "e423",
+        "e424",
+        "e425"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s7-c1",
+          "kind": "file",
+          "name": "inbox/s7/review-01.md",
+          "bytes": 2357,
+          "events": [
+            "e378",
+            "e379",
+            "e380",
+            "e381",
+            "e382",
+            "e383",
+            "e384",
+            "e385",
+            "e386",
+            "e387",
+            "e388",
+            "e389"
+          ]
+        },
+        {
+          "chunkId": "s7-c2",
+          "kind": "feed",
+          "name": "s7-log-1",
+          "bytes": 2249,
+          "events": [
+            "e390",
+            "e391",
+            "e392",
+            "e393",
+            "e394",
+            "e395",
+            "e396",
+            "e397",
+            "e398",
+            "e399",
+            "e400",
+            "e401",
+            "e402"
+          ]
+        },
+        {
+          "chunkId": "s7-c3",
+          "kind": "feed",
+          "name": "s7-log-2",
+          "bytes": 2357,
+          "events": [
+            "e403",
+            "e404",
+            "e405",
+            "e406",
+            "e407",
+            "e408",
+            "e409",
+            "e410",
+            "e411",
+            "e412"
+          ]
+        },
+        {
+          "chunkId": "s7-c4",
+          "kind": "feed",
+          "name": "s7-board-3",
+          "bytes": 2577,
+          "events": [
+            "e413",
+            "e414",
+            "e415",
+            "e416",
+            "e417",
+            "e418",
+            "e419",
+            "e420",
+            "e421",
+            "e422",
+            "e423",
+            "e424",
+            "e425"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 8,
+      "prompt": "Stage 8 of 8. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s8/design-01.md, inbox/s8/ticket-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s8-ci-1, s8-board-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s8/design-01.md",
+          "content": "# Design discussion, stage 8, part 1\n\n- [e426] Tove marked ARV-5 as obsolete; none of its values apply any more.\n  From the design discussion led by Pita.\n- [e427] According to ops-runbook RUN-1476 version 28, the packet capture mode is `ON`.\n  Rosa and Mei were in the discussion.\n  From the design discussion led by Ana.\n- [e428] Read-only export of the chat-relay configuration for the onboarding wiki:\n    max_line_length = 194\n    cache_hours = 7\n    runner_pool = \"pool-9\"\n    keep_reports_days = 85\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n    report_format = \"text\"\n- [e429] The team-chat-log document CHAT-1498 (version 35) states that the IPv6 dual stack mode is `OFF`.\n  Mei and Zed were in the discussion.\n- [e430] According to ticket-comment TKT-1508 version 29, the DNS resolver is `coredns-res`.\n  Uma and Vik were in the discussion.\n  From the design discussion led by Quinn.\n- [e431] According to ops-runbook RUN-1536 version 30, the DNS resolver is `dnsmasq-res`.\n  From the design discussion led by Jun.\n- [e432] ci-bot opened a grouped update for the status page tooling:\n    - link-checker 4.5.3 to 5.5.7\n    - image-optimizer 8.6.3 to 1.11.9\n    - spellcheck dictionary 4.16.3 to 7.14.7\n    The checks passed. No reviewer is assigned yet.\n- [e433] Chat excerpt from #team-chat:\n  Zed: ok, thanks\n  Dara: lunch at 09:12? the new place near the station\n  Vik: count me in\n  Jun: reminder that the sprint board poll closes on Thursday\n- [e434] The ops-runbook document RUN-1557 (version 31) states that the load balancer mode is `lb-maglev`.\n  Gus and Eli were in the discussion.\n- [e435] The team-chat-log document CHAT-1580 (version 37) states that the proxy protocol version is `proxy-h2`.\n  From the design discussion led by Lars.\n- [e436] docs-bot opened a grouped update for the dependabot tooling:\n    - markdown-lint 4.18.9 to 6.17.4\n    - image-optimizer 1.19.8 to 1.13.1\n    The checks passed. No reviewer is assigned yet.\n- [e437] Chat excerpt from #team-chat:\n  Eli: yes, it is the image cache, it clears itself after 8 minutes\n  Vik: ok, thanks\n  Gus: lunch at 15:54? the new place near the station\n  Femi: count me in\n  Mei: reminder that the help center poll closes on Tuesday\n"
+        },
+        {
+          "path": "inbox/s8/ticket-02.md",
+          "content": "# Ticket thread, stage 8, part 3\n\n- [e450] Chat excerpt from #team-chat:\n  Kira: yes, it is the image cache, it clears itself after 8 minutes\n  Dara: count me in\n  Uma: reminder that the release notes poll closes on Wednesday\n- [e451] Dara found a saved copy of netsec-policy NSP-981 version 15 from the time of entry e125. It says the proxy protocol version is `proxy-h2`. The copy is history only and changes nothing.\n  Comment by Gus on ticket OPS-635.\n- [e452] Question from Lars: who reviews changes to the MTU size in bytes? Answer: the usual reviewers. Nothing changes.\n  Comment by Tove on ticket OPS-490.\n  Watchers: Eli, Dara.\n- [e453] Style guide excerpt, section 5.2:\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e454] Review thread on .editorconfig (5 comments):\n  Chen: done, and I fixed the heading levels too.\n  Ivo: the table in section 8 renders badly on small screens.\n  Bo: can we move the long examples to an appendix?\n  Pita: approved, merge when the checks are green.\n- [e455] Nils proposed `lb-ip-hash` for the load balancer mode again. No decision was made; nothing changes.\n  Watchers: Pita, Mei.\n- [e456] Old printout of arch-review ARV-1 version 1, made at the time of entry e003: it says the BGP community tag is `bgp-65001`. This is a historical copy, not a new statement.\n  Comment by Dara on ticket OPS-111.\n- [e457] Chat excerpt from #team-chat:\n  Zed: is anyone else seeing the slow release notes page?\n  Gus: yes, it is the image cache, it clears itself after 5 minutes\n  Gus: lunch at 13:16? the new place near the station\n- [e458] chat-relay run 443 summary:\n    step checkout ok (9.30s)\n    step lint ok, 76 files\n    step notify ok, channel team-chat\n    total duration 2m 98s, no warnings\n- [e459] Femi linked the dashboard page about the firewall default action in the weekly notes. Nobody proposed a change.\n  Linked from the team calendar board by Lars.\n- [e460] Old printout of arch-review ARV-1 version 1, made at the time of entry e008: it says the DNS resolver is `coredns-res`. This is a historical copy, not a new statement.\n  Watchers: Uma, Bo.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s8-ci-1",
+          "content": "== ci export, stage 8, part 2 ==\n[e438] 08:39 Retro notes of the retro notes group:\n    Went well: Quinn cleared the docs backlog.\n    To improve: shorter standups on Monday.\n    Action: Nils collects ideas for the team offsite.\n[e439] 08:42 The team-chat-log document CHAT-1607 (version 39) states that the certificate authority is `step-ca`.\n    pipeline note added by Ivo\n[e440] 08:45 The team-chat-log document CHAT-1616 (version 40) states that the DNS resolver is `coredns-res`.\n    pipeline note added by Wren\n    pipeline 74148\n[e441] 08:48 Review thread on docs/glossary.md (7 comments):\n    Mei: please wrap this paragraph at 69 characters.\n    Oona: nit: trailing spaces on line 20.\n    Kira: can we move the long examples to an appendix?\n    Femi: moved them; the page is 87 percent shorter now.\n    Uma: approved, merge when the checks are green.\n[e442] 08:51 The team-chat-log document CHAT-1655 (version 42) states that the packet capture mode is `OFF`.\n    pipeline 49527\n    pipeline note added by Eli\n[e443] 08:54 Chat excerpt from #team-chat:\n    Ana: is anyone else seeing the slow docs site page?\n    Femi: yes, it is the image cache, it clears itself after 6 minutes\n    Zed: lunch at 09:19? the new place near the station\n    Uma: reminder that the team calendar poll closes on Monday\n[e444] 08:57 The team-chat-log document CHAT-1675 (version 43) states that the proxy protocol version is `proxy-v1`.\n    pipeline note added by Eli\n[e445] 09:00 Standup notes from Zed:\n    - yesterday: reviewed 3 small pull requests about the office wifi\n    - today: pairing with Pita on docs/faq.md\n    - out early on Monday for a dentist visit\n    - updated the screenshots in docs/style.md\n[e446] 09:03 The netsec-policy document NSP-1173 (version 28) states that the rate limit per client per second is `150`.\n    pipeline note added by Tove\n    pipeline 69847\n[e447] 09:06 According to netsec-policy NSP-1189 version 30, the rate limit per client per second is `1000`.\n    pipeline 19474\n[e448] 09:09 The netsec-policy document NSP-1223 (version 32) states that the strict SNI mode is `ON`.\n    pipeline note added by Femi\n    pipeline 28847\n[e449] 09:12 Style guide excerpt, section 7.6:\n    Use sentence case for headings.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n"
+        },
+        {
+          "name": "s8-board-2",
+          "content": "== board export, stage 8, part 4 ==\n[e461] 09:48 Pita proposed `lb-round-robin` for the load balancer mode again. No decision was made; nothing changes.\n    card id 783\n[e462] 09:51 Old printout of team-chat-log CHAT-339 version 4, made at the time of entry e029: it says the load balancer mode is `lb-least-conn`. This is a historical copy, not a new statement.\n    card updated by Bo\n    card id 295\n[e463] 09:54 Old printout of ops-runbook RUN-1107 version 21, made at the time of entry e342: it says the strict SNI mode is `ON`. This is a historical copy, not a new statement.\n    card updated by Ivo\n[e464] 09:57 Old printout of ticket-comment TKT-1129 version 19, made at the time of entry e346: it says the rate limit per client per second is `1000`. This is a historical copy, not a new statement.\n    card updated by Eli\n[e465] 10:00 Retro notes of the CI runners group:\n    Went well: the test fixtures pages load faster.\n    To improve: shorter standups on Thursday.\n    Action: Sami books a room for the next retro.\n    Action: Uma collects ideas for the team offsite.\n[e466] 10:03 chat-relay weekly numbers for the error pages:\n      error rate 0.08 percent\n      uptime 99.93 percent\n      searches without a result: 46\n      the numbers are inside the usual band\n[e467] 10:06 Pita found a saved copy of ops-runbook RUN-138 version 2 from the time of entry e017. It says the health check interval in seconds is `24`. The copy is history only and changes nothing.\n    card id 763\n    card updated by Uma\n[e468] 10:09 Chat excerpt from #team-chat:\n    Chen: is anyone else seeing the slow office wifi page?\n    Zed: yes, it is the image cache, it clears itself after 6 minutes\n    Zed: ok, thanks\n    Ivo: reminder that the dependabot poll closes on Thursday\n[e469] 10:12 Old printout of team-chat-log CHAT-270 version 3, made at the time of entry e026: it says the IPv6 dual stack mode is `ON`. This is a historical copy, not a new statement.\n    card updated by Eli\n    card id 249\n[e470] 10:15 Old printout of arch-review ARV-1 version 1, made at the time of entry e016: it says the IPv6 dual stack mode is `ON`. This is a historical copy, not a new statement.\n    card updated by Chen\n[e471] 10:18 Retro notes of the team calendar group:\n    Went well: Dara cleared the docs backlog.\n    Went well: the brand assets pages load faster.\n    Action: Sami collects ideas for the team offsite.\n"
+        }
+      ],
+      "eventIds": [
+        "e426",
+        "e427",
+        "e428",
+        "e429",
+        "e430",
+        "e431",
+        "e432",
+        "e433",
+        "e434",
+        "e435",
+        "e436",
+        "e437",
+        "e438",
+        "e439",
+        "e440",
+        "e441",
+        "e442",
+        "e443",
+        "e444",
+        "e445",
+        "e446",
+        "e447",
+        "e448",
+        "e449",
+        "e450",
+        "e451",
+        "e452",
+        "e453",
+        "e454",
+        "e455",
+        "e456",
+        "e457",
+        "e458",
+        "e459",
+        "e460",
+        "e461",
+        "e462",
+        "e463",
+        "e464",
+        "e465",
+        "e466",
+        "e467",
+        "e468",
+        "e469",
+        "e470",
+        "e471"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s8-c1",
+          "kind": "file",
+          "name": "inbox/s8/design-01.md",
+          "bytes": 2234,
+          "events": [
+            "e426",
+            "e427",
+            "e428",
+            "e429",
+            "e430",
+            "e431",
+            "e432",
+            "e433",
+            "e434",
+            "e435",
+            "e436",
+            "e437"
+          ]
+        },
+        {
+          "chunkId": "s8-c2",
+          "kind": "file",
+          "name": "inbox/s8/ticket-02.md",
+          "bytes": 2240,
+          "events": [
+            "e450",
+            "e451",
+            "e452",
+            "e453",
+            "e454",
+            "e455",
+            "e456",
+            "e457",
+            "e458",
+            "e459",
+            "e460"
+          ]
+        },
+        {
+          "chunkId": "s8-c3",
+          "kind": "feed",
+          "name": "s8-ci-1",
+          "bytes": 2328,
+          "events": [
+            "e438",
+            "e439",
+            "e440",
+            "e441",
+            "e442",
+            "e443",
+            "e444",
+            "e445",
+            "e446",
+            "e447",
+            "e448",
+            "e449"
+          ]
+        },
+        {
+          "chunkId": "s8-c4",
+          "kind": "feed",
+          "name": "s8-board-2",
+          "bytes": 2405,
+          "events": [
+            "e461",
+            "e462",
+            "e463",
+            "e464",
+            "e465",
+            "e466",
+            "e467",
+            "e468",
+            "e469",
+            "e470",
+            "e471"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoint": {
+    "afterStage": 3,
+    "timing": "after_compaction",
+    "questions": [
+      {
+        "id": "c1",
+        "text": "At this point, under the precedence rule, what is the rate limit per client per second? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c2",
+        "text": "At this point, under the precedence rule, what is the load balancer mode?",
+        "type": "choice",
+        "options": [
+          "lb-ip-hash",
+          "lb-least-conn",
+          "lb-maglev",
+          "lb-round-robin"
+        ]
+      },
+      {
+        "id": "c3",
+        "text": "At this point, under the precedence rule, what is the BGP community tag?",
+        "type": "choice",
+        "options": [
+          "bgp-65001",
+          "bgp-65010",
+          "bgp-65100",
+          "bgp-65500"
+        ]
+      },
+      {
+        "id": "c4",
+        "text": "At this point, under the precedence rule, what is the VPN protocol?",
+        "type": "choice",
+        "options": [
+          "ipsec-ikev2",
+          "openvpn-udp",
+          "tailnet-vpn",
+          "wireguard-vpn"
+        ]
+      },
+      {
+        "id": "c5",
+        "text": "At this point, under the precedence rule, what is the DNS resolver?",
+        "type": "choice",
+        "options": [
+          "coredns-res",
+          "dnsmasq-res",
+          "knot-res",
+          "unbound-res"
+        ]
+      },
+      {
+        "id": "c6",
+        "text": "At this point, under the precedence rule, what is the proxy protocol version?",
+        "type": "choice",
+        "options": [
+          "proxy-h2",
+          "proxy-off",
+          "proxy-v1",
+          "proxy-v2"
+        ]
+      },
+      {
+        "id": "c7",
+        "text": "At this point, under the precedence rule, what is the health check interval in seconds? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c8",
+        "text": "At this point, under the precedence rule, what is the load balancer mode?",
+        "type": "choice",
+        "options": [
+          "lb-ip-hash",
+          "lb-least-conn",
+          "lb-maglev",
+          "lb-round-robin"
+        ]
+      },
+      {
+        "id": "c9",
+        "text": "At this point, under the precedence rule, what is the port range start? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c10",
+        "text": "At this point, under the precedence rule, what is the firewall default action?",
+        "type": "choice",
+        "options": [
+          "fw-allow-log",
+          "fw-deny",
+          "fw-drop",
+          "fw-reject"
+        ]
+      },
+      {
+        "id": "c11",
+        "text": "At this point, under the precedence rule, is the strict SNI mode ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "c12",
+        "text": "At this point, under the precedence rule, what is the rate limit per client per second? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c13",
+        "text": "At this point, which source decides the connection idle timeout in seconds?",
+        "type": "choice",
+        "options": [
+          "arch-review",
+          "netsec-policy",
+          "ops-runbook",
+          "team-chat-log",
+          "ticket-comment"
+        ]
+      },
+      {
+        "id": "c14",
+        "text": "At this point, under the precedence rule, what is the connection idle timeout in seconds? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c15",
+        "text": "At this point, under the precedence rule, what is the egress gateway?",
+        "type": "choice",
+        "options": [
+          "egress-envoy",
+          "egress-nat-a",
+          "egress-nat-b",
+          "egress-squid"
+        ]
+      },
+      {
+        "id": "c16",
+        "text": "At this point, under the precedence rule, is the IPv6 dual stack mode ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      }
+    ],
+    "probes": [
+      {
+        "afterStage": 3,
+        "questionIds": [
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5",
+          "c6"
+        ]
+      },
+      {
+        "afterStage": 5,
+        "questionIds": [
+          "c7",
+          "c8",
+          "c9",
+          "c10"
+        ]
+      },
+      {
+        "afterStage": 7,
+        "questionIds": [
+          "c11",
+          "c12",
+          "c13",
+          "c14",
+          "c15",
+          "c16"
+        ]
+      }
+    ]
+  },
+  "final": {
+    "questions": [
+      {
+        "id": "q1",
+        "text": "Under the precedence rule, what is the VPN protocol now?",
+        "type": "choice",
+        "options": [
+          "ipsec-ikev2",
+          "openvpn-udp",
+          "tailnet-vpn",
+          "wireguard-vpn"
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "Under the precedence rule, what is the BGP community tag now?",
+        "type": "choice",
+        "options": [
+          "bgp-65001",
+          "bgp-65010",
+          "bgp-65100",
+          "bgp-65500"
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "Under the precedence rule, what is the connection idle timeout in seconds now? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "q4",
+        "text": "Which source decides the connection idle timeout in seconds now?",
+        "type": "choice",
+        "options": [
+          "arch-review",
+          "netsec-policy",
+          "ops-runbook",
+          "team-chat-log",
+          "ticket-comment"
+        ]
+      },
+      {
+        "id": "q5",
+        "text": "Under the precedence rule, is the strict SNI mode ON now? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "q6",
+        "text": "Which value did the load balancer mode have under the very first specification?",
+        "type": "choice",
+        "options": [
+          "lb-ip-hash",
+          "lb-least-conn",
+          "lb-maglev",
+          "lb-round-robin"
+        ]
+      },
+      {
+        "id": "q7",
+        "text": "Under the precedence rule, what is the load balancer mode now?",
+        "type": "choice",
+        "options": [
+          "lb-ip-hash",
+          "lb-least-conn",
+          "lb-maglev",
+          "lb-round-robin"
+        ]
+      },
+      {
+        "id": "q8",
+        "text": "Under the precedence rule, what is the DNS resolver now?",
+        "type": "choice",
+        "options": [
+          "coredns-res",
+          "dnsmasq-res",
+          "knot-res",
+          "unbound-res"
+        ]
+      },
+      {
+        "id": "q9",
+        "text": "Under the precedence rule, what is the rate limit per client per second now? Answer with a number.",
+        "type": "int"
+      }
+    ]
+  }
+}

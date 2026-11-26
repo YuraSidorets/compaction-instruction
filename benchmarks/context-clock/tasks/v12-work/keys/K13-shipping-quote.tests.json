@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "taskId": "K13-shipping-quote",
+  "module": "src/shipping/quote.mjs",
+  "exportName": "quote",
+  "cases": [
+    {
+      "id": "t01",
+      "var": "freeThreshold",
+      "purpose": "replaced",
+      "other": 4000,
+      "args": [
+        {
+          "subtotalCents": 4000,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t02",
+      "var": "freeThreshold",
+      "purpose": "replaced",
+      "other": 5000,
+      "args": [
+        {
+          "subtotalCents": 5000,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t03",
+      "var": "freeThreshold",
+      "purpose": "current",
+      "other": 4500,
+      "args": [
+        {
+          "subtotalCents": 4500,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t04",
+      "var": "freeThreshold",
+      "purpose": "current",
+      "other": 7500,
+      "args": [
+        {
+          "subtotalCents": 7500,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t05",
+      "var": "freeThreshold",
+      "purpose": "current",
+      "other": 3500,
+      "args": [
+        {
+          "subtotalCents": 3500,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t06",
+      "var": "baseFee",
+      "purpose": "replaced",
+      "other": 599,
+      "args": [
+        {
+          "subtotalCents": 3499,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t07",
+      "var": "weightLimit",
+      "purpose": "replaced",
+      "other": 2500,
+      "args": [
+        {
+          "subtotalCents": 1000,
+          "weightGrams": 1001,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 699
+      }
+    },
+    {
+      "id": "t08",
+      "var": "expressFee",
+      "purpose": "replaced",
+      "other": 700,
+      "args": [
+        {
+          "subtotalCents": 99999,
+          "weightGrams": 500,
+          "country": "US",
+          "express": true
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 950
+      }
+    },
+    {
+      "id": "t09",
+      "var": "blocked",
+      "purpose": "replaced",
+      "other": [
+        "CU"
+      ],
+      "args": [
+        {
+          "subtotalCents": 2000,
+          "weightGrams": 800,
+          "country": "BY",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": false,
+        "reason": "blocked-country"
+      }
+    },
+    {
+      "id": "t10",
+      "var": "blocked",
+      "purpose": "current",
+      "other": [
+        "BY",
+        "CU",
+        "IR",
+        "RU"
+      ],
+      "args": [
+        {
+          "subtotalCents": 2000,
+          "weightGrams": 800,
+          "country": "RU",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t11",
+      "var": null,
+      "purpose": "general",
+      "other": null,
+      "args": [
+        {
+          "subtotalCents": 2000,
+          "weightGrams": 800,
+          "country": "KP",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t12",
+      "var": null,
+      "purpose": "general",
+      "other": null,
+      "args": [
+        {
+          "subtotalCents": 7501,
+          "weightGrams": 500,
+          "country": "DE",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 499
+      }
+    },
+    {
+      "id": "t13",
+      "var": null,
+      "purpose": "general",
+      "other": null,
+      "args": [
+        {
+          "subtotalCents": 3500,
+          "weightGrams": 1999,
+          "country": "IR",
+          "express": true
+        }
+      ],
+      "expect": {
+        "ok": false,
+        "reason": "blocked-country"
+      }
+    },
+    {
+      "id": "t14",
+      "var": null,
+      "purpose": "general",
+      "other": null,
+      "args": [
+        {
+          "subtotalCents": 99999,
+          "weightGrams": 3001,
+          "country": "FR",
+          "express": false
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 600
+      }
+    },
+    {
+      "id": "t15",
+      "var": null,
+      "purpose": "general",
+      "other": null,
+      "args": [
+        {
+          "subtotalCents": 4000,
+          "weightGrams": 1000,
+          "country": "SY",
+          "express": true
+        }
+      ],
+      "expect": {
+        "ok": true,
+        "shippingCents": 1449
+      }
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "schema": 1,
+  "batch": "v11-iso-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v11-iso",
+  "model": "haiku",
+  "seed": 1110,
+  "modes": [
+    "O",
+    "I",
+    "B",
+    "R"
+  ],
+  "reps": 2,
+  "tasksDir": "benchmarks/context-clock/tasks/v09/generated",
+  "taskSeeds": {
+    "A12-mobile-gateway": 1900034,
+    "D12-backup-policy": 1925001,
+    "W12-ledger-migration": 1950000,
+    "W12-shop-search": 1985000,
+    "X12-cdn-migration": 2035000,
+    "X12-data-retention": 2000000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": {
+    "pluginDir": "<overlay>",
+    "sourceSha": "8cd77944e872dc76e0d06609da89273c5f72ec49d2fef8854f6bd6b369631f22"
+  },
+  "limits": {
+    "run": {
+      "wallTimeMs": 1800000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 120,
+      "totalTokens": 3000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 70000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "D12-backup-policy",
+      "rep": 1,
+      "modes": [
+        "I",
+        "O",
+        "B",
+        "R"
+      ]
+    },
+    {
+      "block": 2,
+      "taskId": "W12-shop-search",
+      "rep": 1,
+      "modes": [
+        "I",
+        "R",
+        "O",
+        "B"
+      ]
+    },
+    {
+      "block": 3,
+      "taskId": "A12-mobile-gateway",
+      "rep": 1,
+      "modes": [
+        "O",
+        "R",
+        "B",
+        "I"
+      ]
+    },
+    {
+      "block": 4,
+      "taskId": "W12-ledger-migration",
+      "rep": 1,
+      "modes": [
+        "I",
+        "B",
+        "R",
+        "O"
+      ]
+    },
+    {
+      "block": 5,
+      "taskId": "W12-ledger-migration",
+      "rep": 2,
+      "modes": [
+        "B",
+        "R",
+        "O",
+        "I"
+      ]
+    },
+    {
+      "block": 6,
+      "taskId": "W12-shop-search",
+      "rep": 2,
+      "modes": [
+        "R",
+        "I",
+        "O",
+        "B"
+      ]
+    },
+    {
+      "block": 7,
+      "taskId": "A12-mobile-gateway",
+      "rep": 2,
+      "modes": [
+        "I",
+        "R",
+        "B",
+        "O"
+      ]
+    },
+    {
+      "block": 8,
+      "taskId": "X12-cdn-migration",
+      "rep": 2,
+      "modes": [
+        "B",
+        "I",
+        "O",
+        "R"
+      ]
+    },
+    {
+      "block": 9,
+      "taskId": "X12-data-retention",
+      "rep": 2,
+      "modes": [
+        "R",
+        "O",
+        "I",
+        "B"
+      ]
+    },
+    {
+      "block": 10,
+      "taskId": "D12-backup-policy",
+      "rep": 2,
+      "modes": [
+        "O",
+        "R",
+        "B",
+        "I"
+      ]
+    },
+    {
+      "block": 11,
+      "taskId": "X12-cdn-migration",
+      "rep": 1,
+      "modes": [
+        "I",
+        "B",
+        "R",
+        "O"
+      ]
+    },
+    {
+      "block": 12,
+      "taskId": "X12-data-retention",
+      "rep": 1,
+      "modes": [
+        "I",
+        "O",
+        "R",
+        "B"
+      ]
+    }
+  ],
+  "comparisons": [
+    "I-O",
+    "R-B",
+    "B-O",
+    "R-I"
+  ],
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": {
+    "file": "configs/precompact-general-instruction.txt",
+    "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+  },
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "O": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ]
+      },
+      "I": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          },
+          {
+            "event": "PreCompact",
+            "matcher": null,
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/precompact-hook.mjs\""
+          }
+        ]
+      }
+    }
+  },
+  "precompactPlainInstruction": {
+    "file": "configs/precompact-general-instruction.txt",
+    "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+  },
+  "precompactProductInstruction": null,
+  "autoCompact": false,
+  "autoCompactWindow": null,
+  "promptVersion": 1,
+  "benchmarkCommit": "bb5f223318b621a411035204d8c1e82bf46caf20",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__D12-backup-policy__I__r1",
+    "claude__D12-backup-policy__O__r1",
+    "claude__D12-backup-policy__B__r1",
+    "claude__D12-backup-policy__R__r1",
+    "claude__W12-shop-search__I__r1",
+    "claude__W12-shop-search__R__r1",
+    "claude__W12-shop-search__O__r1",
+    "claude__W12-shop-search__B__r1",
+    "claude__A12-mobile-gateway__O__r1",
+    "claude__A12-mobile-gateway__R__r1",
+    "claude__A12-mobile-gateway__B__r1",
+    "claude__A12-mobile-gateway__I__r1",
+    "claude__W12-ledger-migration__I__r1",
+    "claude__W12-ledger-migration__B__r1",
+    "claude__W12-ledger-migration__R__r1",
+    "claude__W12-ledger-migration__O__r1",
+    "claude__W12-ledger-migration__B__r2",
+    "claude__W12-ledger-migration__R__r2",
+    "claude__W12-ledger-migration__O__r2",
+    "claude__W12-ledger-migration__I__r2",
+    "claude__W12-shop-search__R__r2",
+    "claude__W12-shop-search__I__r2",
+    "claude__W12-shop-search__O__r2",
+    "claude__W12-shop-search__B__r2",
+    "claude__A12-mobile-gateway__I__r2",
+    "claude__A12-mobile-gateway__R__r2",
+    "claude__A12-mobile-gateway__B__r2",
+    "claude__A12-mobile-gateway__O__r2",
+    "claude__X12-cdn-migration__B__r2",
+    "claude__X12-cdn-migration__I__r2",
+    "claude__X12-cdn-migration__O__r2",
+    "claude__X12-cdn-migration__R__r2",
+    "claude__X12-data-retention__R__r2",
+    "claude__X12-data-retention__O__r2",
+    "claude__X12-data-retention__I__r2",
+    "claude__X12-data-retention__B__r2",
+    "claude__D12-backup-policy__O__r2",
+    "claude__D12-backup-policy__R__r2",
+    "claude__D12-backup-policy__B__r2",
+    "claude__D12-backup-policy__I__r2",
+    "claude__X12-cdn-migration__I__r1",
+    "claude__X12-cdn-migration__B__r1",
+    "claude__X12-cdn-migration__R__r1",
+    "claude__X12-cdn-migration__O__r1",
+    "claude__X12-data-retention__I__r1",
+    "claude__X12-data-retention__O__r1",
+    "claude__X12-data-retention__R__r1",
+    "claude__X12-data-retention__B__r1"
+  ]
+}

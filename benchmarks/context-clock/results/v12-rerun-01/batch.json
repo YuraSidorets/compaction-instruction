@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "batch": "v12-rerun-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v12-rerun",
+  "model": "haiku",
+  "seed": 1211,
+  "modes": [
+    "O",
+    "Z"
+  ],
+  "reps": 2,
+  "tasksDir": "benchmarks/context-clock/tasks/v09/generated",
+  "taskSeeds": {
+    "A12-mobile-gateway": 1900034,
+    "W12-ledger-migration": 1950000,
+    "X12-cdn-migration": 2035000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": null,
+  "limits": {
+    "run": {
+      "wallTimeMs": 1800000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 120,
+      "totalTokens": 3000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 12000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "W12-ledger-migration",
+      "rep": 2,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 2,
+      "taskId": "X12-cdn-migration",
+      "rep": 2,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 3,
+      "taskId": "A12-mobile-gateway",
+      "rep": 2,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 4,
+      "taskId": "A12-mobile-gateway",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 5,
+      "taskId": "X12-cdn-migration",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 6,
+      "taskId": "W12-ledger-migration",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    }
+  ],
+  "comparisons": [
+    "Z-O"
+  ],
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": null,
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "O": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ]
+      },
+      "Z": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ],
+        "standalone": {
+          "dir": "<plugin-dir>",
+          "name": "compaction-instruction",
+          "version": "0.1.0",
+          "hooks": [
+            {
+              "event": "PreCompact",
+              "matcher": null,
+              "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/precompact.mjs\""
+            }
+          ],
+          "hooksSha256": "1e8b74c2f99311e89f53cfc9e140ec74bbd5a40d147afa119be3e4b699c171fb",
+          "text": {
+            "bytes": 694,
+            "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+          }
+        }
+      }
+    }
+  },
+  "precompactPlainInstruction": null,
+  "precompactProductInstruction": null,
+  "autoCompact": false,
+  "autoCompactWindow": null,
+  "promptVersion": 1,
+  "benchmarkCommit": "1dc2beec4a23c2ada2341c8686280069654e20be",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__W12-ledger-migration__Z__r2",
+    "claude__W12-ledger-migration__O__r2",
+    "claude__X12-cdn-migration__Z__r2",
+    "claude__X12-cdn-migration__O__r2",
+    "claude__A12-mobile-gateway__O__r2",
+    "claude__A12-mobile-gateway__Z__r2",
+    "claude__A12-mobile-gateway__O__r1",
+    "claude__A12-mobile-gateway__Z__r1",
+    "claude__X12-cdn-migration__O__r1",
+    "claude__X12-cdn-migration__Z__r1",
+    "claude__W12-ledger-migration__O__r1",
+    "claude__W12-ledger-migration__Z__r1"
+  ]
+}

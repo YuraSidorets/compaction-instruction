@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "batch": "v12-smoke-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v12-smoke",
+  "model": "haiku",
+  "seed": 1201,
+  "modes": [
+    "Z",
+    "W"
+  ],
+  "reps": 1,
+  "tasksDir": "benchmarks/context-clock/tasks/v09/generated",
+  "taskSeeds": {
+    "X12-data-retention": 2000000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": null,
+  "limits": {
+    "run": {
+      "wallTimeMs": 1800000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 120,
+      "totalTokens": 3000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 4000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "X12-data-retention",
+      "rep": 1,
+      "modes": [
+        "W",
+        "Z"
+      ]
+    }
+  ],
+  "comparisons": null,
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": null,
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "Z": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ],
+        "standalone": {
+          "dir": "<plugin-dir>",
+          "name": "compaction-instruction",
+          "version": "0.1.0",
+          "hooks": [
+            {
+              "event": "PreCompact",
+              "matcher": null,
+              "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/precompact.mjs\""
+            }
+          ],
+          "hooksSha256": "1e8b74c2f99311e89f53cfc9e140ec74bbd5a40d147afa119be3e4b699c171fb",
+          "text": {
+            "bytes": 694,
+            "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+          }
+        }
+      },
+      "W": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ],
+        "claudeMd": {
+          "file": "configs/claude-md-compact-instruction.md",
+          "bytes": 800,
+          "sha256": "8f28b5d5f31294ec69adfc482b31412d8a3917aa93d6663d7f525ec88c829dc2"
+        }
+      }
+    }
+  },
+  "precompactPlainInstruction": null,
+  "precompactProductInstruction": null,
+  "autoCompact": false,
+  "autoCompactWindow": null,
+  "promptVersion": 1,
+  "benchmarkCommit": "fbeaac7e0c7fe7703c8caaff561abada6e78f396",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__X12-data-retention__W__r1",
+    "claude__X12-data-retention__Z__r1"
+  ]
+}

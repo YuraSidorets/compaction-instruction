@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "batch": "v12-work-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v12-work",
+  "model": "haiku",
+  "seed": 1209,
+  "modes": [
+    "O",
+    "Z"
+  ],
+  "reps": 4,
+  "tasksDir": "benchmarks/context-clock/tasks/v12-work/generated",
+  "taskSeeds": {
+    "K13-password-policy": 2725000,
+    "K13-retry-policy": 2750000,
+    "K13-shipping-quote": 2700000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": null,
+  "limits": {
+    "run": {
+      "wallTimeMs": 1800000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 120,
+      "totalTokens": 3000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 30000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "K13-retry-policy",
+      "rep": 3,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 2,
+      "taskId": "K13-retry-policy",
+      "rep": 1,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 3,
+      "taskId": "K13-password-policy",
+      "rep": 4,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 4,
+      "taskId": "K13-shipping-quote",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 5,
+      "taskId": "K13-password-policy",
+      "rep": 2,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 6,
+      "taskId": "K13-shipping-quote",
+      "rep": 4,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 7,
+      "taskId": "K13-retry-policy",
+      "rep": 2,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 8,
+      "taskId": "K13-retry-policy",
+      "rep": 4,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 9,
+      "taskId": "K13-password-policy",
+      "rep": 3,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 10,
+      "taskId": "K13-password-policy",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 11,
+      "taskId": "K13-shipping-quote",
+      "rep": 2,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 12,
+      "taskId": "K13-shipping-quote",
+      "rep": 3,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    }
+  ],
+  "comparisons": [
+    "Z-O"
+  ],
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": null,
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "O": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ]
+      },
+      "Z": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ],
+        "standalone": {
+          "dir": "<plugin-dir>",
+          "name": "compaction-instruction",
+          "version": "0.1.0",
+          "hooks": [
+            {
+              "event": "PreCompact",
+              "matcher": null,
+              "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/precompact.mjs\""
+            }
+          ],
+          "hooksSha256": "1e8b74c2f99311e89f53cfc9e140ec74bbd5a40d147afa119be3e4b699c171fb",
+          "text": {
+            "bytes": 694,
+            "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+          }
+        }
+      }
+    }
+  },
+  "precompactPlainInstruction": null,
+  "precompactProductInstruction": null,
+  "autoCompact": false,
+  "autoCompactWindow": null,
+  "promptVersion": 1,
+  "benchmarkCommit": "06338166b03c7821dfbef740046279c7daf706d4",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__K13-retry-policy__Z__r3",
+    "claude__K13-retry-policy__O__r3",
+    "claude__K13-retry-policy__Z__r1",
+    "claude__K13-retry-policy__O__r1",
+    "claude__K13-password-policy__O__r4",
+    "claude__K13-password-policy__Z__r4",
+    "claude__K13-shipping-quote__O__r1",
+    "claude__K13-shipping-quote__Z__r1",
+    "claude__K13-password-policy__Z__r2",
+    "claude__K13-password-policy__O__r2",
+    "claude__K13-shipping-quote__Z__r4",
+    "claude__K13-shipping-quote__O__r4",
+    "claude__K13-retry-policy__O__r2",
+    "claude__K13-retry-policy__Z__r2",
+    "claude__K13-retry-policy__O__r4",
+    "claude__K13-retry-policy__Z__r4",
+    "claude__K13-password-policy__Z__r3",
+    "claude__K13-password-policy__O__r3",
+    "claude__K13-password-policy__O__r1",
+    "claude__K13-password-policy__Z__r1",
+    "claude__K13-shipping-quote__Z__r2",
+    "claude__K13-shipping-quote__O__r2",
+    "claude__K13-shipping-quote__Z__r3",
+    "claude__K13-shipping-quote__O__r3"
+  ]
+}

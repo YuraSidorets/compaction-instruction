@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "batch": "v12-auto-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v12-auto",
+  "model": "haiku",
+  "seed": 1204,
+  "modes": [
+    "O",
+    "Z"
+  ],
+  "reps": 2,
+  "tasksDir": "benchmarks/context-clock/tasks/v09/generated",
+  "taskSeeds": {
+    "A13-long-mobile-platform": 2050000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": null,
+  "limits": {
+    "run": {
+      "wallTimeMs": 5400000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 400,
+      "totalTokens": 20000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 60000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "A13-long-mobile-platform",
+      "rep": 2,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 2,
+      "taskId": "A13-long-mobile-platform",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    }
+  ],
+  "comparisons": [
+    "Z-O"
+  ],
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": null,
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "O": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ]
+      },
+      "Z": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ],
+        "standalone": {
+          "dir": "<plugin-dir>",
+          "name": "compaction-instruction",
+          "version": "0.1.0",
+          "hooks": [
+            {
+              "event": "PreCompact",
+              "matcher": null,
+              "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/precompact.mjs\""
+            }
+          ],
+          "hooksSha256": "1e8b74c2f99311e89f53cfc9e140ec74bbd5a40d147afa119be3e4b699c171fb",
+          "text": {
+            "bytes": 694,
+            "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+          }
+        }
+      }
+    }
+  },
+  "precompactPlainInstruction": null,
+  "precompactProductInstruction": null,
+  "autoCompact": true,
+  "autoCompactWindow": 100000,
+  "promptVersion": 1,
+  "benchmarkCommit": "1c508d7ed664ca4a145eea218aa41927ef6a1ee5",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__A13-long-mobile-platform__O__r2",
+    "claude__A13-long-mobile-platform__Z__r2",
+    "claude__A13-long-mobile-platform__O__r1",
+    "claude__A13-long-mobile-platform__Z__r1"
+  ]
+}

@@ -1,0 +1,1264 @@
+{
+  "schema": 1,
+  "taskId": "C9-billing-migration",
+  "category": "C",
+  "seed": 1450000,
+  "profile": "compaction",
+  "params": {
+    "events": 326,
+    "entities": 12,
+    "updates": 40,
+    "dependencyDepth": 3,
+    "noiseRatio": 0.84,
+    "approxBytes": 71451,
+    "sizeGroup": "v06"
+  },
+  "intro": "You follow a billing platform move with three chained migrations behind feature flags, a settings checkpoint and a selective rollback.\n\nInitial specification:\n- [e001] Jun confirmed in writing that the flag usage-metering changes to `OFF`.\n- [e002] Agreed in the sync: the flag tax-engine becomes `ON`.\n- [e003] Agreed in the sync: the flag invoice-pdf becomes `OFF`.\n- [e004] After the review, the team settled on `ON` for the flag multi-currency.\n- [e005] Hana confirmed in writing that the flag proration changes to `ON`.\n- [e006] Decision: migration m1 is now `pending`.\n- [e007] After the review, the team settled on `pending` for migration m2.\n- [e008] Decision: migration m3 is now `pending`.\n- [e009] Jun confirmed in writing that the ledger replica count changes to `3`.\n- [e010] Ivo confirmed in writing that the invoice worker count changes to `7`.\n- [e011] After the review, the team settled on `plan-sheet-a` for the active pricing table.\n- [e012] Decision: the live schema version is now `ledger-s20`.\n\nRules for this task:\n- A value changes only by an event that decides, corrects, adds, removes, renames, runs or restores it. A proposal, a question, a link or a quote of an old page changes nothing.\n- A correction or a new decision replaces the earlier value. The earlier value is then superseded.\n- The initial specification gives the first value of each item.\n- The status of a migration is `pending`, `applied` or `failed`. Only a run event of that migration changes its status.\n- A run event sets the status of its migration to the result of the runbook rule in the event. The rule uses the values of its conditions at the moment of the run.\n- A later run of the same migration can change the status again. A later change of a flag or of another migration does not change a status by itself.\n- A change with a condition takes effect only if the condition holds at the moment of the change. If not, the value stays as it was, and a later change of the condition does not revive the change.\n- A checkpoint records the current settings. A rollback event sets each setting that it names back to its value at that checkpoint. Every other value keeps its current value. A rollback never changes a migration status.\nEvery event has a label of the form [eNNN] with a three-digit number. A higher number is later in time. A later event can change or cancel an earlier one.\nSome material quotes old pages or copies for history. A quote of that kind is not a new statement.",
+  "stages": [
+    {
+      "stage": 1,
+      "prompt": "Stage 1 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s1/journal-01.md, inbox/s1/design-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s1-chat-1, s1-ci-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s1/journal-01.md",
+          "content": "# Change journal, stage 1, part 1\n\n- [e013] Ticket DOC-351: broken anchors on a help page\n  Reporter: Wren. Priority: low.\n  The page scripts/lint.sh has 6 broken anchors after the last rename.\n  Related: a similar report from Friday was closed as a duplicate.\n- [e014] ci-bot weekly numbers for the code owners file:\n    page views 3728\n    median load 941 ms\n    error rate 0.05 percent\n    uptime 99.97 percent\n    the numbers are inside the usual band\n- [e015] Read-only export of the docs-builder configuration for the build cache:\n    max_line_length = 436\n    theme = \"slate-2\"\n    cache_hours = 8\n    keep_reports_days = 33\n    preview_pages = true\n    report_format = \"text\"\n- [e016] Chat excerpt from #team-chat:\n  Yara: lunch at 10:46? the new place near the station\n  Pita: count me in\n  Gus: reminder that the test fixtures poll closes on Wednesday\n- [e017] Notes from the onboarding wiki sync on Wednesday:\n  Bo showed the new layout of the sprint board.\n  Nothing in this sync touches the project itself.\n  Oona shared a short survey; 9 people answered so far.\n- [e018] docs-bot opened a grouped update for the dependabot tooling:\n    - markdown-lint 9.11.5 to 8.15.1\n    - link-checker 9.11.2 to 1.9.3\n    The checks passed. No reviewer is assigned yet.\n- [e019] Calendar update from cache-bot:\n  - the team calendar demo moves to 12:14 on Wednesday\n  - room booking for the docs site retro is confirmed\n  - Pita is on leave from Monday for 6 days\n  - the all-hands slides are due on Monday\n- [e020] Chat excerpt from #team-chat:\n  Nils: is anyone else seeing the slow lint config page?\n  Nils: yes, it is the image cache, it clears itself after 9 minutes\n  Pita: lunch at 10:12? the new place near the station\n"
+        },
+        {
+          "path": "inbox/s1/design-02.md",
+          "content": "# Design discussion, stage 1, part 3\n\n- [e029] calendar opened a grouped update for the office wifi tooling:\n    - link-checker 3.4.4 to 4.17.1\n    - image-optimizer 5.4.8 to 9.3.1\n    - spellcheck dictionary 1.14.0 to 9.12.9\n    The checks passed. No reviewer is assigned yet.\n- [e030] lint-bot weekly numbers for the CI runners:\n    page views 7543\n    median load 775 ms\n    error rate 0.03 percent\n    uptime 99.96 percent\n    searches without a result: 96\n- [e031] Calendar update from docs-bot:\n  - the status page demo moves to 13:38 on Monday\n  - room booking for the docs site retro is confirmed\n  - Mei is on leave from Wednesday for 4 days\n  - Hana hosts the next lunch talk about typography\n- [e032] Ticket DOC-535: broken anchors on a help page\n  Reporter: Uma. Priority: low.\n  The page notes/retro.md has 6 broken anchors after the last rename.\n  Oona will fix it after the sprint board work.\n  Related: a similar report from Wednesday was closed as a duplicate.\n- [e033] calendar opened a grouped update for the storybook tooling:\n    - markdown-lint 5.19.5 to 2.7.7\n    - link-checker 2.11.2 to 8.2.2\n    The checks passed. No reviewer is assigned yet.\n- [e034] Standup notes from Oona:\n  - today: rewriting the intro paragraph of the error pages guide\n  - blockers: none\n  - out early on Monday for a dentist visit\n  - will demo the new storybook layout next week\n- [e035] Ticket DOC-468: broken anchors on a help page\n  Reporter: Yara. Priority: low.\n  Vik will fix it after the code owners file work.\n  Status: open, no due date.\n  Related: a similar report from Tuesday was closed as a duplicate.\n- [e036] Chat excerpt from #team-chat:\n  Vik: yes, it is the image cache, it clears itself after 4 minutes\n  Bo: ok, thanks\n  Ana: lunch at 17:54? the new place near the station\n  Mei: reminder that the dependabot poll closes on Wednesday\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s1-chat-1",
+          "content": "== chat export, stage 1, part 2 ==\n[e021] 08:27 lint-bot weekly numbers for the status page:\n      median load 560 ms\n      error rate 0.02 percent\n      searches without a result: 72\n      the numbers are inside the usual band\n[e022] 08:30 Run of migration m1 by Vik. The run sets the status of migration m1 to `applied` if the flag usage-metering is `ON` at this moment, and to `failed` if not.\n    thread replies: 5\n[e023] 08:33 Style guide excerpt, section 2.3:\n    Use sentence case for headings.\n    Keep tables under 7 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e024] 08:36 Retro notes of the team calendar group:\n    Went well: Pita cleared the docs backlog.\n    Went well: the office wifi pages load faster.\n    Action: Bo collects ideas for the team offsite.\n[e025] 08:39 Dara confirmed in writing that the live schema version changes to `ledger-s22`. This change counts only if migration m3 is `applied` at the moment of this entry. If not, it has no effect.\n    thread replies: 4\n    Kira reacted with a thumbs-up\n[e026] 08:42 Retro notes of the docs site group:\n    Went well: Chen cleared the docs backlog.\n    To improve: shorter standups on Wednesday.\n    Action: Sami books a room for the next retro.\n    Action: Sami collects ideas for the team offsite.\n[e027] 08:45 Notes from the onboarding wiki sync on Monday:\n    Uma showed the new layout of the sprint board.\n    Sami asked for a darker header; Gus will try two variants.\n    The group will look at the storybook again in 9 weeks.\n    Zed shared a short survey; 3 people answered so far.\n[e028] 08:48 Standup notes from Tove:\n    - yesterday: reviewed 6 small pull requests about the lint config\n    - blockers: none\n    - out early on Tuesday for a dentist visit\n"
+        },
+        {
+          "name": "s1-ci-2",
+          "content": "== ci export, stage 1, part 4 ==\n[e037] 09:15 Ticket DOC-682: broken anchors on a help page\n    Reporter: Pita. Priority: low.\n    Quinn will fix it after the release notes work.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e038] 09:18 Kira asked for a load test plan that covers migration m3. The thread ended without a change.\n    pipeline 53651\n[e039] 09:21 lint-bot weekly numbers for the docs site:\n      page views 3823\n      median load 224 ms\n      searches without a result: 95\n[e040] 09:24 Review thread on scripts/lint.sh (6 comments):\n    Eli: please wrap this paragraph at 22 characters.\n    Bo: done, and I fixed the heading levels too.\n    Uma: nit: trailing spaces on line 36.\n    Ana: can we move the long examples to an appendix?\n    Bo: moved them; the page is 91 percent shorter now.\n[e041] 09:27 Notes from the docs site sync on Tuesday:\n    The group will look at the team calendar again in 5 weeks.\n    Nothing in this sync touches the project itself.\n    Jun shared a short survey; 2 people answered so far.\n[e042] 09:30 calendar weekly numbers for the code owners file:\n      error rate 0.09 percent\n      uptime 99.98 percent\n      searches without a result: 93\n      the numbers are inside the usual band\n[e043] 09:33 metrics run 757 summary:\n      step checkout ok (5.17s)\n      step upload ok, 367 KB\n      step notify ok, channel team-chat\n      cache restore hit rate 95%\n[e044] 09:36 lint-bot run 228 summary:\n      step lint ok, 86 files\n      step docs-build ok, 48 pages\n      step notify ok, channel team-chat\n      cache restore hit rate 80%\n      total duration 3m 94s, no warnings\n[e045] 09:39 In chat, Femi asked whether the flag tax-engine could be `OFF`. The question was closed without a change.\n    pipeline 60189\n    pipeline note added by Pita\n[e046] 09:42 Notes from the onboarding wiki sync on Tuesday:\n    The group will look at the lint config again in 4 weeks.\n    Vik said that the office printer works again.\n    Nothing in this sync touches the project itself.\n"
+        }
+      ],
+      "eventIds": [
+        "e013",
+        "e014",
+        "e015",
+        "e016",
+        "e017",
+        "e018",
+        "e019",
+        "e020",
+        "e021",
+        "e022",
+        "e023",
+        "e024",
+        "e025",
+        "e026",
+        "e027",
+        "e028",
+        "e029",
+        "e030",
+        "e031",
+        "e032",
+        "e033",
+        "e034",
+        "e035",
+        "e036",
+        "e037",
+        "e038",
+        "e039",
+        "e040",
+        "e041",
+        "e042",
+        "e043",
+        "e044",
+        "e045",
+        "e046"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s1-c1",
+          "kind": "file",
+          "name": "inbox/s1/journal-01.md",
+          "bytes": 1727,
+          "events": [
+            "e013",
+            "e014",
+            "e015",
+            "e016",
+            "e017",
+            "e018",
+            "e019",
+            "e020"
+          ]
+        },
+        {
+          "chunkId": "s1-c2",
+          "kind": "file",
+          "name": "inbox/s1/design-02.md",
+          "bytes": 1857,
+          "events": [
+            "e029",
+            "e030",
+            "e031",
+            "e032",
+            "e033",
+            "e034",
+            "e035",
+            "e036"
+          ]
+        },
+        {
+          "chunkId": "s1-c3",
+          "kind": "feed",
+          "name": "s1-chat-1",
+          "bytes": 1848,
+          "events": [
+            "e021",
+            "e022",
+            "e023",
+            "e024",
+            "e025",
+            "e026",
+            "e027",
+            "e028"
+          ]
+        },
+        {
+          "chunkId": "s1-c4",
+          "kind": "feed",
+          "name": "s1-ci-2",
+          "bytes": 2042,
+          "events": [
+            "e037",
+            "e038",
+            "e039",
+            "e040",
+            "e041",
+            "e042",
+            "e043",
+            "e044",
+            "e045",
+            "e046"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "prompt": "Stage 2 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s2/minutes-01.md, inbox/s2/minutes-02.md, inbox/s2/design-03.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s2-board-1.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s2/minutes-01.md",
+          "content": "# Meeting minutes, stage 2, part 1\n\n- [e047] metrics run 980 summary:\n    step checkout ok (6.59s)\n    step lint ok, 23 files\n    step docs-build ok, 54 pages\n    step upload ok, 241 KB\n    step notify ok, channel team-chat\n    total duration 9m 54s, no warnings\n- [e048] Calendar update from calendar:\n  - the help center demo moves to 15:57 on Wednesday\n  - room booking for the CI runners retro is confirmed\n- [e049] Style guide excerpt, section 2.8:\n  Keep tables under 7 columns.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e050] Review thread on README.md (6 comments):\n  Lars: the table in section 3 renders badly on small screens.\n  Mei: nit: trailing spaces on line 45.\n  Tove: moved them; the page is 47 percent shorter now.\n  Nils: approved, merge when the checks are green.\n- [e051] Ticket DOC-264: broken anchors on a help page\n  Reporter: Quinn. Priority: low.\n  The page ci/cache.yml has 8 broken anchors after the last rename.\n  Related: a similar report from Wednesday was closed as a duplicate.\n- [e052] Review thread on README.md (9 comments):\n  Dara: please wrap this paragraph at 43 characters.\n  Wren: done, and I fixed the heading levels too.\n  Femi: the table in section 6 renders badly on small screens.\n  Gus: can we move the long examples to an appendix?\n  Ana: moved them; the page is 82 percent shorter now.\n- [e053] Quinn confirmed in writing that the ledger replica count changes to `5`.\n  Raised in the status page sync; attendees: Hana, Eli and Oona.\n  Action owner for the follow-up: Ana.\n- [e054] Notes from the error pages sync on Monday:\n  Zed asked for a darker header; Oona will try two variants.\n  The group will look at the test fixtures again in 5 weeks.\n  Sami said that the office printer works again.\n  Chen shared a short survey; 2 people answered so far.\n"
+        },
+        {
+          "path": "inbox/s2/minutes-02.md",
+          "content": "# Meeting minutes, stage 2, part 3\n\n- [e063] Standup notes from Quinn:\n  - yesterday: tidied the office wifi pages and answered 5 questions in chat\n  - yesterday: reviewed 4 small pull requests about the sprint board\n  - today: pairing with Bo on web/favicon.ico\n  - will demo the new lint config layout next week\n- [e064] chat-relay opened a grouped update for the build cache tooling:\n    - markdown-lint 5.19.9 to 1.15.2\n    - link-checker 3.9.8 to 4.4.8\n    - image-optimizer 5.5.9 to 6.16.9\n    - spellcheck dictionary 2.2.1 to 3.15.5\n- [e065] Calendar update from metrics:\n  - room booking for the onboarding wiki retro is confirmed\n  - the all-hands slides are due on Tuesday\n- [e066] Calendar update from ci-bot:\n  - room booking for the office wifi retro is confirmed\n  - Ana is on leave from Monday for 4 days\n  - Mei hosts the next lunch talk about typography\n- [e067] Style guide excerpt, section 4.5:\n  Use sentence case for headings.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n- [e068] chat-relay weekly numbers for the status page:\n    page views 3599\n    error rate 0.08 percent\n    uptime 99.95 percent\n    searches without a result: 23\n- [e069] Chat excerpt from #team-chat:\n  Sami: yes, it is the image cache, it clears itself after 3 minutes\n  Wren: lunch at 10:27? the new place near the station\n  Quinn: count me in\n  Quinn: reminder that the onboarding wiki poll closes on Tuesday\n- [e070] Chat excerpt from #team-chat:\n  Nils: is anyone else seeing the slow onboarding wiki page?\n  Oona: yes, it is the image cache, it clears itself after 7 minutes\n  Bo: lunch at 17:38? the new place near the station\n  Lars: count me in\n  Rosa: reminder that the CI runners poll closes on Wednesday\n"
+        },
+        {
+          "path": "inbox/s2/design-03.md",
+          "content": "# Design discussion, stage 2, part 4\n\n- [e071] Vik linked the dashboard page about migration m1 in the weekly notes. Nobody proposed a change.\n  From the design discussion led by Gus.\n  Gus and Sami were in the discussion.\n- [e072] Calendar update from docs-bot:\n  - Ivo is on leave from Friday for 5 days\n  - the all-hands slides are due on Thursday\n  - Lars hosts the next lunch talk about typography\n- [e073] Nils pasted an old excerpt written at the time of entry e003. It reads \"the flag invoice-pdf is `OFF`\". The excerpt is history only and changes nothing.\n  Bo and Hana were in the discussion.\n  From the design discussion led by Chen.\n- [e074] lint-bot weekly numbers for the storybook:\n    median load 765 ms\n    error rate 0.07 percent\n    uptime 99.94 percent\n    searches without a result: 49\n    the numbers are inside the usual band\n- [e075] Read-only export of the spellcheck configuration for the status page:\n    theme = \"slate-4\"\n    runner_pool = \"pool-3\"\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 59\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n    report_format = \"text\"\n- [e076] calendar opened a grouped update for the lint config tooling:\n    - markdown-lint 3.1.6 to 9.7.4\n    - link-checker 8.19.4 to 1.13.5\n    - spellcheck dictionary 5.2.1 to 7.1.7\n    The checks passed. No reviewer is assigned yet.\n- [e077] cache-bot opened a grouped update for the onboarding wiki tooling:\n    - markdown-lint 4.10.6 to 5.14.6\n    - link-checker 2.14.3 to 3.1.1\n    - image-optimizer 5.0.1 to 1.14.9\n    - spellcheck dictionary 3.3.2 to 8.12.8\n    The checks passed. No reviewer is assigned yet.\n- [e078] Review thread on ci/cache.yml (7 comments):\n  Pita: please wrap this paragraph at 12 characters.\n  Tove: done, and I fixed the heading levels too.\n  Quinn: nit: trailing spaces on line 10.\n  Jun: approved, merge when the checks are green.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s2-board-1",
+          "content": "== board export, stage 2, part 2 ==\n[e055] 08:27 Checkpoint `snap-c9` is taken of the current configuration.\n    card updated by Wren\n    card id 503\n[e056] 08:30 Style guide excerpt, section 8.5:\n    Use sentence case for headings.\n    Keep tables under 3 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e057] 08:33 Ticket DOC-296: broken anchors on a help page\n    Reporter: Lars. Priority: low.\n    The page ci/cache.yml has 2 broken anchors after the last rename.\n    Kira will fix it after the design tokens work.\n    Related: a similar report from Thursday was closed as a duplicate.\n[e058] 08:36 Style guide excerpt, section 6.2:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e059] 08:39 Calendar update from docs-bot:\n    - the brand assets demo moves to 10:52 on Wednesday\n    - Nils is on leave from Friday for 2 days\n[e060] 08:42 Ticket DOC-419: broken anchors on a help page\n    Reporter: Hana. Priority: low.\n    The page docs/glossary.md has 7 broken anchors after the last rename.\n    Chen will fix it after the office wifi work.\n    Related: a similar report from Tuesday was closed as a duplicate.\n[e061] 08:45 Read-only export of the docs-builder configuration for the status page:\n      max_line_length = 582\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 48\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e062] 08:48 Notes from the test fixtures sync on Friday:\n    Sami asked for a darker header; Wren will try two variants.\n    The group will look at the retro notes again in 8 weeks.\n    Ivo shared a short survey; 7 people answered so far.\n"
+        }
+      ],
+      "eventIds": [
+        "e047",
+        "e048",
+        "e049",
+        "e050",
+        "e051",
+        "e052",
+        "e053",
+        "e054",
+        "e055",
+        "e056",
+        "e057",
+        "e058",
+        "e059",
+        "e060",
+        "e061",
+        "e062",
+        "e063",
+        "e064",
+        "e065",
+        "e066",
+        "e067",
+        "e068",
+        "e069",
+        "e070",
+        "e071",
+        "e072",
+        "e073",
+        "e074",
+        "e075",
+        "e076",
+        "e077",
+        "e078"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s2-c1",
+          "kind": "file",
+          "name": "inbox/s2/minutes-01.md",
+          "bytes": 1896,
+          "events": [
+            "e047",
+            "e048",
+            "e049",
+            "e050",
+            "e051",
+            "e052",
+            "e053",
+            "e054"
+          ]
+        },
+        {
+          "chunkId": "s2-c2",
+          "kind": "file",
+          "name": "inbox/s2/minutes-02.md",
+          "bytes": 1768,
+          "events": [
+            "e063",
+            "e064",
+            "e065",
+            "e066",
+            "e067",
+            "e068",
+            "e069",
+            "e070"
+          ]
+        },
+        {
+          "chunkId": "s2-c3",
+          "kind": "file",
+          "name": "inbox/s2/design-03.md",
+          "bytes": 1896,
+          "events": [
+            "e071",
+            "e072",
+            "e073",
+            "e074",
+            "e075",
+            "e076",
+            "e077",
+            "e078"
+          ]
+        },
+        {
+          "chunkId": "s2-c4",
+          "kind": "feed",
+          "name": "s2-board-1",
+          "bytes": 1855,
+          "events": [
+            "e055",
+            "e056",
+            "e057",
+            "e058",
+            "e059",
+            "e060",
+            "e061",
+            "e062"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "prompt": "Stage 3 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s3/review-01.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s3-chat-1, s3-chat-2, s3-board-3, s3-ops-log.\nThe feed s3-ops-log is long. The entries that matter for this task carry the tag CR-2000; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s3/review-01.md",
+          "content": "# Review comments, stage 3, part 1\n\n- [e090] Agreed in the sync: the flag usage-metering becomes `ON`.\n  Thread started by Lars; Vik replied with a thumbs-up.\n- [e092] Run of migration m1 by Gus. The run sets the status of migration m1 to `applied` if the flag usage-metering is `ON` at this moment, and to `failed` if not.\n  Review round 4, reviewer Nils.\n- [e113] Run of migration m2 by Quinn. The run sets the status of migration m2 to `applied` if migration m1 is `applied` and the flag tax-engine is `ON` at this moment, and to `failed` if not.\n  Review round 2, reviewer Bo.\n  Thread started by Gus; Ana replied with a thumbs-up.\n- [e123] Review thread on docs/style.md (8 comments):\n  Eli: done, and I fixed the heading levels too.\n  Gus: the table in section 6 renders badly on small screens.\n  Eli: moved them; the page is 94 percent shorter now.\n- [e124] docs-bot opened a grouped update for the retro notes tooling:\n    - markdown-lint 2.18.6 to 4.9.2\n    - link-checker 6.9.7 to 4.15.3\n    - image-optimizer 9.3.9 to 1.7.9\n    - spellcheck dictionary 4.3.0 to 9.9.8\n- [e125] Calendar update from cache-bot:\n  - the release notes demo moves to 14:31 on Thursday\n  - Chen is on leave from Tuesday for 4 days\n  - the all-hands slides are due on Monday\n  - Mei hosts the next lunch talk about typography\n- [e126] Lars wants better documentation about the flag invoice-pdf. This is a docs task only and changes nothing.\n  Thread started by Wren; Hana replied with a thumbs-up.\n- [e127] Read-only export of the image-optimizer configuration for the team calendar:\n    max_line_length = 283\n    theme = \"slate-5\"\n    cache_hours = 3\n    notify_channel = \"#team-chat\"\n    keep_reports_days = 15\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s3-chat-1",
+          "content": "== chat export, stage 3, part 2 ==\n[e128] 10:30 Review thread on docs/style.md (2 comments):\n    Vik: please wrap this paragraph at 48 characters.\n    Yara: done, and I fixed the heading levels too.\n    Uma: moved them; the page is 62 percent shorter now.\n[e129] 10:33 Calendar update from lint-bot:\n    - room booking for the error pages retro is confirmed\n    - Dara is on leave from Tuesday for 9 days\n[e130] 10:36 In chat, Yara asked whether the live schema version could be `ledger-s20`. The question was closed without a change.\n    Eli reacted with a thumbs-up\n    thread replies: 4\n[e131] 10:39 Retro notes of the help center group:\n    Went well: the CI runners pages load faster.\n    To improve: shorter standups on Friday.\n    Action: Mei books a room for the next retro.\n    Action: Femi collects ideas for the team offsite.\n[e132] 10:42 Calendar update from ci-bot:\n    - the test fixtures demo moves to 12:16 on Friday\n    - room booking for the help center retro is confirmed\n    - Yara is on leave from Tuesday for 4 days\n[e133] 10:45 ci-bot weekly numbers for the design tokens:\n      page views 5767\n      median load 676 ms\n      searches without a result: 59\n[e134] 10:48 lint-bot opened a grouped update for the team calendar tooling:\n      - markdown-lint 2.4.2 to 5.14.7\n      - link-checker 3.18.6 to 4.19.4\n      - image-optimizer 4.3.6 to 6.14.5\n      - spellcheck dictionary 1.13.3 to 3.2.4\n      The checks passed. No reviewer is assigned yet.\n[e135] 10:51 Style guide excerpt, section 5.9:\n    Use sentence case for headings.\n    Keep tables under 8 columns.\n    Name the button exactly as the screen shows it.\n[e136] 10:54 Notes from the docs site sync on Friday:\n    Dara showed the new layout of the test fixtures.\n    Femi asked for a darker header; Jun will try two variants.\n    Dara said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Lars shared a short survey; 8 people answered so far.\n"
+        },
+        {
+          "name": "s3-chat-2",
+          "content": "== chat export, stage 3, part 3 ==\n[e137] 10:57 Chat excerpt from #team-chat:\n    Chen: is anyone else seeing the slow lint config page?\n    Wren: yes, it is the image cache, it clears itself after 3 minutes\n    Quinn: lunch at 10:18? the new place near the station\n    Lars: count me in\n    Wren: reminder that the onboarding wiki poll closes on Thursday\n[e138] 11:00 cache-bot run 960 summary:\n      step checkout ok (3.51s)\n      step lint ok, 20 files\n      step upload ok, 486 KB\n      cache restore hit rate 71%\n      total duration 4m 61s, no warnings\n[e139] 11:03 Pita pasted an old excerpt written at the time of entry e053. It reads \"the ledger replica count is `5`\". The excerpt is history only and changes nothing.\n    thread replies: 2\n    Zed reacted with a thumbs-up\n[e140] 11:06 Retro notes of the status page group:\n    Went well: Vik cleared the docs backlog.\n    Went well: the changelog bot pages load faster.\n    To improve: shorter standups on Thursday.\n    Action: Mei books a room for the next retro.\n[e141] 11:09 Retro notes of the retro notes group:\n    Went well: the build cache pages load faster.\n    To improve: shorter standups on Monday.\n    Action: Vik books a room for the next retro.\n    Action: Wren collects ideas for the team offsite.\n[e142] 11:12 Retro notes of the release notes group:\n    Went well: Ana cleared the docs backlog.\n    Went well: the brand assets pages load faster.\n    To improve: shorter standups on Monday.\n[e143] 11:15 Retro notes of the team calendar group:\n    Went well: Zed cleared the docs backlog.\n    Went well: the error pages pages load faster.\n    Action: Yara books a room for the next retro.\n[e144] 11:18 chat-relay opened a grouped update for the dependabot tooling:\n      - markdown-lint 1.0.0 to 1.16.2\n      - link-checker 2.18.9 to 2.1.4\n      - spellcheck dictionary 9.17.7 to 9.0.0\n      The checks passed. No reviewer is assigned yet.\n"
+        },
+        {
+          "name": "s3-board-3",
+          "content": "== board export, stage 3, part 4 ==\n[e145] 11:21 docs-bot run 227 summary:\n      step checkout ok (2.22s)\n      step lint ok, 49 files\n      step docs-build ok, 18 pages\n      step upload ok, 937 KB\n      step notify ok, channel team-chat\n      total duration 4m 15s, no warnings\n[e147] 11:27 Review thread on tools/fmt.mjs (2 comments):\n    Zed: please wrap this paragraph at 62 characters.\n    Gus: the table in section 3 renders badly on small screens.\n    Uma: nit: trailing spaces on line 37.\n    Dara: can we move the long examples to an appendix?\n[e148] 11:30 cache-bot run 427 summary:\n      step checkout ok (2.73s)\n      step lint ok, 12 files\n      step notify ok, channel team-chat\n[e150] 11:36 Ticket DOC-916: broken anchors on a help page\n    The page README.md has 8 broken anchors after the last rename.\n    Zed will fix it after the docs site work.\n    Status: open, no due date.\n[e151] 11:39 Notes from the sprint board sync on Friday:\n    Ana asked for a darker header; Lars will try two variants.\n    The group will look at the office wifi again in 2 weeks.\n    Kira said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Eli shared a short survey; 6 people answered so far.\n[e152] 11:42 Style guide excerpt, section 6.3:\n    Use sentence case for headings.\n    Keep tables under 9 columns.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n    Name the button exactly as the screen shows it.\n[e153] 11:45 Retro notes of the sprint board group:\n    Went well: the release notes pages load faster.\n    To improve: shorter standups on Friday.\n    Action: Chen collects ideas for the team offsite.\n[e155] 11:51 chat-relay weekly numbers for the error pages:\n      page views 7693\n      median load 854 ms\n      error rate 0.07 percent\n      uptime 99.94 percent\n      the numbers are inside the usual band\n[e156] 11:54 Retro notes of the office wifi group:\n    Went well: Chen cleared the docs backlog.\n    To improve: shorter standups on Monday.\n    Action: Zed books a room for the next retro.\n    Action: Mei collects ideas for the team offsite.\n"
+        },
+        {
+          "name": "s3-ops-log",
+          "content": "== ops-log export, stage 3 ==\n[e079] 08:03 docs-bot: scan of assets/logo.svg complete files_checked=567 issues_new=0 issues_closed=25 duration=6s; trend flat compared with the previous 6 runs\n    note: routine, no operator action\n    trace=t-94271 span_count=48 dropped=0\n[e080] 08:06 docs-bot: calendar sync imported 4 events for the dependabot; conflicts=0; reminders_sent=98; the import window covered the next 41 days\n    worker=pool-5 attempt=1 result=ok\n[e081] 08:09 ci-bot: scan of tools/fmt.mjs complete files_checked=274 issues_new=0 issues_closed=66 duration=8s; trend flat compared with the previous 3 runs\n    owner=docs-team escalation=none\n[e082] 08:12 docs-bot: Bo edited README.md (+2 -54 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-4 attempt=1 result=ok\n    note: routine, no operator action\n[e083] 08:15 chat-relay: job #777 finished status=ok duration=2.95s cache=warm artifacts=40 warnings=0 runner=pool-4 note=routine nightly sweep of the storybook, nothing to report\n    note: routine, no operator action\n    retention applied to 77 items\n[e084] 08:18 cache-bot: scan of ci/cache.yml complete files_checked=690 issues_new=0 issues_closed=21 duration=4s; trend flat compared with the previous 8 runs\n    note: routine, no operator action\n    retention applied to 79 items\n[e085] 08:21 ci-bot: Pita edited docs/faq.md (+5 -81 lines, formatting only); review not required by policy; merged after the standard wait\n    worker=pool-5 attempt=1 result=ok\n    note: routine, no operator action\n    next_run=in 3h window=12:42\n[e086] 08:24 calendar: job #466 finished status=ok duration=5.20s cache=warm artifacts=29 warnings=0 runner=pool-9 note=routine nightly sweep of the release notes, nothing to report\n    retention applied to 35 items\n[e087] 08:27 calendar: link checker visited 226 pages of the sprint board; broken=0; redirected=17; slowest page answered in 376ms\n    worker=pool-7 attempt=1 result=ok\n    next_run=in 6h window=16:24\n[e088] 08:30 lint-bot: scan of docs/howto.md complete files_checked=483 issues_new=0 issues_closed=29 duration=7s; trend flat compared with the previous 5 runs\n    retention applied to 59 items\n[e089] 08:33 calendar: metrics rollup for the error pages: p50=8ms p95=839ms errors=0 sample=824 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    trace=t-30184 span_count=90 dropped=0\n    owner=docs-team escalation=none\n[e091] 08:39 metrics: cleanup removed 54 temp folders under docs/howto.md freed 745 MB; next cleanup scheduled; disk usage at 59% of quota\n    trace=t-46988 span_count=42 dropped=0\n    owner=docs-team escalation=none\n    next_run=in 7h window=16:44\n[e093] 08:45 lint-bot: scan of .editorconfig complete files_checked=356 issues_new=0 issues_closed=58 duration=7s; trend flat compared with the previous 4 runs\n    note: routine, no operator action\n[e094] 08:48 cache-bot: job #445 finished status=ok duration=3.88s cache=warm artifacts=71 warnings=0 runner=pool-3 note=routine nightly sweep of the sprint board, nothing to report\n    retention applied to 92 items\n[e095] 08:51 chat-relay: job #733 finished status=ok duration=8.78s cache=warm artifacts=98 warnings=0 runner=pool-5 note=routine nightly sweep of the lint config, nothing to report\n    worker=pool-8 attempt=1 result=ok\n    trace=t-61869 span_count=12 dropped=0\n    owner=docs-team escalation=none\n[e096] 08:54 cache-bot: build 354 for the design tokens reused 81% of cached layers; image size unchanged; upload time 5s; retention policy applied to 58 old images\n    note: routine, no operator action\n    next_run=in 6h window=17:41\n[e097] 08:57 cache-bot: build 482 for the help center reused 71% of cached layers; image size unchanged; upload time 8s; retention policy applied to 17 old images\n    worker=pool-6 attempt=1 result=ok\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e098] 09:00 metrics: Mei edited assets/logo.svg (+4 -22 lines, formatting only); review not required by policy; merged after the standard wait\n    note: routine, no operator action\n    next_run=in 8h window=18:53\n[e099] 09:03 chat-relay: calendar sync imported 2 events for the lint config; conflicts=0; reminders_sent=17; the import window covered the next 18 days\n    note: routine, no operator action\n[e100] 09:06 chat-relay: dependency audit of the help center tooling found 82 minor updates; none are security related; the bot will open grouped updates later\n    retention applied to 92 items\n    trace=t-89969 span_count=89 dropped=0\n[e101] 09:09 docs-bot: build 580 for the lint config reused 96% of cached layers; image size unchanged; upload time 2s; retention policy applied to 64 old images\n    worker=pool-3 attempt=1 result=ok\n    upstream=status-page latency=772ms\n    trace=t-59470 span_count=33 dropped=0\n[e102] 09:12 docs-bot: Ana edited ci/cache.yml (+9 -28 lines, formatting only); review not required by policy; merged after the standard wait\n    trace=t-67158 span_count=11 dropped=0\n[e103] 09:15 ci-bot: metrics rollup for the design tokens: p50=5ms p95=728ms errors=0 sample=933 requests; values inside the usual band for this hour\n    retention applied to 31 items\n[e104] 09:18 docs-bot: scan of web/favicon.ico complete files_checked=458 issues_new=0 issues_closed=85 duration=5s; trend flat compared with the previous 4 runs\n    upstream=status-page latency=624ms\n[e105] 09:21 docs-bot: link checker visited 299 pages of the docs site; broken=0; redirected=52; slowest page answered in 656ms\n    note: routine, no operator action\n    upstream=status-page latency=385ms\n[e106] 09:24 ci-bot: Wren opened a chat thread about the onboarding wiki; replies=9; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    next_run=in 2h window=12:03\n[e107] 09:27 ci-bot: Vik opened a chat thread about the sprint board; replies=8; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-5 attempt=1 result=ok\n    note: routine, no operator action\n    trace=t-77140 span_count=35 dropped=0\n[e108] 09:30 ci-bot: heartbeat seq=837 queue_depth=31 oldest_item_age=4s workers=43 cpu=95% mem=93% area=\"build cache\" outcome=nominal, no operator action\n    note: routine, no operator action\n    upstream=status-page latency=329ms\n    owner=docs-team escalation=none\n[e109] 09:33 metrics: link checker visited 958 pages of the release notes; broken=0; redirected=13; slowest page answered in 913ms\n    worker=pool-3 attempt=1 result=ok\n    owner=docs-team escalation=none\n[e110] 09:36 chat-relay: calendar sync imported 5 events for the retro notes; conflicts=0; reminders_sent=13; the import window covered the next 14 days\n    worker=pool-3 attempt=1 result=ok\n    upstream=status-page latency=611ms\n[e111] 09:39 calendar: metrics rollup for the design tokens: p50=4ms p95=129ms errors=0 sample=346 requests; values inside the usual band for this hour\n    worker=pool-6 attempt=1 result=ok\n    upstream=status-page latency=581ms\n    retention applied to 70 items\n[e112] 09:42 calendar: Eli opened a chat thread about the onboarding wiki; replies=2; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    note: routine, no operator action\n    trace=t-14116 span_count=23 dropped=0\n    owner=docs-team escalation=none\n[e114] 09:48 docs-bot: Kira opened a chat thread about the changelog bot; replies=9; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=663ms\n    owner=docs-team escalation=none\n    next_run=in 3h window=13:22\n[e115] 09:51 lint-bot: heartbeat seq=642 queue_depth=36 oldest_item_age=5s workers=87 cpu=50% mem=96% area=\"changelog bot\" outcome=nominal, no operator action\n    note: routine, no operator action\n[e116] 09:54 ci-bot: metrics rollup for the office wifi: p50=5ms p95=233ms errors=0 sample=215 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    upstream=status-page latency=386ms\n    next_run=in 7h window=15:05\n[e117] 09:57 ci-bot: job #715 finished status=ok duration=3.52s cache=warm artifacts=34 warnings=0 runner=pool-4 note=routine nightly sweep of the sprint board, nothing to report\n    worker=pool-2 attempt=1 result=ok\n    upstream=status-page latency=467ms\n    retention applied to 51 items\n[e118] 10:00 metrics: job #640 finished status=ok duration=9.23s cache=warm artifacts=81 warnings=0 runner=pool-4 note=routine nightly sweep of the CI runners, nothing to report\n    owner=docs-team escalation=none\n[e119] 10:03 metrics: job #240 finished status=ok duration=9.49s cache=warm artifacts=77 warnings=0 runner=pool-9 note=routine nightly sweep of the build cache, nothing to report\n    upstream=status-page latency=791ms\n    owner=docs-team escalation=none\n[e120] 10:06 docs-bot: job #972 finished status=ok duration=8.15s cache=warm artifacts=24 warnings=0 runner=pool-2 note=routine nightly sweep of the CI runners, nothing to report\n    worker=pool-6 attempt=1 result=ok\n    upstream=status-page latency=255ms\n    retention applied to 68 items\n[e121] 10:09 docs-bot: dependency audit of the changelog bot tooling found 78 minor updates; none are security related; the bot will open grouped updates later\n    note: routine, no operator action\n    retention applied to 62 items\n    trace=t-90922 span_count=80 dropped=0\n[e122] 10:12 lint-bot: Gus opened a chat thread about the brand assets; replies=6; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-6 attempt=1 result=ok\n    trace=t-68290 span_count=23 dropped=0\n[e146] 11:24 CR-2000 Decision: the build runner image is now `imager-c81`.\n    request_id=r-28536\n[e149] 11:33 CR-2000 Agreed in the sync: the build runner image becomes `imager-c82`.\n    source=metrics level=info actor=Quinn\n[e154] 11:48 CR-2000 Wren confirmed in writing that the build runner image changes to `imager-c81`.\n    request_id=r-62152\n"
+        }
+      ],
+      "eventIds": [
+        "e079",
+        "e080",
+        "e081",
+        "e082",
+        "e083",
+        "e084",
+        "e085",
+        "e086",
+        "e087",
+        "e088",
+        "e089",
+        "e090",
+        "e091",
+        "e092",
+        "e093",
+        "e094",
+        "e095",
+        "e096",
+        "e097",
+        "e098",
+        "e099",
+        "e100",
+        "e101",
+        "e102",
+        "e103",
+        "e104",
+        "e105",
+        "e106",
+        "e107",
+        "e108",
+        "e109",
+        "e110",
+        "e111",
+        "e112",
+        "e113",
+        "e114",
+        "e115",
+        "e116",
+        "e117",
+        "e118",
+        "e119",
+        "e120",
+        "e121",
+        "e122",
+        "e123",
+        "e124",
+        "e125",
+        "e126",
+        "e127",
+        "e128",
+        "e129",
+        "e130",
+        "e131",
+        "e132",
+        "e133",
+        "e134",
+        "e135",
+        "e136",
+        "e137",
+        "e138",
+        "e139",
+        "e140",
+        "e141",
+        "e142",
+        "e143",
+        "e144",
+        "e145",
+        "e146",
+        "e147",
+        "e148",
+        "e149",
+        "e150",
+        "e151",
+        "e152",
+        "e153",
+        "e154",
+        "e155",
+        "e156"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s3-c1",
+          "kind": "file",
+          "name": "inbox/s3/review-01.md",
+          "bytes": 1699,
+          "events": [
+            "e090",
+            "e092",
+            "e113",
+            "e123",
+            "e124",
+            "e125",
+            "e126",
+            "e127"
+          ]
+        },
+        {
+          "chunkId": "s3-c2",
+          "kind": "feed",
+          "name": "s3-chat-1",
+          "bytes": 1972,
+          "events": [
+            "e128",
+            "e129",
+            "e130",
+            "e131",
+            "e132",
+            "e133",
+            "e134",
+            "e135",
+            "e136"
+          ]
+        },
+        {
+          "chunkId": "s3-c3",
+          "kind": "feed",
+          "name": "s3-chat-2",
+          "bytes": 1915,
+          "events": [
+            "e137",
+            "e138",
+            "e139",
+            "e140",
+            "e141",
+            "e142",
+            "e143",
+            "e144"
+          ]
+        },
+        {
+          "chunkId": "s3-c4",
+          "kind": "feed",
+          "name": "s3-board-3",
+          "bytes": 2149,
+          "events": [
+            "e145",
+            "e147",
+            "e148",
+            "e150",
+            "e151",
+            "e152",
+            "e153",
+            "e155",
+            "e156"
+          ]
+        },
+        {
+          "chunkId": "s3-c5",
+          "kind": "feed",
+          "name": "s3-ops-log",
+          "bytes": 9958,
+          "events": [
+            "e079",
+            "e080",
+            "e081",
+            "e082",
+            "e083",
+            "e084",
+            "e085",
+            "e086",
+            "e087",
+            "e088",
+            "e089",
+            "e091",
+            "e093",
+            "e094",
+            "e095",
+            "e096",
+            "e097",
+            "e098",
+            "e099",
+            "e100",
+            "e101",
+            "e102",
+            "e103",
+            "e104",
+            "e105",
+            "e106",
+            "e107",
+            "e108",
+            "e109",
+            "e110",
+            "e111",
+            "e112",
+            "e114",
+            "e115",
+            "e116",
+            "e117",
+            "e118",
+            "e119",
+            "e120",
+            "e121",
+            "e122",
+            "e146",
+            "e149",
+            "e154"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "prompt": "Stage 4 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s4/review-01.md, inbox/s4/minutes-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s4-ci-1, s4-chat-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s4/review-01.md",
+          "content": "# Review comments, stage 4, part 1\n\n- [e157] Retro notes of the status page group:\n  Went well: the status page pages load faster.\n  To improve: shorter standups on Monday.\n  Action: Sami books a room for the next retro.\n  Action: Eli collects ideas for the team offsite.\n- [e158] Ticket DOC-426: broken anchors on a help page\n  Reporter: Ivo. Priority: low.\n  The page scripts/lint.sh has 8 broken anchors after the last rename.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e159] Sami ran migration m3. The run sets the status of migration m3 by the runbook rule: `applied` if migration m2 is `applied` and the flag invoice-pdf is `ON` at the moment of the run, `failed` in every other case.\n  Thread started by Wren; Femi replied with a thumbs-up.\n- [e160] Calendar update from lint-bot:\n  - the lint config demo moves to 14:07 on Monday\n  - room booking for the brand assets retro is confirmed\n  - Hana is on leave from Friday for 9 days\n- [e161] chat-relay opened a grouped update for the retro notes tooling:\n    - link-checker 4.19.0 to 8.9.5\n    - image-optimizer 3.3.5 to 8.4.7\n    The checks passed. No reviewer is assigned yet.\n- [e162] Calendar update from metrics:\n  - room booking for the sprint board retro is confirmed\n  - Bo hosts the next lunch talk about typography\n- [e163] Standup notes from Chen:\n  - yesterday: reviewed 6 small pull requests about the lint config\n  - today: rewriting the intro paragraph of the retro notes guide\n  - blockers: none\n  - updated the screenshots in assets/logo.svg\n  - will demo the new release notes layout next week\n- [e164] After the review, the team settled on `ON` for the flag invoice-pdf.\n  Thread started by Dara; Chen replied with a thumbs-up.\n"
+        },
+        {
+          "path": "inbox/s4/minutes-02.md",
+          "content": "# Meeting minutes, stage 4, part 3\n\n- [e173] Quinn asked for a load test plan that covers the flag proration. The thread ended without a change.\n  Raised in the code owners file sync; attendees: Sami, Jun and Bo.\n- [e174] ci-bot opened a grouped update for the onboarding wiki tooling:\n    - markdown-lint 5.2.6 to 7.12.4\n    - link-checker 5.9.0 to 2.6.6\n    - image-optimizer 5.6.1 to 9.3.9\n    The checks passed. No reviewer is assigned yet.\n- [e175] Calendar update from calendar:\n  - the error pages demo moves to 17:54 on Wednesday\n  - room booking for the docs site retro is confirmed\n- [e176] cache-bot weekly numbers for the build cache:\n    page views 3256\n    median load 963 ms\n    error rate 0.02 percent\n    the numbers are inside the usual band\n- [e177] Review thread on docs/howto.md (8 comments):\n  Femi: please wrap this paragraph at 71 characters.\n  Vik: done, and I fixed the heading levels too.\n  Dara: the table in section 9 renders badly on small screens.\n  Tove: nit: trailing spaces on line 38.\n  Quinn: can we move the long examples to an appendix?\n- [e178] Archived copy of a page as of entry e005: it says the flag proration is `ON`. It is kept for history only and is not a new statement.\n  Raised in the changelog bot sync; attendees: Pita, Quinn and Ana.\n  Action owner for the follow-up: Femi.\n- [e179] Review thread on notes/retro.md (7 comments):\n  Rosa: please wrap this paragraph at 43 characters.\n  Zed: done, and I fixed the heading levels too.\n  Sami: moved them; the page is 57 percent shorter now.\n  Oona: approved, merge when the checks are green.\n- [e180] Chat excerpt from #team-chat:\n  Gus: is anyone else seeing the slow dependabot page?\n  Mei: lunch at 12:22? the new place near the station\n  Chen: reminder that the release notes poll closes on Tuesday\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s4-ci-1",
+          "content": "== ci export, stage 4, part 2 ==\n[e165] 08:27 Calendar update from ci-bot:\n    - the retro notes demo moves to 12:49 on Friday\n    - room booking for the retro notes retro is confirmed\n    - the all-hands slides are due on Thursday\n    - Bo hosts the next lunch talk about typography\n[e166] 08:30 ci-bot opened a grouped update for the code owners file tooling:\n      - markdown-lint 8.15.1 to 1.8.1\n      - spellcheck dictionary 2.19.7 to 1.13.1\n      The checks passed. No reviewer is assigned yet.\n[e167] 08:33 Retro notes of the dependabot group:\n    Went well: the storybook pages load faster.\n    To improve: shorter standups on Wednesday.\n    Action: Mei collects ideas for the team offsite.\n[e168] 08:36 Calendar update from docs-bot:\n    - Lars is on leave from Friday for 8 days\n    - Yara hosts the next lunch talk about typography\n[e169] 08:39 Calendar update from calendar:\n    - the code owners file demo moves to 17:25 on Monday\n    - room booking for the retro notes retro is confirmed\n    - Zed is on leave from Tuesday for 2 days\n[e170] 08:42 Retro notes of the status page group:\n    Went well: the release notes pages load faster.\n    To improve: shorter standups on Thursday.\n    Action: Dara books a room for the next retro.\n    Action: Quinn collects ideas for the team offsite.\n[e171] 08:45 Lars ran migration m3. The run sets the status of migration m3 by the runbook rule: `applied` if migration m2 is `applied` and the flag invoice-pdf is `ON` at the moment of the run, `failed` in every other case.\n    pipeline note added by Femi\n    pipeline 84748\n[e172] 08:48 Review thread on tools/fmt.mjs (8 comments):\n    Hana: done, and I fixed the heading levels too.\n    Hana: can we move the long examples to an appendix?\n    Oona: approved, merge when the checks are green.\n"
+        },
+        {
+          "name": "s4-chat-2",
+          "content": "== chat export, stage 4, part 4 ==\n[e181] 09:15 Notes from the test fixtures sync on Friday:\n    The group will look at the docs site again in 4 weeks.\n    Kira said that the office printer works again.\n    Nothing in this sync touches the project itself.\n    Lars shared a short survey; 2 people answered so far.\n[e182] 09:18 Review thread on assets/logo.svg (2 comments):\n    Dara: done, and I fixed the heading levels too.\n    Lars: the table in section 4 renders badly on small screens.\n    Yara: nit: trailing spaces on line 45.\n    Lars: can we move the long examples to an appendix?\n    Femi: approved, merge when the checks are green.\n[e183] 09:21 cache-bot run 591 summary:\n      step checkout ok (7.36s)\n      step lint ok, 35 files\n      step upload ok, 688 KB\n      cache restore hit rate 84%\n[e184] 09:24 Notes from the storybook sync on Tuesday:\n    Uma showed the new layout of the retro notes.\n    The group will look at the error pages again in 8 weeks.\n    Kira shared a short survey; 7 people answered so far.\n[e185] 09:27 Review thread on assets/logo.svg (9 comments):\n    Uma: please wrap this paragraph at 65 characters.\n    Oona: can we move the long examples to an appendix?\n    Vik: approved, merge when the checks are green.\n[e186] 09:30 cache-bot opened a grouped update for the status page tooling:\n      - markdown-lint 9.0.7 to 6.14.6\n      - link-checker 8.2.8 to 5.9.4\n      - spellcheck dictionary 4.14.1 to 6.7.6\n[e187] 09:33 In chat, Yara asked whether the flag proration could be `ON`. The question was closed without a change.\n    Mei reacted with a thumbs-up\n    thread replies: 9\n[e188] 09:36 Ticket DOC-555: broken anchors on a help page\n    The page docs/style.md has 8 broken anchors after the last rename.\n    Quinn will fix it after the brand assets work.\n    Status: open, no due date.\n    Related: a similar report from Monday was closed as a duplicate.\n[e189] 09:39 Chat excerpt from #team-chat:\n    Femi: is anyone else seeing the slow dependabot page?\n    Nils: ok, thanks\n    Zed: reminder that the storybook poll closes on Tuesday\n[e190] 09:42 ci-bot run 848 summary:\n      step lint ok, 90 files\n      step docs-build ok, 41 pages\n      cache restore hit rate 87%\n      total duration 3m 54s, no warnings\n"
+        }
+      ],
+      "eventIds": [
+        "e157",
+        "e158",
+        "e159",
+        "e160",
+        "e161",
+        "e162",
+        "e163",
+        "e164",
+        "e165",
+        "e166",
+        "e167",
+        "e168",
+        "e169",
+        "e170",
+        "e171",
+        "e172",
+        "e173",
+        "e174",
+        "e175",
+        "e176",
+        "e177",
+        "e178",
+        "e179",
+        "e180",
+        "e181",
+        "e182",
+        "e183",
+        "e184",
+        "e185",
+        "e186",
+        "e187",
+        "e188",
+        "e189",
+        "e190"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s4-c1",
+          "kind": "file",
+          "name": "inbox/s4/review-01.md",
+          "bytes": 1731,
+          "events": [
+            "e157",
+            "e158",
+            "e159",
+            "e160",
+            "e161",
+            "e162",
+            "e163",
+            "e164"
+          ]
+        },
+        {
+          "chunkId": "s4-c2",
+          "kind": "file",
+          "name": "inbox/s4/minutes-02.md",
+          "bytes": 1801,
+          "events": [
+            "e173",
+            "e174",
+            "e175",
+            "e176",
+            "e177",
+            "e178",
+            "e179",
+            "e180"
+          ]
+        },
+        {
+          "chunkId": "s4-c3",
+          "kind": "feed",
+          "name": "s4-ci-1",
+          "bytes": 1797,
+          "events": [
+            "e165",
+            "e166",
+            "e167",
+            "e168",
+            "e169",
+            "e170",
+            "e171",
+            "e172"
+          ]
+        },
+        {
+          "chunkId": "s4-c4",
+          "kind": "feed",
+          "name": "s4-chat-2",
+          "bytes": 2257,
+          "events": [
+            "e181",
+            "e182",
+            "e183",
+            "e184",
+            "e185",
+            "e186",
+            "e187",
+            "e188",
+            "e189",
+            "e190"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "prompt": "Stage 5 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s5/notes-01.md, inbox/s5/journal-02.md, inbox/s5/minutes-03.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s5-ci-1.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s5/notes-01.md",
+          "content": "# Team notes, stage 5, part 1\n\n- [e191] Chat excerpt from #team-chat:\n  Chen: is anyone else seeing the slow CI runners page?\n  Nils: yes, it is the image cache, it clears itself after 6 minutes\n  Uma: ok, thanks\n  Gus: reminder that the error pages poll closes on Friday\n- [e192] Notes from the release notes sync on Friday:\n  Hana asked for a darker header; Jun will try two variants.\n  The group will look at the status page again in 2 weeks.\n  Lars said that the office printer works again.\n- [e193] Read-only export of the link-checker configuration for the onboarding wiki:\n    max_line_length = 714\n    theme = \"slate-8\"\n    cache_hours = 8\n    runner_pool = \"pool-7\"\n    keep_reports_days = 15\n    preview_pages = true\n    ignore_paths = [\"drafts/\", \"tmp/\"]\n- [e194] Pita confirmed in writing that the ledger replica count changes to `7`.\n  Shared in the status page channel at 08:06.\n- [e195] Chat excerpt from #team-chat:\n  Yara: is anyone else seeing the slow test fixtures page?\n  Nils: lunch at 10:24? the new place near the station\n  Eli: count me in\n  Uma: reminder that the changelog bot poll closes on Friday\n- [e196] Chat excerpt from #team-chat:\n  Femi: is anyone else seeing the slow error pages page?\n  Lars: yes, it is the image cache, it clears itself after 4 minutes\n  Sami: lunch at 08:05? the new place near the station\n  Yara: reminder that the dependabot poll closes on Friday\n- [e197] docs-bot run 296 summary:\n    step checkout ok (7.51s)\n    step lint ok, 81 files\n    step docs-build ok, 44 pages\n    cache restore hit rate 86%\n"
+        },
+        {
+          "path": "inbox/s5/journal-02.md",
+          "content": "# Change journal, stage 5, part 3\n\n- [e206] After the review, the team settled on `5` for the invoice worker count.\n  Countersigned by Vik.\n- [e207] Ticket DOC-707: broken anchors on a help page\n  Reporter: Bo. Priority: low.\n  The page .editorconfig has 5 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e208] Jun restored the ledger replica count, the active pricing table from checkpoint `snap-c9`; all other settings keep their current values.\n  Countersigned by Kira.\n- [e209] Notes from the CI runners sync on Thursday:\n  Vik showed the new layout of the lint config.\n  Tove asked for a darker header; Nils will try two variants.\n  Oona said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Mei shared a short survey; 6 people answered so far.\n- [e210] Retro notes of the CI runners group:\n  Went well: Quinn cleared the docs backlog.\n  Went well: the office wifi pages load faster.\n  Action: Zed books a room for the next retro.\n- [e211] Ticket DOC-518: broken anchors on a help page\n  Reporter: Mei. Priority: low.\n  Status: open, no due date.\n  Related: a similar report from Friday was closed as a duplicate.\n- [e212] Chat excerpt from #team-chat:\n  Wren: is anyone else seeing the slow test fixtures page?\n  Uma: yes, it is the image cache, it clears itself after 9 minutes\n  Mei: lunch at 08:15? the new place near the station\n  Ivo: reminder that the docs site poll closes on Thursday\n"
+        },
+        {
+          "path": "inbox/s5/minutes-03.md",
+          "content": "# Meeting minutes, stage 5, part 4\n\n- [e213] Standup notes from Femi:\n  - yesterday: tidied the changelog bot pages and answered 3 questions in chat\n  - out early on Thursday for a dentist visit\n  - updated the screenshots in .editorconfig\n  - will demo the new code owners file layout next week\n- [e214] Ana pasted an old excerpt written at the time of entry e009. It reads \"the ledger replica count is `3`\". The excerpt is history only and changes nothing.\n  Raised in the team calendar sync; attendees: Femi, Uma and Jun.\n- [e215] docs-bot opened a grouped update for the design tokens tooling:\n    - markdown-lint 2.6.9 to 4.3.6\n    - link-checker 7.7.9 to 5.3.6\n    - image-optimizer 7.19.3 to 3.15.0\n    - spellcheck dictionary 1.10.5 to 8.7.8\n    The checks passed. No reviewer is assigned yet.\n- [e216] Archived copy of a page as of entry e009: it says the ledger replica count is `3`. It is kept for history only and is not a new statement.\n  Action owner for the follow-up: Dara.\n- [e217] Chat excerpt from #team-chat:\n  Jun: is anyone else seeing the slow office wifi page?\n  Yara: yes, it is the image cache, it clears itself after 2 minutes\n  Uma: ok, thanks\n  Zed: count me in\n  Gus: reminder that the error pages poll closes on Tuesday\n- [e218] Sami wants better documentation about migration m1. This is a docs task only and changes nothing.\n  Action owner for the follow-up: Bo.\n  Raised in the error pages sync; attendees: Jun, Jun and Hana.\n- [e219] Archived copy of a page as of entry e003: it says the flag invoice-pdf is `OFF`. It is kept for history only and is not a new statement.\n  Raised in the team calendar sync; attendees: Hana, Dara and Uma.\n  Minuted by Rosa.\n- [e220] Style guide excerpt, section 6.7:\n  Use sentence case for headings.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n- [e221] lint-bot run 544 summary:\n    step upload ok, 448 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 62%\n- [e222] Style guide excerpt, section 4.6:\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s5-ci-1",
+          "content": "== ci export, stage 5, part 2 ==\n[e198] 08:24 Notes from the changelog bot sync on Wednesday:\n    Wren showed the new layout of the retro notes.\n    Oona asked for a darker header; Lars will try two variants.\n    Yara shared a short survey; 9 people answered so far.\n[e199] 08:27 lint-bot opened a grouped update for the onboarding wiki tooling:\n      - markdown-lint 1.8.7 to 8.7.4\n      - link-checker 5.6.8 to 4.15.8\n      - image-optimizer 2.14.8 to 2.12.0\n      - spellcheck dictionary 1.9.0 to 1.1.0\n[e200] 08:30 Ticket DOC-604: broken anchors on a help page\n    The page docs/howto.md has 7 broken anchors after the last rename.\n    Chen will fix it after the sprint board work.\n    Related: a similar report from Tuesday was closed as a duplicate.\n[e201] 08:33 Calendar update from metrics:\n    - the changelog bot demo moves to 12:43 on Wednesday\n    - room booking for the help center retro is confirmed\n    - Gus hosts the next lunch talk about typography\n[e202] 08:36 This replaces the earlier call: the active pricing table goes to `plan-sheet-c`.\n    pipeline note added by Ivo\n[e203] 08:39 Standup notes from Tove:\n    - today: rewriting the intro paragraph of the brand assets guide\n    - out early on Tuesday for a dentist visit\n    - will demo the new code owners file layout next week\n[e204] 08:42 Style guide excerpt, section 4.6:\n    Use sentence case for headings.\n    Keep tables under 7 columns.\n    Write numbers below ten as words in running text.\n    Name the button exactly as the screen shows it.\n[e205] 08:45 ci-bot run 714 summary:\n      step lint ok, 26 files\n      step upload ok, 814 KB\n      step notify ok, channel team-chat\n      cache restore hit rate 45%\n      total duration 6m 95s, no warnings\n"
+        }
+      ],
+      "eventIds": [
+        "e191",
+        "e192",
+        "e193",
+        "e194",
+        "e195",
+        "e196",
+        "e197",
+        "e198",
+        "e199",
+        "e200",
+        "e201",
+        "e202",
+        "e203",
+        "e204",
+        "e205",
+        "e206",
+        "e207",
+        "e208",
+        "e209",
+        "e210",
+        "e211",
+        "e212",
+        "e213",
+        "e214",
+        "e215",
+        "e216",
+        "e217",
+        "e218",
+        "e219",
+        "e220",
+        "e221",
+        "e222"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s5-c1",
+          "kind": "file",
+          "name": "inbox/s5/notes-01.md",
+          "bytes": 1560,
+          "events": [
+            "e191",
+            "e192",
+            "e193",
+            "e194",
+            "e195",
+            "e196",
+            "e197"
+          ]
+        },
+        {
+          "chunkId": "s5-c2",
+          "kind": "file",
+          "name": "inbox/s5/journal-02.md",
+          "bytes": 1528,
+          "events": [
+            "e206",
+            "e207",
+            "e208",
+            "e209",
+            "e210",
+            "e211",
+            "e212"
+          ]
+        },
+        {
+          "chunkId": "s5-c3",
+          "kind": "file",
+          "name": "inbox/s5/minutes-03.md",
+          "bytes": 2317,
+          "events": [
+            "e213",
+            "e214",
+            "e215",
+            "e216",
+            "e217",
+            "e218",
+            "e219",
+            "e220",
+            "e221",
+            "e222"
+          ]
+        },
+        {
+          "chunkId": "s5-c4",
+          "kind": "feed",
+          "name": "s5-ci-1",
+          "bytes": 1735,
+          "events": [
+            "e198",
+            "e199",
+            "e200",
+            "e201",
+            "e202",
+            "e203",
+            "e204",
+            "e205"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 6,
+      "prompt": "Stage 6 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s6/design-01.md, inbox/s6/journal-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s6-chat-1, s6-chat-2, s6-audit.\nThe feed s6-audit is long. The entries that matter for this task carry the tag CHG-3777; the other lines are routine.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s6/design-01.md",
+          "content": "# Design discussion, stage 6, part 1\n\n- [e258] Archived copy of a page as of entry e053: it says the ledger replica count is `5`. It is kept for history only and is not a new statement.\n  Sami and Pita were in the discussion.\n  From the design discussion led by Eli.\n- [e260] chat-relay opened a grouped update for the release notes tooling:\n    - link-checker 2.3.2 to 9.5.9\n    - spellcheck dictionary 3.7.7 to 1.0.7\n    The checks passed. No reviewer is assigned yet.\n- [e261] calendar opened a grouped update for the dependabot tooling:\n    - link-checker 4.14.3 to 3.0.6\n    - image-optimizer 4.3.2 to 2.19.1\n    - spellcheck dictionary 6.0.9 to 5.0.2\n    The checks passed. No reviewer is assigned yet.\n- [e262] Style guide excerpt, section 7.8:\n  Keep tables under 9 columns.\n  Write numbers below ten as words in running text.\n  Name the button exactly as the screen shows it.\n- [e263] Review thread on docs/howto.md (7 comments):\n  Vik: please wrap this paragraph at 24 characters.\n  Mei: can we move the long examples to an appendix?\n  Ana: approved, merge when the checks are green.\n- [e264] Calendar update from docs-bot:\n  - the lint config demo moves to 08:19 on Monday\n  - the all-hands slides are due on Thursday\n  - Rosa hosts the next lunch talk about typography\n- [e265] Retro notes of the test fixtures group:\n  Went well: Bo cleared the docs backlog.\n  To improve: shorter standups on Wednesday.\n  Action: Quinn books a room for the next retro.\n  Action: Yara collects ideas for the team offsite.\n- [e266] chat-relay run 278 summary:\n    step checkout ok (7.42s)\n    step docs-build ok, 93 pages\n    step upload ok, 963 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 46%\n- [e267] chat-relay weekly numbers for the team calendar:\n    page views 8599\n    median load 595 ms\n    error rate 0.07 percent\n    the numbers are inside the usual band\n"
+        },
+        {
+          "path": "inbox/s6/journal-02.md",
+          "content": "# Change journal, stage 6, part 4\n\n- [e286] metrics opened a grouped update for the test fixtures tooling:\n    - markdown-lint 3.13.5 to 3.14.9\n    - image-optimizer 8.14.3 to 9.5.5\n    - spellcheck dictionary 3.16.8 to 5.7.0\n- [e287] chat-relay weekly numbers for the onboarding wiki:\n    error rate 0.02 percent\n    searches without a result: 85\n    the numbers are inside the usual band\n- [e288] Calendar update from calendar:\n  - the help center demo moves to 14:04 on Monday\n  - Mei is on leave from Wednesday for 8 days\n  - the all-hands slides are due on Monday\n  - Dara hosts the next lunch talk about typography\n- [e289] Review thread on docs/style.md (4 comments):\n  Bo: the table in section 7 renders badly on small screens.\n  Wren: can we move the long examples to an appendix?\n  Hana: moved them; the page is 80 percent shorter now.\n  Vik: approved, merge when the checks are green.\n- [e291] Notes from the test fixtures sync on Wednesday:\n  Oona asked for a darker header; Dara will try two variants.\n  The group will look at the dependabot again in 2 weeks.\n  Ana said that the office printer works again.\n  Femi shared a short survey; 6 people answered so far.\n- [e292] Standup notes from Hana:\n  - today: rewriting the intro paragraph of the release notes guide\n  - out early on Monday for a dentist visit\n  - updated the screenshots in web/favicon.ico\n- [e293] Standup notes from Hana:\n  - yesterday: reviewed 9 small pull requests about the sprint board\n  - today: rewriting the intro paragraph of the release notes guide\n  - blockers: none\n  - updated the screenshots in assets/logo.svg\n  - will demo the new error pages layout next week\n- [e294] Review thread on web/favicon.ico (8 comments):\n  Bo: please wrap this paragraph at 37 characters.\n  Ivo: the table in section 9 renders badly on small screens.\n  Jun: can we move the long examples to an appendix?\n  Dara: moved them; the page is 43 percent shorter now.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s6-chat-1",
+          "content": "== chat export, stage 6, part 2 ==\n[e268] 10:18 cache-bot opened a grouped update for the release notes tooling:\n      - markdown-lint 3.16.5 to 9.14.9\n      - image-optimizer 3.18.8 to 3.14.1\n      - spellcheck dictionary 5.1.7 to 3.6.5\n      The checks passed. No reviewer is assigned yet.\n[e269] 10:21 Style guide excerpt, section 5.2:\n    Use sentence case for headings.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e270] 10:24 Calendar update from chat-relay:\n    - Wren is on leave from Thursday for 9 days\n    - Kira hosts the next lunch talk about typography\n[e271] 10:27 cache-bot weekly numbers for the help center:\n      page views 2932\n      uptime 99.92 percent\n      the numbers are inside the usual band\n[e272] 10:30 Style guide excerpt, section 4.4:\n    Use sentence case for headings.\n    Keep tables under 8 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Put one idea in each paragraph.\n[e273] 10:33 Read-only export of the markdown-lint configuration for the retro notes:\n      theme = \"slate-7\"\n      cache_hours = 4\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 70\n      preview_pages = true\n      ignore_paths = [\"drafts/\", \"tmp/\"]\n[e274] 10:36 Notes from the office wifi sync on Thursday:\n    Gus showed the new layout of the storybook.\n    Pita asked for a darker header; Bo will try two variants.\n    The group will look at the changelog bot again in 8 weeks.\n    Nothing in this sync touches the project itself.\n    Zed shared a short survey; 5 people answered so far.\n[e275] 10:39 Review thread on notes/retro.md (3 comments):\n    Tove: done, and I fixed the heading levels too.\n    Eli: the table in section 9 renders badly on small screens.\n    Oona: nit: trailing spaces on line 85.\n    Chen: moved them; the page is 82 percent shorter now.\n    Zed: approved, merge when the checks are green.\n"
+        },
+        {
+          "name": "s6-chat-2",
+          "content": "== chat export, stage 6, part 3 ==\n[e276] 10:42 lint-bot run 851 summary:\n      step lint ok, 86 files\n      step docs-build ok, 88 pages\n      step upload ok, 485 KB\n      step notify ok, channel team-chat\n      cache restore hit rate 92%\n      total duration 4m 38s, no warnings\n[e279] 10:51 cache-bot run 439 summary:\n      step upload ok, 478 KB\n      step notify ok, channel team-chat\n      total duration 7m 17s, no warnings\n[e280] 10:54 calendar run 740 summary:\n      step lint ok, 72 files\n      step docs-build ok, 20 pages\n      step upload ok, 892 KB\n      step notify ok, channel team-chat\n[e281] 10:57 Notes from the onboarding wiki sync on Monday:\n    Hana showed the new layout of the office wifi.\n    Wren asked for a darker header; Pita will try two variants.\n    The group will look at the test fixtures again in 5 weeks.\n    Nothing in this sync touches the project itself.\n    Eli shared a short survey; 3 people answered so far.\n[e282] 11:00 Notes from the lint config sync on Friday:\n    Rosa showed the new layout of the build cache.\n    Oona said that the office printer works again.\n    Nothing in this sync touches the project itself.\n[e283] 11:03 Style guide excerpt, section 4.2:\n    Use sentence case for headings.\n    Keep tables under 3 columns.\n    Write numbers below ten as words in running text.\n    Link to the glossary at the first use of a term.\n    Name the button exactly as the screen shows it.\n[e284] 11:06 Calendar update from calendar:\n    - the help center demo moves to 08:31 on Tuesday\n    - room booking for the error pages retro is confirmed\n    - Lars is on leave from Wednesday for 6 days\n[e285] 11:09 Ticket DOC-287: broken anchors on a help page\n    The page web/favicon.ico has 8 broken anchors after the last rename.\n    Wren will fix it after the CI runners work.\n    Status: open, no due date.\n"
+        },
+        {
+          "name": "s6-audit",
+          "content": "== audit export, stage 6 ==\n[e223] 08:03 docs-bot: Uma opened a chat thread about the onboarding wiki; replies=8; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    worker=pool-5 attempt=1 result=ok\n    retention applied to 77 items\n    owner=docs-team escalation=none\n[e224] 08:06 cache-bot: scan of web/favicon.ico complete files_checked=715 issues_new=0 issues_closed=18 duration=6s; trend flat compared with the previous 7 runs\n    next_run=in 6h window=17:08\n[e225] 08:09 metrics: heartbeat seq=921 queue_depth=63 oldest_item_age=6s workers=12 cpu=89% mem=42% area=\"sprint board\" outcome=nominal, no operator action\n    next_run=in 7h window=13:19\n[e226] 08:12 calendar: job #745 finished status=ok duration=9.74s cache=warm artifacts=85 warnings=0 runner=pool-6 note=routine nightly sweep of the design tokens, nothing to report\n    worker=pool-2 attempt=1 result=ok\n    note: routine, no operator action\n    trace=t-59171 span_count=15 dropped=0\n[e227] 08:15 docs-bot: Uma and Rosa booked the small room for the status page chat at 14:43; duration 3 minutes; no agenda attached\n    worker=pool-9 attempt=1 result=ok\n    retention applied to 76 items\n    owner=docs-team escalation=none\n[e228] 08:18 docs-bot: job #512 finished status=ok duration=6.56s cache=warm artifacts=55 warnings=0 runner=pool-9 note=routine nightly sweep of the onboarding wiki, nothing to report\n    note: routine, no operator action\n    upstream=status-page latency=726ms\n    owner=docs-team escalation=none\n[e229] 08:21 lint-bot: cleanup removed 95 temp folders under web/favicon.ico freed 748 MB; next cleanup scheduled; disk usage at 89% of quota\n    worker=pool-5 attempt=1 result=ok\n    retention applied to 97 items\n    trace=t-27580 span_count=53 dropped=0\n[e230] 08:24 metrics: Ana opened a chat thread about the help center; replies=7; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    next_run=in 2h window=16:40\n[e231] 08:27 ci-bot: cleanup removed 12 temp folders under scripts/lint.sh freed 757 MB; next cleanup scheduled; disk usage at 65% of quota\n    note: routine, no operator action\n    retention applied to 93 items\n    next_run=in 2h window=11:38\n[e232] 08:30 metrics: metrics rollup for the changelog bot: p50=3ms p95=892ms errors=0 sample=897 requests; values inside the usual band for this hour\n    worker=pool-3 attempt=1 result=ok\n    trace=t-64217 span_count=83 dropped=0\n    owner=docs-team escalation=none\n[e233] 08:33 lint-bot: link checker visited 884 pages of the error pages; broken=0; redirected=38; slowest page answered in 533ms\n    worker=pool-7 attempt=1 result=ok\n    upstream=status-page latency=512ms\n    retention applied to 66 items\n[e234] 08:36 lint-bot: build 648 for the team calendar reused 79% of cached layers; image size unchanged; upload time 2s; retention policy applied to 70 old images\n    worker=pool-6 attempt=1 result=ok\n    upstream=status-page latency=979ms\n    retention applied to 40 items\n[e235] 08:39 docs-bot: link checker visited 340 pages of the sprint board; broken=0; redirected=19; slowest page answered in 612ms\n    worker=pool-3 attempt=1 result=ok\n    note: routine, no operator action\n    owner=docs-team escalation=none\n[e236] 08:42 chat-relay: scan of README.md complete files_checked=856 issues_new=0 issues_closed=78 duration=9s; trend flat compared with the previous 7 runs\n    upstream=status-page latency=873ms\n    retention applied to 81 items\n    trace=t-48060 span_count=62 dropped=0\n[e237] 08:45 cache-bot: metrics rollup for the storybook: p50=3ms p95=693ms errors=0 sample=366 requests; values inside the usual band for this hour\n    note: routine, no operator action\n[e238] 08:48 docs-bot: Kira and Dara booked the small room for the dependabot chat at 14:20; duration 8 minutes; no agenda attached\n    note: routine, no operator action\n    upstream=status-page latency=885ms\n[e239] 08:51 metrics: metrics rollup for the sprint board: p50=3ms p95=597ms errors=0 sample=866 requests; values inside the usual band for this hour\n    note: routine, no operator action\n    retention applied to 87 items\n    trace=t-97525 span_count=74 dropped=0\n[e240] 08:54 CHG-3777 Decision: the live schema version is now `ledger-s23`. Per the runbook, this step takes effect only if migration m3 is `applied` at this moment. If not, nothing changes.\n    request_id=r-38254\n    source=ci-bot level=info actor=Zed\n[e241] 08:57 lint-bot: cleanup removed 16 temp folders under README.md freed 352 MB; next cleanup scheduled; disk usage at 40% of quota\n    worker=pool-2 attempt=1 result=ok\n[e242] 09:00 metrics: dependency audit of the release notes tooling found 85 minor updates; none are security related; the bot will open grouped updates later\n    retention applied to 77 items\n[e243] 09:03 chat-relay: metrics rollup for the code owners file: p50=4ms p95=746ms errors=0 sample=460 requests; values inside the usual band for this hour\n    owner=docs-team escalation=none\n[e244] 09:06 metrics: build 269 for the error pages reused 59% of cached layers; image size unchanged; upload time 9s; retention policy applied to 11 old images\n    worker=pool-7 attempt=1 result=ok\n    upstream=status-page latency=445ms\n    retention applied to 51 items\n[e245] 09:09 chat-relay: cleanup removed 79 temp folders under docs/style.md freed 243 MB; next cleanup scheduled; disk usage at 91% of quota\n    upstream=status-page latency=653ms\n    owner=docs-team escalation=none\n    next_run=in 2h window=13:28\n[e246] 09:12 metrics: Bo opened a chat thread about the team calendar; replies=5; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=944ms\n[e247] 09:15 calendar: calendar sync imported 8 events for the dependabot; conflicts=0; reminders_sent=69; the import window covered the next 56 days\n    worker=pool-7 attempt=1 result=ok\n    upstream=status-page latency=972ms\n    owner=docs-team escalation=none\n[e248] 09:18 ci-bot: Kira edited docs/howto.md (+6 -10 lines, formatting only); review not required by policy; merged after the standard wait\n    upstream=status-page latency=234ms\n    owner=docs-team escalation=none\n[e249] 09:21 cache-bot: heartbeat seq=727 queue_depth=34 oldest_item_age=4s workers=94 cpu=88% mem=93% area=\"test fixtures\" outcome=nominal, no operator action\n    trace=t-90157 span_count=52 dropped=0\n[e250] 09:24 docs-bot: Pita opened a chat thread about the onboarding wiki; replies=9; summary=\"small wording questions, resolved in thread\"; follow_up=none\n    upstream=status-page latency=530ms\n    next_run=in 8h window=09:20\n[e251] 09:27 cache-bot: metrics rollup for the design tokens: p50=4ms p95=155ms errors=0 sample=963 requests; values inside the usual band for this hour\n    upstream=status-page latency=940ms\n    owner=docs-team escalation=none\n    next_run=in 7h window=11:05\n[e252] 09:30 calendar: dependency audit of the help center tooling found 19 minor updates; none are security related; the bot will open grouped updates later\n    upstream=status-page latency=470ms\n    trace=t-42295 span_count=12 dropped=0\n[e253] 09:33 ci-bot: metrics rollup for the onboarding wiki: p50=7ms p95=412ms errors=0 sample=970 requests; values inside the usual band for this hour\n    worker=pool-2 attempt=1 result=ok\n    note: routine, no operator action\n    upstream=status-page latency=493ms\n[e254] 09:36 lint-bot: cleanup removed 17 temp folders under web/favicon.ico freed 372 MB; next cleanup scheduled; disk usage at 51% of quota\n    upstream=status-page latency=690ms\n    retention applied to 50 items\n    next_run=in 9h window=16:30\n[e255] 09:39 lint-bot: build 292 for the docs site reused 50% of cached layers; image size unchanged; upload time 8s; retention policy applied to 44 old images\n    worker=pool-4 attempt=1 result=ok\n[e256] 09:42 docs-bot: metrics rollup for the build cache: p50=3ms p95=113ms errors=0 sample=259 requests; values inside the usual band for this hour\n    next_run=in 9h window=09:20\n[e257] 09:45 ci-bot: scan of docs/style.md complete files_checked=785 issues_new=0 issues_closed=26 duration=9s; trend flat compared with the previous 2 runs\n    worker=pool-5 attempt=1 result=ok\n    upstream=status-page latency=559ms\n[e259] 09:51 lint-bot: scan of web/favicon.ico complete files_checked=983 issues_new=0 issues_closed=47 duration=2s; trend flat compared with the previous 8 runs\n    retention applied to 28 items\n[e277] 10:45 CHG-3777 Agreed in the sync: the status board id becomes `wall-w92`.\n    request_id=r-31435\n    source=metrics level=info actor=Ivo\n[e278] 10:48 CHG-3777 Update from Vik: the status board id is set to `wall-w91`, effective now.\n    source=lint-bot level=info actor=Dara\n[e290] 11:24 CHG-3777 Agreed in the sync: the status board id becomes `wall-w92`.\n    request_id=r-77539\n    source=chat-relay level=info actor=Zed\n"
+        }
+      ],
+      "eventIds": [
+        "e223",
+        "e224",
+        "e225",
+        "e226",
+        "e227",
+        "e228",
+        "e229",
+        "e230",
+        "e231",
+        "e232",
+        "e233",
+        "e234",
+        "e235",
+        "e236",
+        "e237",
+        "e238",
+        "e239",
+        "e240",
+        "e241",
+        "e242",
+        "e243",
+        "e244",
+        "e245",
+        "e246",
+        "e247",
+        "e248",
+        "e249",
+        "e250",
+        "e251",
+        "e252",
+        "e253",
+        "e254",
+        "e255",
+        "e256",
+        "e257",
+        "e258",
+        "e259",
+        "e260",
+        "e261",
+        "e262",
+        "e263",
+        "e264",
+        "e265",
+        "e266",
+        "e267",
+        "e268",
+        "e269",
+        "e270",
+        "e271",
+        "e272",
+        "e273",
+        "e274",
+        "e275",
+        "e276",
+        "e277",
+        "e278",
+        "e279",
+        "e280",
+        "e281",
+        "e282",
+        "e283",
+        "e284",
+        "e285",
+        "e286",
+        "e287",
+        "e288",
+        "e289",
+        "e290",
+        "e291",
+        "e292",
+        "e293",
+        "e294"
+      ],
+      "compactAfter": true,
+      "chunks": [
+        {
+          "chunkId": "s6-c1",
+          "kind": "file",
+          "name": "inbox/s6/design-01.md",
+          "bytes": 1884,
+          "events": [
+            "e258",
+            "e260",
+            "e261",
+            "e262",
+            "e263",
+            "e264",
+            "e265",
+            "e266",
+            "e267"
+          ]
+        },
+        {
+          "chunkId": "s6-c2",
+          "kind": "file",
+          "name": "inbox/s6/journal-02.md",
+          "bytes": 1936,
+          "events": [
+            "e286",
+            "e287",
+            "e288",
+            "e289",
+            "e291",
+            "e292",
+            "e293",
+            "e294"
+          ]
+        },
+        {
+          "chunkId": "s6-c3",
+          "kind": "feed",
+          "name": "s6-chat-1",
+          "bytes": 2027,
+          "events": [
+            "e268",
+            "e269",
+            "e270",
+            "e271",
+            "e272",
+            "e273",
+            "e274",
+            "e275"
+          ]
+        },
+        {
+          "chunkId": "s6-c4",
+          "kind": "feed",
+          "name": "s6-chat-2",
+          "bytes": 1852,
+          "events": [
+            "e276",
+            "e279",
+            "e280",
+            "e281",
+            "e282",
+            "e283",
+            "e284",
+            "e285"
+          ]
+        },
+        {
+          "chunkId": "s6-c5",
+          "kind": "feed",
+          "name": "s6-audit",
+          "bytes": 8846,
+          "events": [
+            "e223",
+            "e224",
+            "e225",
+            "e226",
+            "e227",
+            "e228",
+            "e229",
+            "e230",
+            "e231",
+            "e232",
+            "e233",
+            "e234",
+            "e235",
+            "e236",
+            "e237",
+            "e238",
+            "e239",
+            "e240",
+            "e241",
+            "e242",
+            "e243",
+            "e244",
+            "e245",
+            "e246",
+            "e247",
+            "e248",
+            "e249",
+            "e250",
+            "e251",
+            "e252",
+            "e253",
+            "e254",
+            "e255",
+            "e256",
+            "e257",
+            "e259",
+            "e277",
+            "e278",
+            "e290"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "prompt": "Stage 7 of 7. Read all of the material of this stage now. It is removed after this turn.\nFiles (read each one with the Read tool): inbox/s7/design-01.md, inbox/s7/minutes-02.md.\nFeeds (print each one with `node feed.mjs <name>` through Bash): s7-ci-1, s7-chat-2.\nKeep track of every change. Reply with a short acknowledgement when you have read everything.",
+      "files": [
+        {
+          "path": "inbox/s7/design-01.md",
+          "content": "# Design discussion, stage 7, part 1\n\n- [e295] Retro notes of the code owners file group:\n  To improve: shorter standups on Tuesday.\n  Action: Rosa books a room for the next retro.\n  Action: Femi collects ideas for the team offsite.\n- [e296] Ticket DOC-343: broken anchors on a help page\n  Reporter: Zed. Priority: low.\n  The page docs/glossary.md has 9 broken anchors after the last rename.\n  Status: open, no due date.\n  Related: a similar report from Monday was closed as a duplicate.\n- [e297] Notes from the office wifi sync on Monday:\n  Gus asked for a darker header; Vik will try two variants.\n  The group will look at the onboarding wiki again in 9 weeks.\n  Chen said that the office printer works again.\n  Nothing in this sync touches the project itself.\n  Jun shared a short survey; 9 people answered so far.\n- [e298] This replaces the earlier call: the flag proration goes to `OFF`.\n  Oona and Chen were in the discussion.\n  From the design discussion led by Yara.\n- [e299] cache-bot run 512 summary:\n    step checkout ok (8.34s)\n    step lint ok, 93 files\n    step upload ok, 674 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 71%\n    total duration 5m 83s, no warnings\n- [e300] Calendar update from cache-bot:\n  - room booking for the retro notes retro is confirmed\n  - Hana hosts the next lunch talk about typography\n- [e301] lint-bot run 687 summary:\n    step checkout ok (6.60s)\n    step docs-build ok, 94 pages\n    step upload ok, 599 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 41%\n    total duration 4m 50s, no warnings\n- [e302] Style guide excerpt, section 2.7:\n  Keep tables under 9 columns.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n"
+        },
+        {
+          "path": "inbox/s7/minutes-02.md",
+          "content": "# Meeting minutes, stage 7, part 4\n\n- [e318] Yara pasted an old excerpt written at the time of entry e001. It reads \"the flag usage-metering is `OFF`\". The excerpt is history only and changes nothing.\n  Action owner for the follow-up: Hana.\n- [e319] chat-relay run 211 summary:\n    step checkout ok (3.16s)\n    step lint ok, 87 files\n    step docs-build ok, 64 pages\n    step upload ok, 613 KB\n    cache restore hit rate 46%\n    total duration 7m 93s, no warnings\n- [e320] Standup notes from Mei:\n  - yesterday: reviewed 6 small pull requests about the team calendar\n  - today: pairing with Sami on web/favicon.ico\n  - out early on Monday for a dentist visit\n  - updated the screenshots in scripts/lint.sh\n  - will demo the new sprint board layout next week\n- [e321] Calendar update from ci-bot:\n  - room booking for the storybook retro is confirmed\n  - the all-hands slides are due on Friday\n  - Femi hosts the next lunch talk about typography\n- [e322] cache-bot opened a grouped update for the sprint board tooling:\n    - link-checker 3.15.9 to 4.16.5\n    - image-optimizer 7.16.7 to 9.17.7\n    - spellcheck dictionary 1.17.2 to 7.19.1\n    The checks passed. No reviewer is assigned yet.\n- [e323] lint-bot weekly numbers for the build cache:\n    median load 484 ms\n    error rate 0.08 percent\n    searches without a result: 37\n    the numbers are inside the usual band\n- [e324] Style guide excerpt, section 4.8:\n  Use sentence case for headings.\n  Keep tables under 9 columns.\n  Write numbers below ten as words in running text.\n- [e325] ci-bot run 613 summary:\n    step checkout ok (2.84s)\n    step lint ok, 32 files\n    step upload ok, 851 KB\n    step notify ok, channel team-chat\n    cache restore hit rate 73%\n- [e326] Style guide excerpt, section 9.3:\n  Use sentence case for headings.\n  Write numbers below ten as words in running text.\n  Link to the glossary at the first use of a term.\n  Put one idea in each paragraph.\n  Name the button exactly as the screen shows it.\n"
+        }
+      ],
+      "feeds": [
+        {
+          "name": "s7-ci-1",
+          "content": "== ci export, stage 7, part 2 ==\n[e303] 08:27 Ticket DOC-878: broken anchors on a help page\n    Reporter: Ivo. Priority: low.\n    The page assets/logo.svg has 7 broken anchors after the last rename.\n    Pita will fix it after the help center work.\n    Status: open, no due date.\n[e304] 08:30 Notes from the dependabot sync on Friday:\n    Dara showed the new layout of the help center.\n    Wren asked for a darker header; Kira will try two variants.\n    The group will look at the changelog bot again in 6 weeks.\n    Rosa said that the office printer works again.\n[e305] 08:33 Calendar update from chat-relay:\n    - the brand assets demo moves to 09:06 on Wednesday\n    - room booking for the CI runners retro is confirmed\n    - Chen is on leave from Tuesday for 4 days\n    - Uma hosts the next lunch talk about typography\n[e306] 08:36 Read-only export of the chat-relay configuration for the brand assets:\n      max_line_length = 976\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 96\n      preview_pages = true\n      report_format = \"text\"\n[e307] 08:39 Ticket DOC-437: broken anchors on a help page\n    Reporter: Nils. Priority: low.\n    The page docs/howto.md has 4 broken anchors after the last rename.\n    Status: open, no due date.\n    Related: a similar report from Wednesday was closed as a duplicate.\n[e308] 08:42 Agreed in the sync: the invoice worker count becomes `3`. This change counts only if the flag proration is `ON` at the moment of this entry. If not, it has no effect.\n    pipeline note added by Ivo\n[e309] 08:45 cache-bot opened a grouped update for the CI runners tooling:\n      - markdown-lint 6.19.9 to 8.15.9\n      - link-checker 6.0.8 to 4.6.7\n      - image-optimizer 9.12.2 to 5.12.7\n      - spellcheck dictionary 6.15.1 to 7.13.6\n      The checks passed. No reviewer is assigned yet.\n"
+        },
+        {
+          "name": "s7-chat-2",
+          "content": "== chat export, stage 7, part 3 ==\n[e310] 08:48 docs-bot run 865 summary:\n      step checkout ok (4.16s)\n      step lint ok, 61 files\n      step docs-build ok, 37 pages\n      step notify ok, channel team-chat\n      cache restore hit rate 48%\n      total duration 2m 48s, no warnings\n[e311] 08:51 cache-bot weekly numbers for the status page:\n      page views 6175\n      median load 823 ms\n      error rate 0.09 percent\n      searches without a result: 24\n[e312] 08:54 Archived copy of a page as of entry e001: it says the flag usage-metering is `OFF`. It is kept for history only and is not a new statement.\n    thread replies: 3\n[e313] 08:57 Review thread on notes/retro.md (9 comments):\n    Mei: done, and I fixed the heading levels too.\n    Jun: the table in section 3 renders badly on small screens.\n    Rosa: nit: trailing spaces on line 29.\n    Vik: can we move the long examples to an appendix?\n    Ana: approved, merge when the checks are green.\n[e314] 09:00 Calendar update from calendar:\n    - the retro notes demo moves to 18:26 on Thursday\n    - room booking for the status page retro is confirmed\n    - Mei is on leave from Tuesday for 6 days\n    - the all-hands slides are due on Tuesday\n[e315] 09:03 Read-only export of the spellcheck configuration for the design tokens:\n      theme = \"slate-5\"\n      cache_hours = 3\n      notify_channel = \"#team-chat\"\n      keep_reports_days = 38\n      preview_pages = true\n      report_format = \"text\"\n[e316] 09:06 Standup notes from Vik:\n    - yesterday: reviewed 3 small pull requests about the lint config\n    - today: pairing with Gus on tools/fmt.mjs\n    - will demo the new brand assets layout next week\n[e317] 09:09 Notes from the code owners file sync on Friday:\n    Ivo showed the new layout of the error pages.\n    Pita asked for a darker header; Femi will try two variants.\n    Nothing in this sync touches the project itself.\n    Kira shared a short survey; 7 people answered so far.\n"
+        }
+      ],
+      "eventIds": [
+        "e295",
+        "e296",
+        "e297",
+        "e298",
+        "e299",
+        "e300",
+        "e301",
+        "e302",
+        "e303",
+        "e304",
+        "e305",
+        "e306",
+        "e307",
+        "e308",
+        "e309",
+        "e310",
+        "e311",
+        "e312",
+        "e313",
+        "e314",
+        "e315",
+        "e316",
+        "e317",
+        "e318",
+        "e319",
+        "e320",
+        "e321",
+        "e322",
+        "e323",
+        "e324",
+        "e325",
+        "e326"
+      ],
+      "compactAfter": false,
+      "chunks": [
+        {
+          "chunkId": "s7-c1",
+          "kind": "file",
+          "name": "inbox/s7/design-01.md",
+          "bytes": 1844,
+          "events": [
+            "e295",
+            "e296",
+            "e297",
+            "e298",
+            "e299",
+            "e300",
+            "e301",
+            "e302"
+          ]
+        },
+        {
+          "chunkId": "s7-c2",
+          "kind": "file",
+          "name": "inbox/s7/minutes-02.md",
+          "bytes": 1980,
+          "events": [
+            "e318",
+            "e319",
+            "e320",
+            "e321",
+            "e322",
+            "e323",
+            "e324",
+            "e325",
+            "e326"
+          ]
+        },
+        {
+          "chunkId": "s7-c3",
+          "kind": "feed",
+          "name": "s7-ci-1",
+          "bytes": 1826,
+          "events": [
+            "e303",
+            "e304",
+            "e305",
+            "e306",
+            "e307",
+            "e308",
+            "e309"
+          ]
+        },
+        {
+          "chunkId": "s7-c4",
+          "kind": "feed",
+          "name": "s7-chat-2",
+          "bytes": 1948,
+          "events": [
+            "e310",
+            "e311",
+            "e312",
+            "e313",
+            "e314",
+            "e315",
+            "e316",
+            "e317"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoint": {
+    "afterStage": 4,
+    "timing": "after_compaction",
+    "questions": [
+      {
+        "id": "c1",
+        "text": "At this point, is the flag proration ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "c2",
+        "text": "At this point, which schema version is live?",
+        "type": "choice",
+        "options": [
+          "ledger-s20",
+          "ledger-s21",
+          "ledger-s22",
+          "ledger-s23"
+        ]
+      },
+      {
+        "id": "c3",
+        "text": "At this point, what is the invoice worker count? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c4",
+        "text": "At this point, what is the status of migration m1?",
+        "type": "choice",
+        "options": [
+          "applied",
+          "failed",
+          "pending"
+        ]
+      },
+      {
+        "id": "c5",
+        "text": "At this point, which pricing table is active?",
+        "type": "choice",
+        "options": [
+          "plan-sheet-a",
+          "plan-sheet-b",
+          "plan-sheet-c",
+          "plan-sheet-d"
+        ]
+      },
+      {
+        "id": "c6",
+        "text": "At this point, what is the status of migration m3?",
+        "type": "choice",
+        "options": [
+          "applied",
+          "failed",
+          "pending"
+        ]
+      },
+      {
+        "id": "c7",
+        "text": "At this point, what is the ledger replica count? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "c8",
+        "text": "At this point, is the flag tax-engine ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "c9",
+        "text": "At this point, is the flag usage-metering ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      },
+      {
+        "id": "c10",
+        "text": "At this point, is the flag multi-currency ON? Answer true for ON, false for OFF.",
+        "type": "bool"
+      }
+    ],
+    "probes": [
+      {
+        "afterStage": 4,
+        "questionIds": [
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5",
+          "c6"
+        ]
+      },
+      {
+        "afterStage": 6,
+        "questionIds": [
+          "c7",
+          "c8",
+          "c9",
+          "c10"
+        ]
+      }
+    ]
+  },
+  "final": {
+    "questions": [
+      {
+        "id": "q1",
+        "text": "What is the status of migration m3 now?",
+        "type": "choice",
+        "options": [
+          "applied",
+          "failed",
+          "pending"
+        ]
+      },
+      {
+        "id": "q2",
+        "text": "What is the status of migration m1 now?",
+        "type": "choice",
+        "options": [
+          "applied",
+          "failed",
+          "pending"
+        ]
+      },
+      {
+        "id": "q3",
+        "text": "Which schema version is live now?",
+        "type": "choice",
+        "options": [
+          "ledger-s20",
+          "ledger-s21",
+          "ledger-s22",
+          "ledger-s23"
+        ]
+      },
+      {
+        "id": "q4",
+        "text": "What is the ledger replica count now? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "q5",
+        "text": "What is the invoice worker count now? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "q6",
+        "text": "Which pricing table is active now?",
+        "type": "choice",
+        "options": [
+          "plan-sheet-a",
+          "plan-sheet-b",
+          "plan-sheet-c",
+          "plan-sheet-d"
+        ]
+      },
+      {
+        "id": "q7",
+        "text": "In the initial specification, what was the invoice worker count? Answer with a number.",
+        "type": "int"
+      },
+      {
+        "id": "q8",
+        "text": "Is the flag proration ON now? Answer true for ON, false for OFF.",
+        "type": "bool"
+      }
+    ]
+  }
+}

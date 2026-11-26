@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "batch": "v12-hard-opus-01",
+  "host": "claude",
+  "mock": false,
+  "suite": "v12-hard-opus",
+  "model": "opus",
+  "seed": 1216,
+  "modes": [
+    "O",
+    "Z"
+  ],
+  "reps": 1,
+  "tasksDir": "benchmarks/context-clock/tasks/v12-hard/generated",
+  "taskSeeds": {
+    "A14-media-observability": 2425000,
+    "A14-platform-program": 2400000,
+    "W14-ledger-and-login": 2450000,
+    "W14-search-and-ledger": 2475000,
+    "X14-edge-and-retention": 2525000,
+    "X14-retention-and-release": 2500000
+  },
+  "cli": {
+    "name": "claude",
+    "version": "2.1.331"
+  },
+  "compactMechanism": "/compact through claude -p --resume",
+  "canCompact": true,
+  "sessionMode": "persistent",
+  "overlay": null,
+  "limits": {
+    "run": {
+      "wallTimeMs": 5400000,
+      "turnTimeoutMs": 420000,
+      "toolCalls": 300,
+      "totalTokens": 3000000,
+      "retries": 2
+    },
+    "batch": {
+      "maxConcurrency": 6,
+      "totalTokens": 120000000,
+      "wallTimeMs": 21600000
+    }
+  },
+  "order": "block",
+  "blocks": [
+    {
+      "block": 1,
+      "taskId": "X14-retention-and-release",
+      "rep": 1,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 2,
+      "taskId": "W14-search-and-ledger",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 3,
+      "taskId": "X14-edge-and-retention",
+      "rep": 1,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    },
+    {
+      "block": 4,
+      "taskId": "A14-platform-program",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 5,
+      "taskId": "W14-ledger-and-login",
+      "rep": 1,
+      "modes": [
+        "O",
+        "Z"
+      ]
+    },
+    {
+      "block": 6,
+      "taskId": "A14-media-observability",
+      "rep": 1,
+      "modes": [
+        "Z",
+        "O"
+      ]
+    }
+  ],
+  "comparisons": [
+    "Z-O"
+  ],
+  "commitInstruction": null,
+  "stateFileInstruction": null,
+  "compactInstruction": null,
+  "standingInstruction": null,
+  "reminderInstruction": null,
+  "remindThreshold": null,
+  "periodicInstruction": null,
+  "precompactStrongInstruction": null,
+  "periodic": null,
+  "precompactGeneralInstruction": null,
+  "precompactVariantInstruction": null,
+  "isolated": true,
+  "isolation": {
+    "settingSources": "project,local",
+    "strictMcpConfigOverlay": false,
+    "strictMcpConfigPlain": true,
+    "env": {
+      "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    }
+  },
+  "plain": {
+    "settingSources": "project,local",
+    "strictMcpConfig": true,
+    "plugins": {
+      "O": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ]
+      },
+      "Z": {
+        "name": "ccb-plain",
+        "hooks": [
+          {
+            "event": "PreToolUse",
+            "matcher": "^(Bash|PowerShell|Read|Grep|Glob|WebFetch|Write|Edit|NotebookEdit)$",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/ccb/guard.mjs\""
+          }
+        ],
+        "standalone": {
+          "dir": "<plugin-dir>",
+          "name": "compaction-instruction",
+          "version": "0.1.0",
+          "hooks": [
+            {
+              "event": "PreCompact",
+              "matcher": null,
+              "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/precompact.mjs\""
+            }
+          ],
+          "hooksSha256": "1e8b74c2f99311e89f53cfc9e140ec74bbd5a40d147afa119be3e4b699c171fb",
+          "text": {
+            "bytes": 694,
+            "sha256": "72ab92318bd8a9cfebdb422d19e46e0368c53e195bc9836ec47ace3044d92bbb"
+          }
+        }
+      }
+    }
+  },
+  "precompactPlainInstruction": null,
+  "precompactProductInstruction": null,
+  "autoCompact": false,
+  "autoCompactWindow": null,
+  "promptVersion": 1,
+  "benchmarkCommit": "77cd2404479cbf88387940ab9aca859c283934b0",
+  "benchmarkDirty": true,
+  "os": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "node": "v26.12.1",
+  "runOrder": [
+    "claude__X14-retention-and-release__Z__r1",
+    "claude__X14-retention-and-release__O__r1",
+    "claude__W14-search-and-ledger__O__r1",
+    "claude__W14-search-and-ledger__Z__r1",
+    "claude__X14-edge-and-retention__Z__r1",
+    "claude__X14-edge-and-retention__O__r1",
+    "claude__A14-platform-program__O__r1",
+    "claude__A14-platform-program__Z__r1",
+    "claude__W14-ledger-and-login__O__r1",
+    "claude__W14-ledger-and-login__Z__r1",
+    "claude__A14-media-observability__Z__r1",
+    "claude__A14-media-observability__O__r1"
+  ]
+}
